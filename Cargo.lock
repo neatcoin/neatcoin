@@ -577,6 +577,9 @@ dependencies = [
 name = "borrow-graph"
 version = "0.0.1"
 source = "git+https://github.com/outmove/omv#8d3cf9d6f1630bb28653cf34a997eed70dcd99dd"
+dependencies = [
+ "mirai-annotations",
+]
 
 [[package]]
 name = "bs58"
@@ -1360,6 +1363,17 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e43f2f1833d64e33f15592464d6fdd70f349dda7b1a53088eb83cd94014008c5"
 dependencies = [
  "futures 0.3.12",
+]
+
+[[package]]
+name = "fail"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3be3c61c59fdc91f5dbc3ea31ee8623122ce80057058be560654c5d410d181a6"
+dependencies = [
+ "lazy_static",
+ "log",
+ "rand 0.7.3",
 ]
 
 [[package]]
@@ -3392,6 +3406,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "mirai-annotations"
+version = "1.10.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b48e78b8626927bd980dff38d8147006323f5d7634d7bc9e31c3a59e07da1b28"
+
+[[package]]
 name = "more-asserts"
 version = "0.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3594,6 +3614,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2bf50223579dc7cdcfb3bfcacf7069ff68243f8c363f62ffa99cf000a6b9c451"
 
 [[package]]
+name = "noindexmap"
+version = "1.6.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c0b252806e4b8ca8586976ff78ed453e87663939662df9e1a44a80aa133f0e46"
+dependencies = [
+ "autocfg",
+ "hashbrown",
+]
+
+[[package]]
 name = "nom"
 version = "5.1.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3605,12 +3635,13 @@ dependencies = [
 
 [[package]]
 name = "nopetgraph"
-version = "0.5.2"
+version = "0.5.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2cf347ce02ca6b8681b16571eccd4f3ca61bea0c52d7249ddba4248750d3abf9"
+checksum = "39e3f0d5f0bf3580e25be1e206787fc849e1b3c3f957ab4a829a92bdbe98d1bf"
 dependencies = [
  "fixedbitset 0.3.2",
- "indexmap",
+ "noindexmap",
+ "serde",
  "twox-hash",
 ]
 
@@ -3714,6 +3745,7 @@ source = "git+https://github.com/outmove/omv#8d3cf9d6f1630bb28653cf34a997eed70dc
 dependencies = [
  "anyhow",
  "borrow-graph",
+ "mirai-annotations",
  "nopetgraph",
  "omv-core",
  "omv-primitives",
@@ -3725,6 +3757,7 @@ version = "0.1.0"
 source = "git+https://github.com/outmove/omv#8d3cf9d6f1630bb28653cf34a997eed70dcd99dd"
 dependencies = [
  "anyhow",
+ "mirai-annotations",
  "omv-io",
  "omv-primitives",
  "ref-cast",
@@ -3740,6 +3773,7 @@ name = "omv-natives"
 version = "0.1.0"
 source = "git+https://github.com/outmove/omv#8d3cf9d6f1630bb28653cf34a997eed70dcd99dd"
 dependencies = [
+ "mirai-annotations",
  "omv-core",
  "omv-primitives",
  "omv-types",
@@ -3755,6 +3789,7 @@ source = "git+https://github.com/outmove/omv#8d3cf9d6f1630bb28653cf34a997eed70dc
 dependencies = [
  "anyhow",
  "hex",
+ "mirai-annotations",
  "omv-serialize",
  "rand 0.8.3",
  "ref-cast",
@@ -3767,8 +3802,10 @@ name = "omv-runtime"
 version = "0.1.0"
 source = "git+https://github.com/outmove/omv#8d3cf9d6f1630bb28653cf34a997eed70dcd99dd"
 dependencies = [
+ "fail",
  "funty",
  "log",
+ "mirai-annotations",
  "omv-bytecode-verifier",
  "omv-core",
  "omv-natives",
@@ -3792,6 +3829,7 @@ name = "omv-types"
 version = "0.1.0"
 source = "git+https://github.com/outmove/omv#8d3cf9d6f1630bb28653cf34a997eed70dcd99dd"
 dependencies = [
+ "mirai-annotations",
  "omv-core",
  "omv-primitives",
  "omv-serialize",
