@@ -25,6 +25,8 @@ use codec::{Encode, Decode};
 use serde::{Serialize, Deserialize};
 use sp_core::{blake2_256, H256};
 
+pub type NameHash = H256;
+
 /// A domain name. It's a list of labels, with the top-level one in the front.
 #[cfg_attr(feature = "std", derive(Serialize, Deserialize))]
 #[derive(Default, Eq, PartialEq, Clone, Encode, Decode, Debug)]
