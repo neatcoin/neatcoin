@@ -4091,6 +4091,23 @@ dependencies = [
 ]
 
 [[package]]
+name = "pallet-zones"
+version = "0.1.0"
+dependencies = [
+ "frame-benchmarking",
+ "frame-support",
+ "frame-system",
+ "np-domain",
+ "parity-scale-codec",
+ "primitive-types",
+ "serde",
+ "sp-core",
+ "sp-io",
+ "sp-runtime",
+ "sp-std",
+]
+
+[[package]]
 name = "parity-db"
 version = "0.2.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"

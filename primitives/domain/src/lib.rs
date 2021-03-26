@@ -25,6 +25,16 @@ use codec::{Encode, Decode};
 use serde::{Serialize, Deserialize};
 use sp_core::{blake2_256, H256};
 
+/// A partial domain name. Only a partial of the names, compared with `Name`.
+#[cfg_attr(feature = "std", derive(Serialize, Deserialize))]
+#[derive(Default, Eq, PartialEq, Clone, Encode, Decode, Debug)]
+pub struct SubName(pub Vec<Label>);
+
+/// The prefix part of domain name. Only a partial of the names, compared with `Name`.
+#[cfg_attr(feature = "std", derive(Serialize, Deserialize))]
+#[derive(Default, Eq, PartialEq, Clone, Encode, Decode, Debug)]
+pub struct PreName(pub Vec<Label>);
+
 /// A domain name. It's a list of labels, with the top-level one in the front.
 #[cfg_attr(feature = "std", derive(Serialize, Deserialize))]
 #[derive(Default, Eq, PartialEq, Clone, Encode, Decode, Debug)]
