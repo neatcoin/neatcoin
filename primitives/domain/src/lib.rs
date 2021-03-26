@@ -25,6 +25,54 @@ use codec::{Encode, Decode};
 use serde::{Serialize, Deserialize};
 use sp_core::{blake2_256, H256};
 
+#[cfg_attr(feature = "std", derive(Serialize, Deserialize))]
+#[derive(Eq, PartialEq, Clone, Encode, Decode, Debug)]
+pub struct NameValue<T>(Option<(Name, T)>);
+
+impl<T> Default for NameValue<T> {
+	fn default() -> NameValue<T> {
+		Self(None)
+	}
+}
+
+impl<T> NameValue<T> {
+	pub fn some(name: Name, value: T) -> Self {
+		Self(Some((name, value)))
+	}
+
+	pub fn none() -> Self {
+		Self(None)
+	}
+
+	pub fn name(&self) -> Option<&Name> {
+		self.0.as_ref().map(|(n, _)| n)
+	}
+
+	pub fn value(&self) -> Option<&T> {
+		self.0.as_ref().map(|(_, v)| v)
+	}
+
+	pub fn into_name(self) -> Option<Name> {
+		self.0.map(|(n, _)| n)
+	}
+
+	pub fn into_value(self) -> Option<T> {
+		self.0.map(|(_, v)| v)
+	}
+
+	pub fn into_inner(self) -> Option<(Name, T)> {
+		self.0
+	}
+
+	pub fn is_none(&self) -> bool {
+		self.0.is_none()
+	}
+
+	pub fn is_some(&self) -> bool {
+		self.0.is_some()
+	}
+}
+
 pub type NameHash = H256;
 
 /// A domain name. It's a list of labels, with the top-level one in the front.

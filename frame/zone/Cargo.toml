@@ -1,5 +1,5 @@
 [package]
-name = "pallet-zones"
+name = "pallet-zone"
 version = "0.1.0"
 authors = ["Wei Tang <wei@that.world>"]
 edition = "2018"

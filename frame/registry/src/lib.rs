@@ -25,10 +25,12 @@ use frame_support::{
 	dispatch::DispatchResult, decl_module, decl_storage, decl_event, decl_error, ensure
 };
 use frame_system::{ensure_signed, ensure_root};
-use np_domain::{Name, NameHash};
+use np_domain::{Name, NameHash, NameValue};
 
 pub trait Ownership<T: Config>: Encode + Decode + EncodeLike + Default + Eq + Debug + Clone {
-	fn none() -> Self;
+	/// Explictly owned by root.
+	fn root() -> Self;
+	/// Owned by a specific account.
 	fn account(account: T::AccountId) -> Self;
 }
 
@@ -38,27 +40,26 @@ pub trait Config: pallet_balances::Config {
 }
 
 pub trait Registry<T: Config> {
-	fn set_ownership_as(as_ownership: T::Ownership, name: Name, ownership: T::Ownership) -> DispatchResult;
-	fn force_set_ownership(name: Name, ownership: T::Ownership);
+	fn set_ownership_as(as_ownership: T::Ownership, name: Name, ownership: Option<T::Ownership>) -> DispatchResult;
 	fn can_set_ownership(as_ownership: T::Ownership, name: Name) -> bool;
-	fn is_owned(as_ownership: T::Ownership, name: Name) -> bool;
 }
 
 decl_storage! {
 	trait Store for Module<T: Config> as Registry {
-		Ownerships: map hasher(identity) NameHash => (Name, T::Ownership);
+		Ownerships: map hasher(identity) NameHash => NameValue<T::Ownership>;
 	}
 }
 
 decl_event! {
 	pub enum Event<T> where Ownership = <T as crate::Config>::Ownership {
-		OwnershipSet(Name, Ownership),
+		OwnershipSet(Name, Option<Ownership>),
 	}
 }
 
 decl_error! {
 	pub enum Error for Module<T: Config> {
 		OwnershipMismatch,
+		AttemptToSetRootOwnership,
 	}
 }
 
@@ -69,32 +70,36 @@ decl_module! {
 		fn deposit_event() = default;
 
 		#[weight = 0]
-		fn set_ownership(origin, name: Name, ownership: T::Ownership) {
+		fn set_ownership(origin, name: Name, ownership: Option<T::Ownership>) {
 			let owner = ensure_signed(origin)?;
 
 			<Self as Registry<T>>::set_ownership_as(Ownership::<T>::account(owner), name, ownership)?;
 		}
 
 		#[weight = 0]
-		fn force_set_ownership(origin, name: Name, ownership: T::Ownership) {
+		fn force_set_ownership(origin, name: Name, ownership: Option<T::Ownership>) {
 			ensure_root(origin)?;
 
-			<Self as Registry<T>>::force_set_ownership(name, ownership);
+			<Self as Registry<T>>::set_ownership_as(Ownership::<T>::root(), name, ownership)?;
 		}
 	}
 }
 
 impl<T: Config> Registry<T> for Module<T> {
-	fn set_ownership_as(as_ownership: T::Ownership, name: Name, ownership: T::Ownership) -> DispatchResult {
-		let parent = name.parent().ok_or(Error::<T>::OwnershipMismatch)?;
-		let (_parent_name, parent_ownership) = Ownerships::<T>::get(&parent.hash());
+	fn set_ownership_as(as_ownership: T::Ownership, name: Name, ownership: Option<T::Ownership>) -> DispatchResult {
+		ensure!(!name.is_root(), Error::<T>::AttemptToSetRootOwnership);
 
-		ensure!(parent_ownership == as_ownership, Error::<T>::OwnershipMismatch);
+		if as_ownership != T::Ownership::root() {
+			let parent = name.parent().ok_or(Error::<T>::OwnershipMismatch)?;
+			let parent_ownership = Ownerships::<T>::get(&parent.hash()).into_value();
 
-		if ownership == T::Ownership::none() {
-			Ownerships::<T>::remove(name.hash());
+			ensure!(parent_ownership == Some(as_ownership), Error::<T>::OwnershipMismatch);
+		}
+
+		if let Some(ownership) = ownership.clone() {
+			Ownerships::<T>::insert(name.hash(), NameValue::some(name.clone(), ownership.clone()));
 		} else {
-			Ownerships::<T>::insert(name.hash(), (name.clone(), ownership.clone()));
+			Ownerships::<T>::remove(name.hash());
 		}
 
 		Self::deposit_event(Event::<T>::OwnershipSet(name, ownership));
@@ -102,33 +107,21 @@ impl<T: Config> Registry<T> for Module<T> {
 		Ok(())
 	}
 
-	fn force_set_ownership(name: Name, ownership: T::Ownership) {
-		if ownership == T::Ownership::none() {
-			Ownerships::<T>::remove(name.hash());
-		} else {
-			Ownerships::<T>::insert(name.hash(), (name.clone(), ownership.clone()));
-		}
-
-		Self::deposit_event(Event::<T>::OwnershipSet(name, ownership));
-	}
-
 	fn can_set_ownership(as_ownership: T::Ownership, name: Name) -> bool {
 		if name.is_root() {
 			return false
+		}
+
+		if as_ownership == T::Ownership::root() {
+			return true
 		}
 
 		let parent = match name.parent() {
 			Some(parent) => parent,
 			None => return false,
 		};
-		let (_parent_name, parent_ownership) = Ownerships::<T>::get(&parent.hash());
+		let parent_ownership = Ownerships::<T>::get(&parent.hash()).into_value();
 
-		parent_ownership == as_ownership
-	}
-
-	fn is_owned(as_ownership: T::Ownership, name: Name) -> bool {
-		let (_name, ownership) = Ownerships::<T>::get(&name.hash());
-
-		ownership == as_ownership
+		parent_ownership == Some(as_ownership)
 	}
 }

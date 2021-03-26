@@ -27,29 +27,22 @@ use frame_support::{
 };
 use frame_system::{ensure_signed, ensure_root};
 use primitive_types::H160;
-use np_domain::Name;
+use np_domain::{Name, NameHash, NameValue};
 
 pub trait Config: frame_system::Config {
 	type Event: From<Event> + Into<<Self as frame_system::Config>::Event>;
 }
 
-#[derive(Encode, Decode, RuntimeDebug, PartialEq, Eq)]
-pub enum Source {
-	OnChain,
-	External(ExternalSource),
-}
-
-#[derive(Encode, Decode, RuntimeDebug, PartialEq, Eq)]
-pub enum ExternalSource {
-	ICANN,
-	OpenNIC,
-	Ethereum(H160),
-	Handshake,
-}
+pub type RawIpv4 = u32;
+pub type RawIpv6 = u128;
 
 decl_storage! {
-	trait Store for Module<T: Config> as Zones {
-
+	trait Store for Module<T: Config> as Zone {
+		As: map hasher(identity) NameHash => NameValue<Vec<RawIpv4>>;
+		AAAAs: map hasher(identity) NameHash => NameValue<Vec<RawIpv6>>;
+		ExternICANNs: map hasher(identity) NameHash => NameValue<()>;
+		ExternOpenNICs: map hasher(identity) NameHash => NameValue<()>;
+		ExternHandshake: map hasher(identity) NameHash => NameValue<()>;
 	}
 }
 
