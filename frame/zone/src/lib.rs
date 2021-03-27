@@ -40,6 +40,7 @@ decl_storage! {
 	trait Store for Module<T: Config> as Zone {
 		As: map hasher(identity) NameHash => NameValue<Vec<RawIpv4>>;
 		AAAAs: map hasher(identity) NameHash => NameValue<Vec<RawIpv6>>;
+		NSs: map hasher(identity) NameHash => NameValue<Vec<Name>>;
 		ExternICANNs: map hasher(identity) NameHash => NameValue<()>;
 		ExternOpenNICs: map hasher(identity) NameHash => NameValue<()>;
 		ExternHandshake: map hasher(identity) NameHash => NameValue<()>;
