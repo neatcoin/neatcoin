@@ -62,11 +62,10 @@ decl_event! {
 		SetMX(Name, Option<(u16, Name)>),
 
 		SetICANN(Name),
-		ResetICANN(Name),
 		SetOpenNIC(Name),
-		ResetOpenNIC(Name),
 		SetHandshake(Name),
-		ResetHandshake(Name),
+
+		ResetExtern(Name),
 	}
 }
 
@@ -150,6 +149,48 @@ decl_module! {
 			}
 
 			Self::deposit_event(Event::SetMX(name, record));
+		}
+
+		#[weight = 0]
+		fn set_icann(origin, name: Name) {
+			ensure_root(origin)?;
+			ensure!(T::Registry::is_owned(&T::Ownership::root(), &name), Error::<T>::OwnershipMismatch);
+
+			ICANNs::insert(name.hash(), NameValue::some(name.clone(), ()));
+
+			Self::deposit_event(Event::SetICANN(name));
+		}
+
+		#[weight = 0]
+		fn set_opennic(origin, name: Name) {
+			ensure_root(origin)?;
+			ensure!(T::Registry::is_owned(&T::Ownership::root(), &name), Error::<T>::OwnershipMismatch);
+
+			OpenNICs::insert(name.hash(), NameValue::some(name.clone(), ()));
+
+			Self::deposit_event(Event::SetOpenNIC(name));
+		}
+
+		#[weight = 0]
+		fn set_handshake(origin, name: Name) {
+			ensure_root(origin)?;
+			ensure!(T::Registry::is_owned(&T::Ownership::root(), &name), Error::<T>::OwnershipMismatch);
+
+			Handshakes::insert(name.hash(), NameValue::some(name.clone(), ()));
+
+			Self::deposit_event(Event::SetHandshake(name));
+		}
+
+		#[weight = 0]
+		fn reset_extern(origin, name: Name) {
+			ensure_root(origin)?;
+			ensure!(T::Registry::is_owned(&T::Ownership::root(), &name), Error::<T>::OwnershipMismatch);
+
+			ICANNs::remove(name.hash());
+			OpenNICs::remove(name.hash());
+			Handshakes::remove(name.hash());
+
+			Self::deposit_event(Event::ResetExtern(name));
 		}
 	}
 }
