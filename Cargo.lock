@@ -3931,6 +3931,24 @@ dependencies = [
 ]
 
 [[package]]
+name = "pallet-fcfs"
+version = "0.1.0"
+dependencies = [
+ "frame-benchmarking",
+ "frame-support",
+ "frame-system",
+ "np-domain",
+ "pallet-registry",
+ "parity-scale-codec",
+ "primitive-types",
+ "serde",
+ "sp-core",
+ "sp-io",
+ "sp-runtime",
+ "sp-std",
+]
+
+[[package]]
 name = "pallet-grandpa"
 version = "3.0.0"
 source = "git+https://github.com/paritytech/substrate#f53d72f0fdadf56c34f3199bea96c652633f82a9"

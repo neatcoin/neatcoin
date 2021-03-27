@@ -62,4 +62,5 @@ members = [
 	"frame/outmove",
 	"frame/registry",
 	"frame/zone",
+	"frame/fcfs",
 ]
