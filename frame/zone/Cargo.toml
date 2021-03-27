@@ -17,6 +17,7 @@ sp-runtime = { default-features = false, git = "https://github.com/paritytech/su
 sp-std = { default-features = false, git = "https://github.com/paritytech/substrate" }
 sp-io = { default-features = false, git = "https://github.com/paritytech/substrate" }
 primitive-types = { default-features = false, version = "0.9.0" }
+pallet-registry = { default-features = false, path = "../registry" }
 
 frame-benchmarking = { default-features = false, git = "https://github.com/paritytech/substrate", optional = true }
 
@@ -35,5 +36,6 @@ std = [
 	"frame-system/std",
 	"sp-io/std",
 	"sp-std/std",
+	"pallet-registry/std",
 ]
 runtime-benchmarks = ["frame-benchmarking"]

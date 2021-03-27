@@ -27,22 +27,36 @@ use frame_support::{
 use frame_system::{ensure_signed, ensure_root};
 use np_domain::{Name, NameHash, NameValue};
 
-pub trait Ownership<T: Config>: Encode + Decode + EncodeLike + Default + Eq + Debug + Clone {
+pub trait Ownership: Encode + Decode + EncodeLike + Default + Eq + Debug + Clone {
+	type AccountId;
+
 	/// Explictly owned by root.
 	fn root() -> Self;
 	/// Owned by a specific account.
-	fn account(account: T::AccountId) -> Self;
+	fn account(account: Self::AccountId) -> Self;
 }
 
 pub trait Config: pallet_balances::Config {
-	type Ownership: Ownership<Self>;
+	type Ownership: Ownership<AccountId=Self::AccountId>;
 	type Event: From<Event<Self>> + Into<<Self as frame_system::Config>::Event>;
 }
 
-pub trait Registry<T: Config> {
-	fn set_ownership_as(as_ownership: T::Ownership, name: Name, ownership: Option<T::Ownership>) -> DispatchResult;
-	fn can_set_ownership(as_ownership: T::Ownership, name: Name) -> bool;
-	fn is_owned(as_ownership: T::Ownership, name: Name) -> bool;
+pub trait Registry {
+	type Ownership: Ownership;
+
+	fn set_ownership_as(
+		as_ownership: &Self::Ownership,
+		name: Name,
+		ownership: Option<Self::Ownership>,
+	) -> DispatchResult;
+	fn can_set_ownership(
+		as_ownership: &Self::Ownership,
+		name: &Name,
+	) -> bool;
+	fn is_owned(
+		as_ownership: &Self::Ownership,
+		name: &Name,
+	) -> bool;
 }
 
 decl_storage! {
@@ -74,27 +88,29 @@ decl_module! {
 		fn set_ownership(origin, name: Name, ownership: Option<T::Ownership>) {
 			let owner = ensure_signed(origin)?;
 
-			<Self as Registry<T>>::set_ownership_as(Ownership::<T>::account(owner), name, ownership)?;
+			<Self as Registry>::set_ownership_as(&Ownership::account(owner), name, ownership)?;
 		}
 
 		#[weight = 0]
 		fn force_set_ownership(origin, name: Name, ownership: Option<T::Ownership>) {
 			ensure_root(origin)?;
 
-			<Self as Registry<T>>::set_ownership_as(Ownership::<T>::root(), name, ownership)?;
+			<Self as Registry>::set_ownership_as(&Ownership::root(), name, ownership)?;
 		}
 	}
 }
 
-impl<T: Config> Registry<T> for Module<T> {
-	fn set_ownership_as(as_ownership: T::Ownership, name: Name, ownership: Option<T::Ownership>) -> DispatchResult {
+impl<T: Config> Registry for Module<T> {
+	type Ownership = T::Ownership;
+
+	fn set_ownership_as(as_ownership: &T::Ownership, name: Name, ownership: Option<T::Ownership>) -> DispatchResult {
 		ensure!(!name.is_root(), Error::<T>::AttemptToSetRootOwnership);
 
-		if as_ownership != T::Ownership::root() {
+		if as_ownership != &T::Ownership::root() {
 			let parent = name.parent().ok_or(Error::<T>::OwnershipMismatch)?;
 			let parent_ownership = Ownerships::<T>::get(&parent.hash()).into_value();
 
-			ensure!(parent_ownership == Some(as_ownership), Error::<T>::OwnershipMismatch);
+			ensure!(parent_ownership.as_ref() == Some(as_ownership), Error::<T>::OwnershipMismatch);
 		}
 
 		if let Some(ownership) = ownership.clone() {
@@ -108,12 +124,12 @@ impl<T: Config> Registry<T> for Module<T> {
 		Ok(())
 	}
 
-	fn can_set_ownership(as_ownership: T::Ownership, name: Name) -> bool {
+	fn can_set_ownership(as_ownership: &T::Ownership, name: &Name) -> bool {
 		if name.is_root() {
 			return false
 		}
 
-		if as_ownership == T::Ownership::root() {
+		if as_ownership == &T::Ownership::root() {
 			return true
 		}
 
@@ -123,12 +139,12 @@ impl<T: Config> Registry<T> for Module<T> {
 		};
 		let parent_ownership = Ownerships::<T>::get(&parent.hash()).into_value();
 
-		parent_ownership == Some(as_ownership)
+		parent_ownership.as_ref() == Some(as_ownership)
 	}
 
-	fn is_owned(as_ownership: T::Ownership, name: Name) -> bool {
+	fn is_owned(as_ownership: &T::Ownership, name: &Name) -> bool {
 		let ownership = Ownerships::<T>::get(&name.hash()).into_value();
 
-		ownership == Some(as_ownership)
+		ownership.as_ref() == Some(as_ownership)
 	}
 }

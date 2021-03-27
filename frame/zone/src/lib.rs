@@ -28,8 +28,11 @@ use frame_support::{
 use frame_system::{ensure_signed, ensure_root};
 use primitive_types::H160;
 use np_domain::{Name, NameHash, NameValue};
+use pallet_registry::{Registry, Ownership};
 
 pub trait Config: frame_system::Config {
+	type Ownership: Ownership<AccountId=Self::AccountId>;
+	type Registry: Registry<Ownership=Self::Ownership>;
 	type Event: From<Event> + Into<<Self as frame_system::Config>::Event>;
 }
 
@@ -43,21 +46,33 @@ decl_storage! {
 		NSs: map hasher(identity) NameHash => NameValue<Vec<Name>>;
 		CNAMEs: map hasher(identity) NameHash => NameValue<Name>;
 		MXs: map hasher(identity) NameHash => NameValue<(u16, Name)>;
-		ExternICANNs: map hasher(identity) NameHash => NameValue<()>;
-		ExternOpenNICs: map hasher(identity) NameHash => NameValue<()>;
-		ExternHandshake: map hasher(identity) NameHash => NameValue<()>;
+
+		ICANNs: map hasher(identity) NameHash => NameValue<()>;
+		OpenNICs: map hasher(identity) NameHash => NameValue<()>;
+		Handshakes: map hasher(identity) NameHash => NameValue<()>;
 	}
 }
 
 decl_event! {
 	pub enum Event {
+		SetA(Name, Vec<RawIpv4>),
+		SetAAAA(Name, Vec<RawIpv6>),
+		SetNS(Name, Vec<Name>),
+		SetCNAME(Name, Option<Name>),
+		SetMX(Name, Option<(u16, Name)>),
 
+		SetICANN(Name),
+		ResetICANN(Name),
+		SetOpenNIC(Name),
+		ResetOpenNIC(Name),
+		SetHandshake(Name),
+		ResetHandshake(Name),
 	}
 }
 
 decl_error! {
 	pub enum Error for Module<T: Config> {
-
+		OwnershipMismatch,
 	}
 }
 
@@ -66,5 +81,75 @@ decl_module! {
 		type Error = Error<T>;
 
 		fn deposit_event() = default;
+
+		#[weight = 0]
+		fn set_a(origin, name: Name, record: Vec<RawIpv4>) {
+			let owner = ensure_signed(origin)?;
+			ensure!(T::Registry::is_owned(&T::Ownership::account(owner), &name), Error::<T>::OwnershipMismatch);
+
+			if record.is_empty() {
+				As::remove(name.hash());
+			} else {
+				As::insert(name.hash(), NameValue::some(name.clone(), record.clone()));
+			}
+
+			Self::deposit_event(Event::SetA(name, record));
+		}
+
+		#[weight = 0]
+		fn set_aaaa(origin, name: Name, record: Vec<RawIpv6>) {
+			let owner = ensure_signed(origin)?;
+			ensure!(T::Registry::is_owned(&T::Ownership::account(owner), &name), Error::<T>::OwnershipMismatch);
+
+			if record.is_empty() {
+				AAAAs::remove(name.hash());
+			} else {
+				AAAAs::insert(name.hash(), NameValue::some(name.clone(), record.clone()));
+			}
+
+			Self::deposit_event(Event::SetAAAA(name, record));
+		}
+
+		#[weight = 0]
+		fn set_ns(origin, name: Name, record: Vec<Name>) {
+			let owner = ensure_signed(origin)?;
+			ensure!(T::Registry::is_owned(&T::Ownership::account(owner), &name), Error::<T>::OwnershipMismatch);
+
+			if record.is_empty() {
+				NSs::remove(name.hash());
+			} else {
+				NSs::insert(name.hash(), NameValue::some(name.clone(), record.clone()));
+			}
+
+			Self::deposit_event(Event::SetNS(name, record));
+		}
+
+		#[weight = 0]
+		fn set_cname(origin, name: Name, record: Option<Name>) {
+			let owner = ensure_signed(origin)?;
+			ensure!(T::Registry::is_owned(&T::Ownership::account(owner), &name), Error::<T>::OwnershipMismatch);
+
+			if let Some(record) = record.clone() {
+				CNAMEs::insert(name.hash(), NameValue::some(name.clone(), record));
+			} else {
+				CNAMEs::remove(name.hash());
+			}
+
+			Self::deposit_event(Event::SetCNAME(name, record));
+		}
+
+		#[weight = 0]
+		fn set_mx(origin, name: Name, record: Option<(u16, Name)>) {
+			let owner = ensure_signed(origin)?;
+			ensure!(T::Registry::is_owned(&T::Ownership::account(owner), &name), Error::<T>::OwnershipMismatch);
+
+			if let Some(record) = record.clone() {
+				MXs::insert(name.hash(), NameValue::some(name.clone(), record));
+			} else {
+				MXs::remove(name.hash());
+			}
+
+			Self::deposit_event(Event::SetMX(name, record));
+		}
 	}
 }

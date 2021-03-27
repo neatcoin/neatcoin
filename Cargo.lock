@@ -4098,6 +4098,7 @@ dependencies = [
  "frame-support",
  "frame-system",
  "np-domain",
+ "pallet-registry",
  "parity-scale-codec",
  "primitive-types",
  "serde",
