@@ -41,6 +41,8 @@ pub trait Config: pallet_balances::Config {
 	type Event: From<Event<Self>> + Into<<Self as frame_system::Config>::Event>;
 }
 
+pub struct Permit(Name);
+
 pub trait Registry {
 	type Ownership: Ownership;
 
@@ -49,14 +51,23 @@ pub trait Registry {
 		name: Name,
 		ownership: Option<Self::Ownership>,
 	) -> DispatchResult;
+	fn set_ownership_unchecked(
+		name: Name,
+		ownership: Option<Self::Ownership>,
+	);
 	fn can_set_ownership(
 		as_ownership: &Self::Ownership,
 		name: &Name,
 	) -> bool;
+	fn ensure_can_set_ownership(
+		as_ownership: &Self::Ownership,
+		name: &Name,
+	) -> DispatchResult;
 	fn is_owned(
 		as_ownership: &Self::Ownership,
 		name: &Name,
 	) -> bool;
+	fn owner(name: &Name) -> Option<Self::Ownership>;
 }
 
 decl_storage! {
@@ -103,7 +114,7 @@ decl_module! {
 impl<T: Config> Registry for Module<T> {
 	type Ownership = T::Ownership;
 
-	fn set_ownership_as(as_ownership: &T::Ownership, name: Name, ownership: Option<T::Ownership>) -> DispatchResult {
+	fn ensure_can_set_ownership(as_ownership: &T::Ownership, name: &Name) -> DispatchResult {
 		ensure!(!name.is_root(), Error::<T>::AttemptToSetRootOwnership);
 
 		if as_ownership != &T::Ownership::root() {
@@ -113,6 +124,10 @@ impl<T: Config> Registry for Module<T> {
 			ensure!(parent_ownership.as_ref() == Some(as_ownership), Error::<T>::OwnershipMismatch);
 		}
 
+		Ok(())
+	}
+
+	fn set_ownership_unchecked(name: Name, ownership: Option<T::Ownership>) {
 		if let Some(ownership) = ownership.clone() {
 			Ownerships::<T>::insert(name.hash(), NameValue::some(name.clone(), ownership.clone()));
 		} else {
@@ -120,6 +135,11 @@ impl<T: Config> Registry for Module<T> {
 		}
 
 		Self::deposit_event(Event::<T>::OwnershipSet(name, ownership));
+	}
+
+	fn set_ownership_as(as_ownership: &T::Ownership, name: Name, ownership: Option<T::Ownership>) -> DispatchResult {
+		Self::ensure_can_set_ownership(as_ownership, &name)?;
+		Self::set_ownership_unchecked(name, ownership);
 
 		Ok(())
 	}
@@ -142,9 +162,15 @@ impl<T: Config> Registry for Module<T> {
 		parent_ownership.as_ref() == Some(as_ownership)
 	}
 
+
+
 	fn is_owned(as_ownership: &T::Ownership, name: &Name) -> bool {
 		let ownership = Ownerships::<T>::get(&name.hash()).into_value();
 
 		ownership.as_ref() == Some(as_ownership)
+	}
+
+	fn owner(name: &Name) -> Option<T::Ownership> {
+		Ownerships::<T>::get(&name.hash()).into_value()
 	}
 }
