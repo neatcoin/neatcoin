@@ -42,6 +42,7 @@ pub trait Config: pallet_balances::Config {
 pub trait Registry<T: Config> {
 	fn set_ownership_as(as_ownership: T::Ownership, name: Name, ownership: Option<T::Ownership>) -> DispatchResult;
 	fn can_set_ownership(as_ownership: T::Ownership, name: Name) -> bool;
+	fn is_owned(as_ownership: T::Ownership, name: Name) -> bool;
 }
 
 decl_storage! {
@@ -123,5 +124,11 @@ impl<T: Config> Registry<T> for Module<T> {
 		let parent_ownership = Ownerships::<T>::get(&parent.hash()).into_value();
 
 		parent_ownership == Some(as_ownership)
+	}
+
+	fn is_owned(as_ownership: T::Ownership, name: Name) -> bool {
+		let ownership = Ownerships::<T>::get(&name.hash()).into_value();
+
+		ownership == Some(as_ownership)
 	}
 }
