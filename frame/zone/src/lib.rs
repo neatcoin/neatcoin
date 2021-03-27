@@ -41,6 +41,8 @@ decl_storage! {
 		As: map hasher(identity) NameHash => NameValue<Vec<RawIpv4>>;
 		AAAAs: map hasher(identity) NameHash => NameValue<Vec<RawIpv6>>;
 		NSs: map hasher(identity) NameHash => NameValue<Vec<Name>>;
+		CNAMEs: map hasher(identity) NameHash => NameValue<Name>;
+		MXs: map hasher(identity) NameHash => NameValue<(u16, Name)>;
 		ExternICANNs: map hasher(identity) NameHash => NameValue<()>;
 		ExternOpenNICs: map hasher(identity) NameHash => NameValue<()>;
 		ExternHandshake: map hasher(identity) NameHash => NameValue<()>;
