@@ -63,11 +63,33 @@ pub trait Registry {
 		as_ownership: &Self::Ownership,
 		name: &Name,
 	) -> DispatchResult;
-	fn is_owned(
-		as_ownership: &Self::Ownership,
-		name: &Name,
-	) -> bool;
 	fn owner(name: &Name) -> Option<Self::Ownership>;
+
+	fn parent_owner(name: &Name) -> Option<Self::Ownership> {
+		name.parent().and_then(|parent| Self::owner(&parent))
+	}
+	fn effective_owner(name: &Name) -> Option<Self::Ownership> {
+		let mut current = Some(name.clone());
+		while let Some(check) = current {
+			if let Some(ret) = Self::owner(&check) {
+				return Some(ret)
+			}
+			current = check.parent();
+		}
+		None
+	}
+	fn is_owned(as_ownership: &Self::Ownership, name: &Name) -> bool {
+		let ownership = Self::owner(name);
+		ownership.as_ref() == Some(as_ownership)
+	}
+	fn is_parent_owned(as_ownership: &Self::Ownership, name: &Name) -> bool {
+		let ownership = Self::parent_owner(name);
+		ownership.as_ref() == Some(as_ownership)
+	}
+	fn is_effective_owned(as_ownership: &Self::Ownership, name: &Name) -> bool {
+		let ownership = Self::effective_owner(name);
+		ownership.as_ref() == Some(as_ownership)
+	}
 }
 
 decl_storage! {
@@ -94,13 +116,6 @@ decl_module! {
 		type Error = Error<T>;
 
 		fn deposit_event() = default;
-
-		#[weight = 0]
-		fn set_ownership(origin, name: Name, ownership: Option<T::Ownership>) {
-			let owner = ensure_signed(origin)?;
-
-			<Self as Registry>::set_ownership_as(&Ownership::account(owner), name, ownership)?;
-		}
 
 		#[weight = 0]
 		fn force_set_ownership(origin, name: Name, ownership: Option<T::Ownership>) {
@@ -160,14 +175,6 @@ impl<T: Config> Registry for Module<T> {
 		let parent_ownership = Ownerships::<T>::get(&parent.hash()).into_value();
 
 		parent_ownership.as_ref() == Some(as_ownership)
-	}
-
-
-
-	fn is_owned(as_ownership: &T::Ownership, name: &Name) -> bool {
-		let ownership = Ownerships::<T>::get(&name.hash()).into_value();
-
-		ownership.as_ref() == Some(as_ownership)
 	}
 
 	fn owner(name: &Name) -> Option<T::Ownership> {

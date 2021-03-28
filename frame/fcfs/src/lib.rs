@@ -91,6 +91,7 @@ decl_module! {
 			let sender = ensure_signed(origin)?;
 
 			ensure!(T::Registry::owner(&name).is_none(), Error::<T>::AlreadyRegistered);
+			ensure!(T::Registry::parent_owner(&name) == Some(T::FCFSOwnership::get()), Error::<T>::NotAllowedRegister);
 			T::Registry::ensure_can_set_ownership(&T::FCFSOwnership::get(), &name)?;
 
 			let fee = T::Fee::get();
@@ -117,6 +118,7 @@ decl_module! {
 			let sender = ensure_signed(origin)?;
 
 			ensure!(T::Registry::owner(&name) == Some(T::Ownership::account(sender.clone())), Error::<T>::OwnershipMismatch);
+			ensure!(T::Registry::parent_owner(&name) == Some(T::FCFSOwnership::get()), Error::<T>::NotAllowedRegister);
 			T::Registry::ensure_can_set_ownership(&T::FCFSOwnership::get(), &name)?;
 
 			let mut info = Renewals::<T>::get(&name.hash()).into_value().ok_or(Error::<T>::RenewalInfoMissing)?;

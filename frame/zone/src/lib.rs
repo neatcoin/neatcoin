@@ -84,7 +84,7 @@ decl_module! {
 		#[weight = 0]
 		fn set_a(origin, name: Name, record: Vec<RawIpv4>) {
 			let owner = ensure_signed(origin)?;
-			ensure!(T::Registry::is_owned(&T::Ownership::account(owner), &name), Error::<T>::OwnershipMismatch);
+			ensure!(T::Registry::is_effective_owned(&T::Ownership::account(owner), &name), Error::<T>::OwnershipMismatch);
 
 			if record.is_empty() {
 				As::remove(name.hash());
@@ -98,7 +98,7 @@ decl_module! {
 		#[weight = 0]
 		fn set_aaaa(origin, name: Name, record: Vec<RawIpv6>) {
 			let owner = ensure_signed(origin)?;
-			ensure!(T::Registry::is_owned(&T::Ownership::account(owner), &name), Error::<T>::OwnershipMismatch);
+			ensure!(T::Registry::is_effective_owned(&T::Ownership::account(owner), &name), Error::<T>::OwnershipMismatch);
 
 			if record.is_empty() {
 				AAAAs::remove(name.hash());
@@ -112,7 +112,7 @@ decl_module! {
 		#[weight = 0]
 		fn set_ns(origin, name: Name, record: Vec<Name>) {
 			let owner = ensure_signed(origin)?;
-			ensure!(T::Registry::is_owned(&T::Ownership::account(owner), &name), Error::<T>::OwnershipMismatch);
+			ensure!(T::Registry::is_effective_owned(&T::Ownership::account(owner), &name), Error::<T>::OwnershipMismatch);
 
 			if record.is_empty() {
 				NSs::remove(name.hash());
@@ -126,7 +126,7 @@ decl_module! {
 		#[weight = 0]
 		fn set_cname(origin, name: Name, record: Option<Name>) {
 			let owner = ensure_signed(origin)?;
-			ensure!(T::Registry::is_owned(&T::Ownership::account(owner), &name), Error::<T>::OwnershipMismatch);
+			ensure!(T::Registry::is_effective_owned(&T::Ownership::account(owner), &name), Error::<T>::OwnershipMismatch);
 
 			if let Some(record) = record.clone() {
 				CNAMEs::insert(name.hash(), NameValue::some(name.clone(), record));
@@ -140,7 +140,7 @@ decl_module! {
 		#[weight = 0]
 		fn set_mx(origin, name: Name, record: Option<(u16, Name)>) {
 			let owner = ensure_signed(origin)?;
-			ensure!(T::Registry::is_owned(&T::Ownership::account(owner), &name), Error::<T>::OwnershipMismatch);
+			ensure!(T::Registry::is_effective_owned(&T::Ownership::account(owner), &name), Error::<T>::OwnershipMismatch);
 
 			if let Some(record) = record.clone() {
 				MXs::insert(name.hash(), NameValue::some(name.clone(), record));
