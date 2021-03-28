@@ -11,18 +11,18 @@ description = "Domain zones runtime pallet for Nomo."
 serde = { version = "1.0.101", optional = true }
 codec = { package = "parity-scale-codec", version = "2.0.0", default-features = false }
 np-domain = { path = "../../primitives/domain", default-features = false }
-frame-support = { default-features = false, git = "https://github.com/paritytech/substrate" }
-frame-system = { default-features = false, git = "https://github.com/paritytech/substrate" }
-sp-runtime = { default-features = false, git = "https://github.com/paritytech/substrate" }
-sp-std = { default-features = false, git = "https://github.com/paritytech/substrate" }
-sp-io = { default-features = false, git = "https://github.com/paritytech/substrate" }
+frame-support = { default-features = false, git = "https://github.com/paritytech/substrate", branch = "neatcoin" }
+frame-system = { default-features = false, git = "https://github.com/paritytech/substrate", branch = "neatcoin" }
+sp-runtime = { default-features = false, git = "https://github.com/paritytech/substrate", branch = "neatcoin" }
+sp-std = { default-features = false, git = "https://github.com/paritytech/substrate", branch = "neatcoin" }
+sp-io = { default-features = false, git = "https://github.com/paritytech/substrate", branch = "neatcoin" }
 primitive-types = { default-features = false, version = "0.9.0" }
 pallet-registry = { default-features = false, path = "../registry" }
 
-frame-benchmarking = { default-features = false, git = "https://github.com/paritytech/substrate", optional = true }
+frame-benchmarking = { default-features = false, git = "https://github.com/paritytech/substrate", optional = true, branch = "neatcoin" }
 
 [dev-dependencies]
-sp-core = { git = "https://github.com/paritytech/substrate", default-features = false }
+sp-core = { git = "https://github.com/paritytech/substrate", default-features = false, branch = "neatcoin" }
 
 [features]
 default = ["std"]

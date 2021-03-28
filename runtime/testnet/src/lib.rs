@@ -108,8 +108,8 @@ pub mod opaque {
 }
 
 pub const VERSION: RuntimeVersion = RuntimeVersion {
-	spec_name: create_runtime_str!("neatcoin"),
-	impl_name: create_runtime_str!("neatcoin"),
+	spec_name: create_runtime_str!("neatcoin-testnet"),
+	impl_name: create_runtime_str!("neatcoin-testnet"),
 	authoring_version: 1,
 	spec_version: 1,
 	impl_version: 1,
