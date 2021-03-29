@@ -24,3 +24,33 @@
 mod primitives;
 #[path = "../../common/configs.rs"]
 mod configs;
+
+use sp_runtime::create_runtime_str;
+use sp_version::RuntimeVersion;
+#[cfg(any(feature = "std", test))]
+use sp_version::NativeVersion;
+
+// Make the WASM binary available.
+#[cfg(feature = "std")]
+include!(concat!(env!("OUT_DIR"), "/wasm_binary.rs"));
+
+// Polkadot version identifier;
+/// Runtime version (Polkadot).
+pub const VERSION: RuntimeVersion = RuntimeVersion {
+	spec_name: create_runtime_str!("neatcoin"),
+	impl_name: create_runtime_str!("neatcoin"),
+	authoring_version: 0,
+	spec_version: 0,
+	impl_version: 0,
+	apis: configs::API_VERSIONS,
+	transaction_version: 0,
+};
+
+/// Native version.
+#[cfg(any(feature = "std", test))]
+pub fn native_version() -> NativeVersion {
+	NativeVersion {
+		runtime_version: VERSION,
+		can_author_with: Default::default(),
+	}
+}

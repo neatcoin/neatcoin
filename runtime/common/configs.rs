@@ -65,33 +65,11 @@ pub use sp_runtime::BuildStorage;
 pub use pallet_timestamp::Call as TimestampCall;
 pub use pallet_balances::Call as BalancesCall;
 
+pub(crate) const API_VERSIONS: sp_version::ApisVec = RUNTIME_API_VERSIONS;
+
+use crate::VERSION;
 use crate::primitives::constants::{time::*, currency::*, fee::*};
 use frame_support::traits::InstanceFilter;
-
-// Make the WASM binary available.
-#[cfg(feature = "std")]
-include!(concat!(env!("OUT_DIR"), "/wasm_binary.rs"));
-
-// Polkadot version identifier;
-/// Runtime version (Polkadot).
-pub const VERSION: RuntimeVersion = RuntimeVersion {
-	spec_name: create_runtime_str!("neatcoin"),
-	impl_name: create_runtime_str!("neatcoin"),
-	authoring_version: 0,
-	spec_version: 0,
-	impl_version: 0,
-	apis: RUNTIME_API_VERSIONS,
-	transaction_version: 0,
-};
-
-/// Native version.
-#[cfg(any(feature = "std", test))]
-pub fn native_version() -> NativeVersion {
-	NativeVersion {
-		runtime_version: VERSION,
-		can_author_with: Default::default(),
-	}
-}
 
 pub struct BaseFilter;
 impl Filter<Call> for BaseFilter {
