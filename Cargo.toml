@@ -59,6 +59,7 @@ runtime-benchmarks = [
 members = [
 	"runtime/neatcoin",
 	"primitives/domain",
+	"primitives/opaque",
 	"frame/outmove",
 	"frame/registry",
 	"frame/zone",

@@ -12,6 +12,8 @@ static_assertions = "1.1.0"
 log = { version = "0.4.14", default-features = false }
 smallvec = "1.6.1"
 
+np-opaque = { default-features = false, path = "../../primitives/opaque" }
+
 frame-system = { version = "3.0.0", default-features = false, git = "https://github.com/paritytech/substrate", branch = "neatcoin" }
 frame-system-rpc-runtime-api = { version = "3.0.0", default-features = false, git = "https://github.com/paritytech/substrate", branch = "neatcoin" }
 frame-executive = { version = "3.0.0", default-features = false, git = "https://github.com/paritytech/substrate", branch = "neatcoin" }
@@ -77,6 +79,7 @@ std = [
 	"codec/std",
 	"serde",
 	"log/std",
+	"np-opaque/std",
 	"frame-system/std",
 	"frame-system-rpc-runtime-api/std",
 	"frame-executive/std",

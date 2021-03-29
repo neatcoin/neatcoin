@@ -3698,6 +3698,7 @@ dependencies = [
  "frame-system-rpc-runtime-api",
  "hex-literal",
  "log",
+ "np-opaque",
  "pallet-authority-discovery",
  "pallet-authorship",
  "pallet-babe",
@@ -3811,6 +3812,13 @@ dependencies = [
  "parity-scale-codec",
  "serde",
  "sp-core",
+]
+
+[[package]]
+name = "np-opaque"
+version = "0.1.0"
+dependencies = [
+ "sp-runtime",
 ]
 
 [[package]]

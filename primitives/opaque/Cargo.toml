@@ -1,0 +1,15 @@
+[package]
+name = "np-opaque"
+version = "0.1.0"
+authors = ["Wei Tang <wei@that.world>"]
+license = "GPL-3.0-or-later"
+edition = "2018"
+
+[dependencies]
+sp-runtime = { git = "https://github.com/paritytech/substrate", default-features = false, branch = "neatcoin" }
+
+[features]
+default = ["std"]
+std = [
+	"sp-runtime/std",
+]
