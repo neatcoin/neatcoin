@@ -17,7 +17,7 @@
 // along with Neatcoin. If not, see <http://www.gnu.org/licenses/>.
 
 use sp_std::prelude::*;
-use sp_core::u32_trait::{_1, _2, _3, _4, _5};
+use sp_core::u32_trait::{_3, _4};
 use sp_runtime::{
 	KeyTypeId, Perbill, traits::OpaqueKeys, transaction_validity::TransactionPriority, curve::PiecewiseLinear,
 };
@@ -29,9 +29,9 @@ use crate::{
 	Timestamp, CouncilCollectiveInstance, Treasury, Session, ElectionProviderMultiPhase,
 	types::{
 		Moment, ImOnlineId, GrandpaId, AccountId, Balance, BlockWeights, BlockExecutionWeight,
-		CurrencyToVote, BlockNumber, EpochDuration,
+		CurrencyToVote, EpochDuration,
 	},
-	constants::time::{EPOCH_DURATION_IN_BLOCKS, MILLISECS_PER_BLOCK, DAYS},
+	constants::time::{EPOCH_DURATION_IN_BLOCKS, MILLISECS_PER_BLOCK},
 };
 
 parameter_types! {

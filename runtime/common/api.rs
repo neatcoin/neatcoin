@@ -24,6 +24,8 @@ use sp_runtime::{
 	ApplyExtrinsicResult, traits::{Block as BlockT},
 	transaction_validity::{TransactionValidity, TransactionSource},
 };
+#[cfg(feature = "runtime-benchmarks")]
+use sp_runtime::RuntimeString;
 use frame_support::traits::{Randomness, KeyOwnerProofSystem};
 use pallet_grandpa::fg_primitives;
 use pallet_transaction_payment::{FeeDetails, RuntimeDispatchInfo};

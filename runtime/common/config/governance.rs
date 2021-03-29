@@ -16,12 +16,11 @@
 // You should have received a copy of the GNU General Public License
 // along with Neatcoin. If not, see <http://www.gnu.org/licenses/>.
 
-use codec::{Encode, Decode};
 use static_assertions::const_assert;
-use sp_core::u32_trait::{_1, _2, _3, _4, _5};
+use sp_core::u32_trait::{_1, _2, _3, _5};
 use sp_runtime::{Permill, Percent, ModuleId};
 use frame_system::{EnsureOneOf, EnsureRoot};
-use frame_support::{parameter_types, RuntimeDebug, traits::LockIdentifier};
+use frame_support::{parameter_types, traits::LockIdentifier};
 use crate::{
 	Runtime, Call, Event, Balances, CouncilCollectiveInstance, TechnicalCollectiveInstance,
 	Treasury, Scheduler, OriginCaller, Origin, Council, TechnicalMembershipInstance,

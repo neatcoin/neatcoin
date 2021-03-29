@@ -18,7 +18,6 @@
 
 use codec::Encode;
 use sp_runtime::{generic, traits::{Verify, Extrinsic as ExtrinsicT, SaturatedConversion}};
-use frame_support::{parameter_types, weights::DispatchClass};
 use crate::{
 	Runtime, Call, System,
 	types::{Signature, AccountId, UncheckedExtrinsic, BlockHashCount, SignedExtra, SignedPayload},

@@ -17,20 +17,16 @@
 // along with Neatcoin. If not, see <http://www.gnu.org/licenses/>.
 
 use sp_version::RuntimeVersion;
-use sp_runtime::{generic, Perquintill, Perbill, FixedPointNumber, traits::AccountIdLookup};
+use sp_runtime::{Perquintill, Perbill, FixedPointNumber, traits::AccountIdLookup};
 use frame_system::{limits, EnsureRoot};
-use frame_support::{
-	parameter_types,
-	weights::{DispatchClass, Weight},
-};
+use frame_support::{parameter_types, weights::Weight};
 use pallet_transaction_payment::{TargetedFeeAdjustment, Multiplier, CurrencyAdapter};
 use crate::{
 	Runtime, BaseFilter, Origin, Call, Event, PalletInfo, Balances, System, OriginCaller,
 	Babe, Treasury, VERSION,
 	types::{
 		BlockNumber, Nonce, Hash, BlakeTwo256, AccountId, Balance, AccountIndex, MoreThanHalfCouncil,
-		BlockWeights, BlockExecutionWeight, ExtrinsicBaseWeight, RocksDbWeight, BlockHashCount,
-		NORMAL_DISPATCH_RATIO, MAXIMUM_BLOCK_WEIGHT, AVERAGE_ON_INITIALIZE_RATIO,
+		BlockWeights, RocksDbWeight, BlockHashCount, NORMAL_DISPATCH_RATIO,
 	},
 	constants::{currency::{deposit, CENTS, MILLICENTS, DOLLARS}, fee::WeightToFee, time::SLOT_DURATION},
 	impls::DealWithFees,

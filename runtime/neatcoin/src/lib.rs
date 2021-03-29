@@ -34,50 +34,25 @@ mod types;
 #[path = "../../common/tests/mod.rs"]
 mod tests;
 
-use pallet_transaction_payment::CurrencyAdapter;
 use sp_std::prelude::*;
-use sp_core::u32_trait::{_1, _2, _3, _4, _5};
-use codec::{Encode, Decode};
-use sp_runtime::{
-	create_runtime_str, generic, impl_opaque_keys, ModuleId, ApplyExtrinsicResult,
-	KeyTypeId, Percent, Permill, Perbill, curve::PiecewiseLinear,
-	transaction_validity::{TransactionValidity, TransactionSource, TransactionPriority},
-	traits::{
-		BlakeTwo256, Block as BlockT, OpaqueKeys, ConvertInto, AccountIdLookup,
-		Extrinsic as ExtrinsicT, SaturatedConversion, Verify,
-	},
-};
-#[cfg(feature = "runtime-benchmarks")]
-use sp_runtime::RuntimeString;
+use sp_runtime::{create_runtime_str, impl_opaque_keys};
 use sp_version::RuntimeVersion;
-use pallet_grandpa::{AuthorityId as GrandpaId, fg_primitives};
 #[cfg(any(feature = "std", test))]
 use sp_version::NativeVersion;
-use sp_core::OpaqueMetadata;
-use sp_staking::SessionIndex;
-use frame_support::{
-	parameter_types, construct_runtime, RuntimeDebug,
-	traits::{KeyOwnerProofSystem, Randomness, LockIdentifier, Filter},
-	weights::Weight,
-};
-use frame_system::{EnsureRoot, EnsureOneOf};
-
-use pallet_transaction_payment::{FeeDetails, RuntimeDispatchInfo};
+use frame_support::{construct_runtime, traits::Filter};
 use pallet_session::historical as session_historical;
-use static_assertions::const_assert;
-use frame_support::traits::InstanceFilter;
-use crate::types::{
-	CurrencyToVote, UncheckedExtrinsic, Block,
-	RocksDbWeight, AccountId, AccountIndex, Balance, BlockNumber,
-	Signature, Hash, Moment, Nonce, BABE_GENESIS_EPOCH_CONFIG,
-};
 
-#[cfg(feature = "std")]
-pub use pallet_staking::StakerStatus;
 #[cfg(any(feature = "std", test))]
 pub use sp_runtime::BuildStorage;
 pub use pallet_timestamp::Call as TimestampCall;
 pub use pallet_balances::Call as BalancesCall;
+#[cfg(feature = "std")]
+pub use pallet_staking::StakerStatus;
+pub use crate::types::{
+	opaque, BlockNumber, Moment, Signature, AccountPublic, AccountId, AccountIndex,
+	Hash, Nonce, Address, Header, Block, SignedBlock, BlockId, SignedExtra,
+	UncheckedExtrinsic, CheckedExtrinsic, SignedPayload,
+};
 
 // Make the WASM binary available.
 #[cfg(feature = "std")]

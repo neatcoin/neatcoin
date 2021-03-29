@@ -57,9 +57,6 @@ pub mod fee {
 	use smallvec::smallvec;
 	use crate::types::{Balance, ExtrinsicBaseWeight};
 
-	/// The block saturation level. Fees will be updates based on this value.
-	pub const TARGET_BLOCK_FULLNESS: Perbill = Perbill::from_percent(25);
-
 	/// Handles converting a weight scalar to a fee value, based on the scale and granularity of the
 	/// node's balance type.
 	///

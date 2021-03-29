@@ -19,16 +19,12 @@
 //! Common runtime code for Neatcoin and Neatcoin testnet.
 
 use static_assertions::const_assert;
-use sp_core::u32_trait::{_1, _2, _3, _4, _5};
-use sp_runtime::{
-	generic, MultiSignature, Perbill, traits::{Verify, IdentifyAccount},
-	Perquintill, FixedPointNumber,
-};
+use sp_core::u32_trait::{_1, _2};
+use sp_runtime::{generic, MultiSignature, Perbill, traits::{Verify, IdentifyAccount}};
 use frame_system::{limits, EnsureOneOf, EnsureRoot};
 use frame_support::{
 	parameter_types, weights::{Weight, constants::WEIGHT_PER_SECOND, DispatchClass}, traits::Currency,
 };
-use pallet_transaction_payment::{TargetedFeeAdjustment, Multiplier};
 use crate::{Runtime, Call, CouncilCollectiveInstance};
 
 pub use sp_authority_discovery::AuthorityId as AuthorityDiscoveryId;
