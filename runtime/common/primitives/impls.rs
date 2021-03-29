@@ -19,15 +19,15 @@
 //! Auxillary struct/enums for polkadot runtime.
 
 use frame_support::traits::{OnUnbalanced, Imbalance, Currency};
-use crate::NegativeImbalance;
+use super::NegativeImbalance;
 
 /// Logic for the author to get a portion of fees.
 pub struct ToAuthor<R>(sp_std::marker::PhantomData<R>);
 impl<R> OnUnbalanced<NegativeImbalance<R>> for ToAuthor<R>
 where
 	R: pallet_balances::Config + pallet_authorship::Config,
-	<R as frame_system::Config>::AccountId: From<crate::AccountId>,
-	<R as frame_system::Config>::AccountId: Into<crate::AccountId>,
+	<R as frame_system::Config>::AccountId: From<super::AccountId>,
+	<R as frame_system::Config>::AccountId: Into<super::AccountId>,
 	<R as frame_system::Config>::Event: From<pallet_balances::Event<R>>,
 {
 	fn on_nonzero_unbalanced(amount: NegativeImbalance<R>) {
@@ -43,8 +43,8 @@ impl<R> OnUnbalanced<NegativeImbalance<R>> for DealWithFees<R>
 where
 	R: pallet_balances::Config + pallet_treasury::Config + pallet_authorship::Config,
 	pallet_treasury::Module<R>: OnUnbalanced<NegativeImbalance<R>>,
-	<R as frame_system::Config>::AccountId: From<crate::AccountId>,
-	<R as frame_system::Config>::AccountId: Into<crate::AccountId>,
+	<R as frame_system::Config>::AccountId: From<super::AccountId>,
+	<R as frame_system::Config>::AccountId: Into<super::AccountId>,
 	<R as frame_system::Config>::Event: From<pallet_balances::Event<R>>,
 {
 	fn on_unbalanceds<B>(mut fees_then_tips: impl Iterator<Item=NegativeImbalance<R>>) {

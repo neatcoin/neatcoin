@@ -10,8 +10,7 @@ codec = { package = "parity-scale-codec", version = "2.0.0", default-features = 
 serde = { version = "1.0.101", optional = true, features = ["derive"] }
 static_assertions = "1.1.0"
 log = { version = "0.4.14", default-features = false }
-
-common = { default-features = false, path = "../common", package = "neatcoin-runtime-common" }
+smallvec = "1.6.1"
 
 frame-system = { version = "3.0.0", default-features = false, git = "https://github.com/paritytech/substrate", branch = "neatcoin" }
 frame-system-rpc-runtime-api = { version = "3.0.0", default-features = false, git = "https://github.com/paritytech/substrate", branch = "neatcoin" }
@@ -78,7 +77,6 @@ std = [
 	"codec/std",
 	"serde",
 	"log/std",
-	"common/std",
 	"frame-system/std",
 	"frame-system-rpc-runtime-api/std",
 	"frame-executive/std",

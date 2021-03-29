@@ -1,6 +1,6 @@
 /// Money matters.
 pub mod currency {
-	use crate::Balance;
+	use crate::primitives::Balance;
 
 	pub const UNITS: Balance = 1_000_000_000_000;
 	pub const DOLLARS: Balance = UNITS / 100;       // 10_000_000_000
@@ -14,7 +14,7 @@ pub mod currency {
 
 /// Time and blocks.
 pub mod time {
-	use crate::{Moment, BlockNumber};
+	use crate::primitives::{Moment, BlockNumber};
 	pub const MILLISECS_PER_BLOCK: Moment = 6000;
 	pub const SLOT_DURATION: Moment = MILLISECS_PER_BLOCK;
 	pub const EPOCH_DURATION_IN_BLOCKS: BlockNumber = 4 * HOURS;
@@ -31,7 +31,7 @@ pub mod time {
 /// Fee-related.
 pub mod fee {
 	pub use sp_runtime::Perbill;
-	use crate::{Balance, ExtrinsicBaseWeight};
+	use crate::primitives::{Balance, ExtrinsicBaseWeight};
 	use frame_support::weights::{
 		WeightToFeePolynomial, WeightToFeeCoefficient, WeightToFeeCoefficients,
 	};

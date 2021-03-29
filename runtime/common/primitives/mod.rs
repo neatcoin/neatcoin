@@ -18,8 +18,6 @@
 
 //! Common runtime code for Neatcoin and Neatcoin testnet.
 
-#![cfg_attr(not(feature = "std"), no_std)]
-
 pub mod constants;
 pub mod impls;
 
@@ -40,7 +38,7 @@ pub type NegativeImbalance<T> = <pallet_balances::Pallet<T> as Currency<<T as fr
 /// The BABE epoch configuration at genesis.
 pub const BABE_GENESIS_EPOCH_CONFIG: sp_consensus_babe::BabeEpochConfiguration =
 	sp_consensus_babe::BabeEpochConfiguration {
-		c: crate::constants::time::PRIMARY_PROBABILITY,
+		c: self::constants::time::PRIMARY_PROBABILITY,
 		allowed_slots: sp_consensus_babe::AllowedSlots::PrimaryAndSecondaryVRFSlots
 	};
 
