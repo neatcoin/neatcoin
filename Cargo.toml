@@ -58,6 +58,7 @@ runtime-benchmarks = [
 [workspace]
 members = [
 	"runtime/neatcoin",
+	"runtime/staging",
 	"primitives/domain",
 	"primitives/opaque",
 	"frame/outmove",

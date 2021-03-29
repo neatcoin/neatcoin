@@ -1,0 +1,142 @@
+[package]
+name = "neatcoin-staging-runtime"
+version = "0.1.0"
+authors = ["Wei Tang <wei@that.world>"]
+edition = "2018"
+license = "GPL-3.0-or-later"
+
+[dependencies]
+codec = { package = "parity-scale-codec", version = "2.0.0", default-features = false, features = ["derive"] }
+serde = { version = "1.0.101", optional = true, features = ["derive"] }
+static_assertions = "1.1.0"
+log = { version = "0.4.14", default-features = false }
+smallvec = "1.6.1"
+
+np-opaque = { default-features = false, path = "../../primitives/opaque" }
+
+frame-system = { version = "3.0.0", default-features = false, git = "https://github.com/paritytech/substrate", branch = "neatcoin" }
+frame-system-rpc-runtime-api = { version = "3.0.0", default-features = false, git = "https://github.com/paritytech/substrate", branch = "neatcoin" }
+frame-executive = { version = "3.0.0", default-features = false, git = "https://github.com/paritytech/substrate", branch = "neatcoin" }
+frame-support = { version = "3.0.0", default-features = false, git = "https://github.com/paritytech/substrate", branch = "neatcoin" }
+
+pallet-balances = { version = "3.0.0", default-features = false, git = "https://github.com/paritytech/substrate", branch = "neatcoin" }
+pallet-grandpa = { version = "3.0.0", default-features = false, git = "https://github.com/paritytech/substrate", branch = "neatcoin" }
+pallet-randomness-collective-flip = { version = "3.0.0", default-features = false, git = "https://github.com/paritytech/substrate", branch = "neatcoin" }
+pallet-timestamp = { version = "3.0.0", default-features = false, git = "https://github.com/paritytech/substrate", branch = "neatcoin" }
+pallet-elections-phragmen = { version = "3.0.0", default-features = false, git = "https://github.com/paritytech/substrate", branch = "neatcoin" }
+pallet-transaction-payment = { version = "3.0.0", default-features = false, git = "https://github.com/paritytech/substrate", branch = "neatcoin" }
+pallet-transaction-payment-rpc-runtime-api = { version = "3.0.0", default-features = false, git = "https://github.com/paritytech/substrate", branch = "neatcoin" }
+pallet-collective = { version = "3.0.0", default-features = false, git = "https://github.com/paritytech/substrate", branch = "neatcoin" }
+pallet-election-provider-multi-phase = { version = "3.0.0", default-features = false, git = "https://github.com/paritytech/substrate", branch = "neatcoin" }
+pallet-staking = { version = "3.0.0", default-features = false, git = "https://github.com/paritytech/substrate", branch = "neatcoin" }
+pallet-staking-reward-curve = { version = "3.0.0", git = "https://github.com/paritytech/substrate", branch = "neatcoin" }
+pallet-babe = { version = "3.0.0", default-features = false, git = "https://github.com/paritytech/substrate", branch = "neatcoin" }
+pallet-im-online = { version = "3.0.0", default-features = false, git = "https://github.com/paritytech/substrate", branch = "neatcoin" }
+pallet-multisig = { version = "3.0.0", default-features = false, git = "https://github.com/paritytech/substrate", branch = "neatcoin" }
+pallet-bounties = { version = "3.0.0", default-features = false, git = "https://github.com/paritytech/substrate", branch = "neatcoin" }
+pallet-proxy = { version = "3.0.0", default-features = false, git = "https://github.com/paritytech/substrate", branch = "neatcoin" }
+pallet-identity = { version = "3.0.0", default-features = false, git = "https://github.com/paritytech/substrate", branch = "neatcoin" }
+pallet-tips = { version = "3.0.0", default-features = false, git = "https://github.com/paritytech/substrate", branch = "neatcoin" }
+pallet-utility = { version = "3.0.0", default-features = false, git = "https://github.com/paritytech/substrate", branch = "neatcoin" }
+pallet-vesting = { version = "3.0.0", default-features = false, git = "https://github.com/paritytech/substrate", branch = "neatcoin" }
+pallet-treasury = { version = "3.0.0", default-features = false, git = "https://github.com/paritytech/substrate", branch = "neatcoin" }
+pallet-membership = { version = "3.0.0", default-features = false, git = "https://github.com/paritytech/substrate", branch = "neatcoin" }
+pallet-democracy = { version = "3.0.0", default-features = false, git = "https://github.com/paritytech/substrate", branch = "neatcoin" }
+pallet-offences = { version = "3.0.0", default-features = false, git = "https://github.com/paritytech/substrate", branch = "neatcoin" }
+pallet-session = { version = "3.0.0", default-features = false, git = "https://github.com/paritytech/substrate", branch = "neatcoin" }
+pallet-indices = { version = "3.0.0", default-features = false, git = "https://github.com/paritytech/substrate", branch = "neatcoin" }
+pallet-scheduler = { version = "3.0.0", default-features = false, git = "https://github.com/paritytech/substrate", branch = "neatcoin" }
+pallet-authorship = { version = "3.0.0", default-features = false, git = "https://github.com/paritytech/substrate", branch = "neatcoin" }
+pallet-authority-discovery = { version = "3.0.0", default-features = false, git = "https://github.com/paritytech/substrate", branch = "neatcoin" }
+
+sp-api = { version = "3.0.0", default-features = false, git = "https://github.com/paritytech/substrate", branch = "neatcoin" }
+sp-block-builder = { git = "https://github.com/paritytech/substrate", default-features = false, branch = "neatcoin" }
+sp-consensus-aura = { version = "0.9.0", default-features = false, git = "https://github.com/paritytech/substrate", branch = "neatcoin" }
+sp-core = { version = "3.0.0", default-features = false, git = "https://github.com/paritytech/substrate", branch = "neatcoin" }
+sp-inherents = { git = "https://github.com/paritytech/substrate", default-features = false, branch = "neatcoin" }
+sp-offchain = { version = "3.0.0", default-features = false, git = "https://github.com/paritytech/substrate", branch = "neatcoin" }
+sp-runtime = { version = "3.0.0", default-features = false, git = "https://github.com/paritytech/substrate", branch = "neatcoin" }
+sp-session = { version = "3.0.0", default-features = false, git = "https://github.com/paritytech/substrate", branch = "neatcoin" }
+sp-std = { version = "3.0.0", default-features = false, git = "https://github.com/paritytech/substrate", branch = "neatcoin" }
+sp-transaction-pool = { version = "3.0.0", default-features = false, git = "https://github.com/paritytech/substrate", branch = "neatcoin" }
+sp-version = { version = "3.0.0", default-features = false, git = "https://github.com/paritytech/substrate", branch = "neatcoin" }
+sp-staking = { version = "3.0.0", default-features = false, git = "https://github.com/paritytech/substrate", branch = "neatcoin" }
+sp-authority-discovery = { version = "3.0.0", default-features = false, git = "https://github.com/paritytech/substrate", branch = "neatcoin" }
+sp-consensus-babe = { version = "0.9.0", default-features = false, git = "https://github.com/paritytech/substrate", branch = "neatcoin" }
+sp-npos-elections = { version = "3.0.0", default-features = false, git = "https://github.com/paritytech/substrate", branch = "neatcoin" }
+
+# Used for runtime benchmarking
+frame-benchmarking = { version = "3.0.0", default-features = false, git = "https://github.com/paritytech/substrate", optional = true, branch = "neatcoin" }
+frame-system-benchmarking = { version = "3.0.0", default-features = false, git = "https://github.com/paritytech/substrate", optional = true, branch = "neatcoin" }
+hex-literal = { version = "0.3.1", optional = true }
+
+[build-dependencies]
+substrate-wasm-builder = { version = "4.0.0", git = "https://github.com/paritytech/substrate", branch = "neatcoin" }
+
+[features]
+default = ["std"]
+std = [
+	"codec/std",
+	"serde",
+	"log/std",
+	"np-opaque/std",
+	"frame-system/std",
+	"frame-system-rpc-runtime-api/std",
+	"frame-executive/std",
+	"frame-support/std",
+	"pallet-balances/std",
+	"pallet-grandpa/std",
+	"pallet-randomness-collective-flip/std",
+	"pallet-timestamp/std",
+	"pallet-elections-phragmen/std",
+	"pallet-transaction-payment/std",
+	"pallet-transaction-payment-rpc-runtime-api/std",
+	"pallet-collective/std",
+	"pallet-election-provider-multi-phase/std",
+	"pallet-staking/std",
+	"pallet-babe/std",
+	"pallet-im-online/std",
+	"pallet-multisig/std",
+	"pallet-bounties/std",
+	"pallet-proxy/std",
+	"pallet-identity/std",
+	"pallet-tips/std",
+	"pallet-utility/std",
+	"pallet-vesting/std",
+	"pallet-treasury/std",
+	"pallet-membership/std",
+	"pallet-democracy/std",
+	"pallet-offences/std",
+	"pallet-session/std",
+	"pallet-indices/std",
+	"pallet-scheduler/std",
+	"pallet-authorship/std",
+	"pallet-authority-discovery/std",
+	"sp-api/std",
+	"sp-block-builder/std",
+	"sp-consensus-aura/std",
+	"sp-core/std",
+	"sp-inherents/std",
+	"sp-offchain/std",
+	"sp-runtime/std",
+	"sp-session/std",
+	"sp-std/std",
+	"sp-transaction-pool/std",
+	"sp-version/std",
+	"sp-staking/std",
+	"sp-authority-discovery/std",
+	"sp-consensus-babe/std",
+	"sp-npos-elections/std",
+]
+runtime-benchmarks = [
+	"sp-runtime/runtime-benchmarks",
+	"frame-support/runtime-benchmarks",
+	"frame-system/runtime-benchmarks",
+	"pallet-balances/runtime-benchmarks",
+	"pallet-timestamp/runtime-benchmarks",
+
+	"frame-benchmarking",
+	"frame-system-benchmarking",
+	"hex-literal",
+
+]
