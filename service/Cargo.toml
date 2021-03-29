@@ -1,10 +1,9 @@
 [package]
-name = "neatcoin"
+name = "neatcoin-service"
 version = "0.1.0"
 authors = ["Wei Tang <wei@that.world>"]
 edition = "2018"
 license = "GPL-3.0-or-later"
-build = "build.rs"
 
 [dependencies]
 structopt = "0.3.8"
@@ -18,14 +17,17 @@ sc-keystore = { version = "3.0.0", git = "https://github.com/paritytech/substrat
 sp-inherents = { version = "3.0.0", git = "https://github.com/paritytech/substrate", branch = "neatcoin" }
 sc-transaction-pool = { version = "3.0.0", git = "https://github.com/paritytech/substrate", branch = "neatcoin" }
 sp-transaction-pool = { version = "3.0.0", git = "https://github.com/paritytech/substrate", branch = "neatcoin" }
-sc-consensus-aura = { version = "0.9.0", git = "https://github.com/paritytech/substrate", branch = "neatcoin" }
-sp-consensus-aura = { version = "0.9.0", git = "https://github.com/paritytech/substrate", branch = "neatcoin" }
+sc-consensus-babe = { version = "0.9.0", git = "https://github.com/paritytech/substrate", branch = "neatcoin" }
+sp-consensus-babe = { version = "0.9.0", git = "https://github.com/paritytech/substrate", branch = "neatcoin" }
 sp-consensus = { version = "0.9.0", git = "https://github.com/paritytech/substrate", branch = "neatcoin" }
 sc-consensus = { version = "0.9.0", git = "https://github.com/paritytech/substrate", branch = "neatcoin" }
 sc-finality-grandpa = { version = "0.9.0", git = "https://github.com/paritytech/substrate", branch = "neatcoin" }
 sp-finality-grandpa = { version = "3.0.0", git = "https://github.com/paritytech/substrate", branch = "neatcoin" }
 sc-client-api = { version = "3.0.0", git = "https://github.com/paritytech/substrate", branch = "neatcoin" }
 sp-runtime = { version = "3.0.0", git = "https://github.com/paritytech/substrate", branch = "neatcoin" }
+sp-offchain = { version = "3.0.0", git = "https://github.com/paritytech/substrate", branch = "neatcoin" }
+sp-session = { version = "3.0.0", git = "https://github.com/paritytech/substrate", branch = "neatcoin" }
+sp-authority-discovery = { version = "3.0.0", git = "https://github.com/paritytech/substrate", branch = "neatcoin" }
 
 # These dependencies are used for the node template's RPCs
 jsonrpc-core = "15.1.0"
@@ -37,33 +39,15 @@ sp-block-builder = { version = "3.0.0", git = "https://github.com/paritytech/sub
 sc-basic-authorship = { version = "0.9.0", git = "https://github.com/paritytech/substrate", branch = "neatcoin" }
 substrate-frame-rpc-system = { version = "3.0.0", git = "https://github.com/paritytech/substrate", branch = "neatcoin" }
 pallet-transaction-payment-rpc = { version = "3.0.0", git = "https://github.com/paritytech/substrate", branch = "neatcoin" }
+frame-system-rpc-runtime-api = { version = "3.0.0", git = "https://github.com/paritytech/substrate", branch = "neatcoin" }
+pallet-transaction-payment-rpc-runtime-api = { version = "3.0.0", git = "https://github.com/paritytech/substrate", branch = "neatcoin" }
 
-# These dependencies are used for runtime benchmarking
-frame-benchmarking = { version = "3.0.0", git = "https://github.com/paritytech/substrate", branch = "neatcoin" }
-frame-benchmarking-cli = { version = "3.0.0", git = "https://github.com/paritytech/substrate", branch = "neatcoin" }
-
-neatcoin-runtime = { path = "runtime/neatcoin" }
-
-funty = "=1.1.0"
-
-[build-dependencies]
-substrate-build-script-utils = { version = "3.0.0", git = "https://github.com/paritytech/substrate", branch = "neatcoin" }
+np-opaque = { path = "../primitives/opaque" }
+neatcoin-runtime = { path = "../runtime/neatcoin" }
+neatcoin-staging-runtime = { path = "../runtime/staging" }
 
 [features]
 default = []
 runtime-benchmarks = [
 	"neatcoin-runtime/runtime-benchmarks",
-]
-
-[workspace]
-members = [
-	"service",
-	"runtime/neatcoin",
-	"runtime/staging",
-	"primitives/domain",
-	"primitives/opaque",
-	"frame/outmove",
-	"frame/registry",
-	"frame/zone",
-	"frame/fcfs",
 ]

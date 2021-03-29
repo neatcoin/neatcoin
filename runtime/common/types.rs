@@ -93,7 +93,7 @@ static_assertions::assert_eq_size!(Balance, u128);
 /// The block number type used by Polkadot.
 /// 32-bits will allow for 136 years of blocks assuming 1 block per second.
 pub type BlockNumber = u32;
-static_assertions::assert_eq_size!(BlockNumber, opaque::BlockNumber);
+static_assertions::assert_type_eq_all!(BlockNumber, opaque::BlockNumber);
 
 /// An instant or duration in time.
 pub type Moment = u64;
@@ -109,6 +109,7 @@ pub type AccountPublic = <Signature as Verify>::Signer;
 /// Alias to the opaque account ID type for this chain, actually a `AccountId32`. This is always
 /// 32 bytes.
 pub type AccountId = <AccountPublic as IdentifyAccount>::AccountId;
+static_assertions::assert_type_eq_all!(AccountId, opaque::AccountId);
 
 /// The type for looking up accounts. We don't expect more than 4 billion of them.
 pub type AccountIndex = u32;
@@ -118,6 +119,7 @@ pub type Hash = sp_core::H256;
 
 /// Index of a transaction.
 pub type Nonce = u32;
+static_assertions::assert_type_eq_all!(Nonce, opaque::Nonce);
 
 /// The balance of an account.
 /// 128-bits (or 38 significant decimal figures) will allow for 10m currency (10^7) at a resolution
@@ -127,6 +129,7 @@ pub type Nonce = u32;
 /// We round denomination to 10^12 (12 sdf), and leave the other redundancy at the upper end so
 /// that 32 bits may be multiplied with a balance in 128 bits without worrying about overflow.
 pub type Balance = u128;
+static_assertions::assert_type_eq_all!(Balance, opaque::Balance);
 
 /// The address format for describing accounts.
 pub type Address = sp_runtime::MultiAddress<AccountId, ()>;

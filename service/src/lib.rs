@@ -16,25 +16,4 @@
 // You should have received a copy of the GNU General Public License
 // along with Neatcoin. If not, see <http://www.gnu.org/licenses/>.
 
-#![cfg_attr(not(feature = "std"), no_std)]
-
-use sp_runtime::generic;
-
-pub use sp_runtime::traits::BlakeTwo256;
-
-/// The block number type used by Polkadot.
-/// 32-bits will allow for 136 years of blocks assuming 1 block per second.
-pub type BlockNumber = u32;
-pub type AccountId = sp_runtime::AccountId32;
-pub type Nonce = u32;
-pub type Balance = u128;
-
-/// Opaque, encoded, unchecked extrinsic.
-pub use sp_runtime::OpaqueExtrinsic as UncheckedExtrinsic;
-
-/// Opaque block header type.
-pub type Header = generic::Header<BlockNumber, sp_runtime::traits::BlakeTwo256>;
-/// Opaque block type.
-pub type Block = generic::Block<Header, UncheckedExtrinsic>;
-/// Opaque block identifier type.
-pub type BlockId = generic::BlockId<Block>;
+mod client;
