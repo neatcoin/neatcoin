@@ -28,6 +28,7 @@ sp-runtime = { version = "3.0.0", git = "https://github.com/paritytech/substrate
 sp-offchain = { version = "3.0.0", git = "https://github.com/paritytech/substrate", branch = "neatcoin" }
 sp-session = { version = "3.0.0", git = "https://github.com/paritytech/substrate", branch = "neatcoin" }
 sp-authority-discovery = { version = "3.0.0", git = "https://github.com/paritytech/substrate", branch = "neatcoin" }
+sp-storage = { version = "3.0.0", git = "https://github.com/paritytech/substrate", branch = "neatcoin" }
 
 # These dependencies are used for the node template's RPCs
 jsonrpc-core = "15.1.0"
@@ -41,10 +42,11 @@ substrate-frame-rpc-system = { version = "3.0.0", git = "https://github.com/pari
 pallet-transaction-payment-rpc = { version = "3.0.0", git = "https://github.com/paritytech/substrate", branch = "neatcoin" }
 frame-system-rpc-runtime-api = { version = "3.0.0", git = "https://github.com/paritytech/substrate", branch = "neatcoin" }
 pallet-transaction-payment-rpc-runtime-api = { version = "3.0.0", git = "https://github.com/paritytech/substrate", branch = "neatcoin" }
+frame-benchmarking = { version = "3.0.0", git = "https://github.com/paritytech/substrate", branch = "neatcoin" }
 
 np-opaque = { path = "../primitives/opaque" }
 neatcoin-runtime = { path = "../runtime/neatcoin" }
-neatcoin-staging-runtime = { path = "../runtime/staging" }
+staging-runtime = { path = "../runtime/staging" }
 
 [features]
 default = []

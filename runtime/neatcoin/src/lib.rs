@@ -48,6 +48,8 @@ pub use pallet_timestamp::Call as TimestampCall;
 pub use pallet_balances::Call as BalancesCall;
 #[cfg(feature = "std")]
 pub use pallet_staking::StakerStatus;
+#[cfg(feature = "std")]
+pub use crate::api::{api::dispatch, RuntimeApi};
 pub use crate::types::{
 	opaque, BlockNumber, Moment, Signature, AccountPublic, AccountId, AccountIndex,
 	Hash, Nonce, Address, Header, Block, SignedBlock, BlockId, SignedExtra,

@@ -17,3 +17,31 @@
 // along with Neatcoin. If not, see <http://www.gnu.org/licenses/>.
 
 mod client;
+
+use sc_executor::native_executor_instance;
+use np_opaque::Block;
+
+native_executor_instance!(
+	pub NeatcoinExecutor,
+	neatcoin_runtime::dispatch,
+	neatcoin_runtime::native_version,
+	frame_benchmarking::benchmarking::HostFunctions,
+);
+
+native_executor_instance!(
+	pub StagingExecutor,
+	staging_runtime::dispatch,
+	staging_runtime::native_version,
+	frame_benchmarking::benchmarking::HostFunctions,
+);
+
+pub type FullBackend = sc_service::TFullBackend<Block>;
+pub type FullSelectChain = sc_consensus::LongestChain<FullBackend, Block>;
+pub type FullClient<RuntimeApi, Executor> = sc_service::TFullClient<Block, RuntimeApi, Executor>;
+pub type FullGrandpaBlockImport<RuntimeApi, Executor> = sc_finality_grandpa::GrandpaBlockImport<
+	FullBackend, Block, FullClient<RuntimeApi, Executor>, FullSelectChain
+>;
+
+pub type LightBackend = sc_service::TLightBackendWithHash<Block, sp_runtime::traits::BlakeTwo256>;
+pub type LightClient<RuntimeApi, Executor> =
+	sc_service::TLightClientWithBackend<Block, RuntimeApi, Executor, LightBackend>;

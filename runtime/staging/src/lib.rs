@@ -48,6 +48,8 @@ pub use pallet_timestamp::Call as TimestampCall;
 pub use pallet_balances::Call as BalancesCall;
 #[cfg(feature = "std")]
 pub use pallet_staking::StakerStatus;
+#[cfg(feature = "std")]
+pub use crate::api::{api::dispatch, RuntimeApi};
 pub use crate::types::{
 	opaque, BlockNumber, Moment, Signature, AccountPublic, AccountId, AccountIndex,
 	Hash, Nonce, Address, Header, Block, SignedBlock, BlockId, SignedExtra,
@@ -61,8 +63,8 @@ include!(concat!(env!("OUT_DIR"), "/wasm_binary.rs"));
 // Polkadot version identifier;
 /// Runtime version (Polkadot).
 pub const VERSION: RuntimeVersion = RuntimeVersion {
-	spec_name: create_runtime_str!("neatcoin-staging"),
-	impl_name: create_runtime_str!("neatcoin-staging"),
+	spec_name: create_runtime_str!("staging"),
+	impl_name: create_runtime_str!("staging"),
 	authoring_version: 0,
 	spec_version: 0,
 	impl_version: 0,
