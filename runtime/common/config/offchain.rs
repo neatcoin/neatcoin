@@ -1,15 +1,28 @@
-// Off-chain phragmen.
-parameter_types! {
-	/// A limit for off-chain phragmen unsigned solution submission.
-	///
-	/// We want to keep it as high as possible, but can't risk having it reject,
-	/// so we always subtract the base block execution weight.
-	pub OffchainSolutionWeightLimit: Weight = BlockWeights::get()
-		.get(DispatchClass::Normal)
-		.max_extrinsic
-		.expect("Normal extrinsics have weight limit configured by default; qed")
-		.saturating_sub(BlockExecutionWeight::get());
-}
+// SPDX-License-Identifier: GPL-3.0-or-later
+// This file is part of Neatcoin.
+//
+// Copyright (c) 2021 Wei Tang.
+//
+// Neatcoin is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Neatcoin is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Neatcoin. If not, see <http://www.gnu.org/licenses/>.
+
+use codec::Encode;
+use sp_runtime::{generic, traits::{Verify, Extrinsic as ExtrinsicT, SaturatedConversion}};
+use frame_support::{parameter_types, weights::DispatchClass};
+use crate::{
+	Runtime, Call, System,
+	types::{Signature, AccountId, UncheckedExtrinsic, BlockHashCount, SignedExtra, SignedPayload},
+};
 
 /// Submits a transaction with the node's public and signature type. Adheres to the signed extension
 /// format of the chain.

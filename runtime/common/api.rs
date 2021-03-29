@@ -1,3 +1,44 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// This file is part of Neatcoin.
+//
+// Copyright (c) 2021 Wei Tang.
+//
+// Neatcoin is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Neatcoin is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Neatcoin. If not, see <http://www.gnu.org/licenses/>.
+
+use sp_std::prelude::*;
+use sp_api::ApisVec;
+use sp_core::OpaqueMetadata;
+use sp_version::RuntimeVersion;
+use sp_runtime::{
+	ApplyExtrinsicResult, traits::{Block as BlockT},
+	transaction_validity::{TransactionValidity, TransactionSource},
+};
+use frame_support::traits::{Randomness, KeyOwnerProofSystem};
+use pallet_grandpa::fg_primitives;
+use pallet_transaction_payment::{FeeDetails, RuntimeDispatchInfo};
+use crate::{
+	Runtime, Executive, Grandpa, Historical, Babe, AuthorityDiscovery, SessionKeys, System,
+	TransactionPayment, InherentDataExt, VERSION,
+	types::{
+		Block, GrandpaId, EpochDuration, AuthorityDiscoveryId, AccountId, Nonce, Balance,
+		BABE_GENESIS_EPOCH_CONFIG,
+	},
+};
+
+// Work around the issue that RUNTIME_API_VERSIONS is not public.
+pub(crate) const PRUNTIME_API_VERSIONS: ApisVec = RUNTIME_API_VERSIONS;
+
 sp_api::impl_runtime_apis! {
 	impl sp_api::Core<Block> for Runtime {
 		fn version() -> RuntimeVersion {

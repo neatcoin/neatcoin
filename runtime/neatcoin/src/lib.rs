@@ -20,19 +20,21 @@
 // `construct_runtime!` does a lot of recursion and requires us to increase the limit to 256.
 #![recursion_limit = "256"]
 
-#[path = "../../common/primitives/mod.rs"]
-mod primitives;
-#[path = "../../common/configs.rs"]
-mod configs;
+mod config;
+
+#[path = "../../common/api.rs"]
+mod api;
+#[path = "../../common/constants.rs"]
+mod constants;
+#[path = "../../common/impls.rs"]
+mod impls;
+#[path = "../../common/types.rs"]
+mod types;
+#[cfg(test)]
+#[path = "../../common/tests/mod.rs"]
+mod tests;
 
 use pallet_transaction_payment::CurrencyAdapter;
-use crate::primitives::{
-	SlowAdjustingFeeUpdate, CurrencyToVote, impls::DealWithFees,
-	BlockHashCount, RocksDbWeight, BlockWeights, BlockLength, OffchainSolutionWeightLimit,
-	AccountId, AccountIndex, Balance, BlockNumber, Signature, Hash, Moment, Nonce,
-	BABE_GENESIS_EPOCH_CONFIG,
-};
-
 use sp_std::prelude::*;
 use sp_core::u32_trait::{_1, _2, _3, _4, _5};
 use codec::{Encode, Decode};
@@ -59,11 +61,16 @@ use frame_support::{
 	weights::Weight,
 };
 use frame_system::{EnsureRoot, EnsureOneOf};
-use pallet_im_online::sr25519::AuthorityId as ImOnlineId;
-use sp_authority_discovery::AuthorityId as AuthorityDiscoveryId;
+
 use pallet_transaction_payment::{FeeDetails, RuntimeDispatchInfo};
 use pallet_session::historical as session_historical;
 use static_assertions::const_assert;
+use frame_support::traits::InstanceFilter;
+use crate::types::{
+	CurrencyToVote, UncheckedExtrinsic, Block,
+	RocksDbWeight, AccountId, AccountIndex, Balance, BlockNumber,
+	Signature, Hash, Moment, Nonce, BABE_GENESIS_EPOCH_CONFIG,
+};
 
 #[cfg(feature = "std")]
 pub use pallet_staking::StakerStatus;
@@ -71,10 +78,6 @@ pub use pallet_staking::StakerStatus;
 pub use sp_runtime::BuildStorage;
 pub use pallet_timestamp::Call as TimestampCall;
 pub use pallet_balances::Call as BalancesCall;
-
-use crate::VERSION;
-use crate::primitives::constants::{time::*, currency::*, fee::*};
-use frame_support::traits::InstanceFilter;
 
 // Make the WASM binary available.
 #[cfg(feature = "std")]
@@ -88,7 +91,7 @@ pub const VERSION: RuntimeVersion = RuntimeVersion {
 	authoring_version: 0,
 	spec_version: 0,
 	impl_version: 0,
-	apis: configs::API_VERSIONS,
+	apis: crate::api::PRUNTIME_API_VERSIONS,
 	transaction_version: 0,
 };
 
@@ -130,10 +133,14 @@ impl_opaque_keys! {
 	}
 }
 
+pub type CouncilCollectiveInstance = pallet_collective::Instance1;
+pub type TechnicalCollectiveInstance = pallet_collective::Instance2;
+pub type TechnicalMembershipInstance = pallet_membership::Instance1;
+
 construct_runtime! {
 	pub enum Runtime where
 		Block = Block,
-		NodeBlock = crate::primitives::opaque::Block,
+		NodeBlock = crate::types::opaque::Block,
 		UncheckedExtrinsic = UncheckedExtrinsic
 	{
 		// Basic.
@@ -177,3 +184,12 @@ construct_runtime! {
 		Tips: pallet_tips::{Pallet, Call, Storage, Event<T>} = 35,
 	}
 }
+
+/// Executive: handles dispatch to the various modules.
+pub type Executive = frame_executive::Executive<
+	Runtime,
+	crate::types::Block,
+	frame_system::ChainContext<Runtime>,
+	Runtime,
+	AllPallets,
+>;

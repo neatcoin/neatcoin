@@ -19,7 +19,7 @@
 //! Auxillary struct/enums for polkadot runtime.
 
 use frame_support::traits::{OnUnbalanced, Imbalance, Currency};
-use super::NegativeImbalance;
+use crate::types::NegativeImbalance;
 
 /// Logic for the author to get a portion of fees.
 pub struct ToAuthor<R>(sp_std::marker::PhantomData<R>);

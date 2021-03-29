@@ -1,3 +1,29 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// This file is part of Neatcoin.
+//
+// Copyright (c) 2021 Wei Tang.
+//
+// Neatcoin is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Neatcoin is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Neatcoin. If not, see <http://www.gnu.org/licenses/>.
+
+use sp_runtime::traits::ConvertInto;
+use frame_support::parameter_types;
+use crate::{
+	Runtime, Event, Call, Balances,
+	types::Balance,
+	constants::currency::{deposit, DOLLARS},
+};
+
 impl pallet_utility::Config for Runtime {
 	type Event = Event;
 	type Call = Call;
@@ -23,12 +49,13 @@ impl pallet_multisig::Config for Runtime {
 }
 
 parameter_types! {
-	// One storage item; key size 32, value size 8; .
-	pub const ProxyDepositBase: Balance = deposit(1, 8);
-	// Additional storage item size of 33 bytes.
-	pub const ProxyDepositFactor: Balance = deposit(0, 33);
-	pub const MaxProxies: u16 = 32;
-	pub const AnnouncementDepositBase: Balance = deposit(1, 8);
-	pub const AnnouncementDepositFactor: Balance = deposit(0, 66);
-	pub const MaxPending: u16 = 32;
+	pub const MinVestedTransfer: Balance = 100 * DOLLARS;
+}
+
+impl pallet_vesting::Config for Runtime {
+	type Event = Event;
+	type Currency = Balances;
+	type BlockNumberToBalance = ConvertInto;
+	type MinVestedTransfer = MinVestedTransfer;
+	type WeightInfo = ();
 }

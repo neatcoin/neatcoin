@@ -18,27 +18,31 @@
 
 //! Common runtime code for Neatcoin and Neatcoin testnet.
 
-pub mod constants;
-pub mod impls;
-
 use static_assertions::const_assert;
+use sp_core::u32_trait::{_1, _2, _3, _4, _5};
 use sp_runtime::{
-	generic, MultiSignature, Perbill, traits::BlakeTwo256, traits::{Verify, IdentifyAccount},
+	generic, MultiSignature, Perbill, traits::{Verify, IdentifyAccount},
 	Perquintill, FixedPointNumber,
 };
-use frame_system::limits;
+use frame_system::{limits, EnsureOneOf, EnsureRoot};
 use frame_support::{
 	parameter_types, weights::{Weight, constants::WEIGHT_PER_SECOND, DispatchClass}, traits::Currency,
 };
-pub use frame_support::weights::constants::{BlockExecutionWeight, ExtrinsicBaseWeight, RocksDbWeight};
 use pallet_transaction_payment::{TargetedFeeAdjustment, Multiplier};
+use crate::{Runtime, Call, CouncilCollectiveInstance};
+
+pub use sp_authority_discovery::AuthorityId as AuthorityDiscoveryId;
+pub use sp_runtime::traits::BlakeTwo256;
+pub use frame_support::weights::constants::{BlockExecutionWeight, ExtrinsicBaseWeight, RocksDbWeight};
+pub use pallet_im_online::sr25519::AuthorityId as ImOnlineId;
+pub use pallet_grandpa::AuthorityId as GrandpaId;
 
 pub type NegativeImbalance<T> = <pallet_balances::Pallet<T> as Currency<<T as frame_system::Config>::AccountId>>::NegativeImbalance;
 
 /// The BABE epoch configuration at genesis.
 pub const BABE_GENESIS_EPOCH_CONFIG: sp_consensus_babe::BabeEpochConfiguration =
 	sp_consensus_babe::BabeEpochConfiguration {
-		c: self::constants::time::PRIMARY_PROBABILITY,
+		c: crate::constants::time::PRIMARY_PROBABILITY,
 		allowed_slots: sp_consensus_babe::AllowedSlots::PrimaryAndSecondaryVRFSlots
 	};
 
@@ -47,25 +51,41 @@ pub const BABE_GENESIS_EPOCH_CONFIG: sp_consensus_babe::BabeEpochConfiguration =
 pub const AVERAGE_ON_INITIALIZE_RATIO: Perbill = Perbill::from_percent(1);
 /// We allow `Normal` extrinsics to fill up the block up to 75%, the rest can be used
 /// by  Operational  extrinsics.
-const NORMAL_DISPATCH_RATIO: Perbill = Perbill::from_percent(75);
+pub const NORMAL_DISPATCH_RATIO: Perbill = Perbill::from_percent(75);
 /// We allow for 2 seconds of compute with a 6 second average block time.
 pub const MAXIMUM_BLOCK_WEIGHT: Weight = 2 * WEIGHT_PER_SECOND;
 
 const_assert!(NORMAL_DISPATCH_RATIO.deconstruct() >= AVERAGE_ON_INITIALIZE_RATIO.deconstruct());
 
+parameter_types! {
+	/// Block hash count.
+	pub const BlockHashCount: BlockNumber = 2400;
+	/// Block weights base values and limits.
+	pub BlockWeights: limits::BlockWeights = limits::BlockWeights::builder()
+		.base_block(BlockExecutionWeight::get())
+		.for_class(DispatchClass::all(), |weights| {
+			weights.base_extrinsic = ExtrinsicBaseWeight::get();
+		})
+		.for_class(DispatchClass::Normal, |weights| {
+			weights.max_total = Some(NORMAL_DISPATCH_RATIO * MAXIMUM_BLOCK_WEIGHT);
+		})
+		.for_class(DispatchClass::Operational, |weights| {
+			weights.max_total = Some(MAXIMUM_BLOCK_WEIGHT);
+			// Operational transactions have an extra reserved space, so that they
+			// are included even if block reached `MAXIMUM_BLOCK_WEIGHT`.
+			weights.reserved = Some(
+				MAXIMUM_BLOCK_WEIGHT - NORMAL_DISPATCH_RATIO * MAXIMUM_BLOCK_WEIGHT,
+			);
+		})
+		.avg_block_initialization(AVERAGE_ON_INITIALIZE_RATIO)
+		.build_or_panic();
+	pub const EpochDuration: u64 = crate::constants::time::EPOCH_DURATION_IN_BLOCKS as u64;
+}
+
 pub type MoreThanHalfCouncil = EnsureOneOf<
 	AccountId,
 	EnsureRoot<AccountId>,
-	pallet_collective::EnsureProportionMoreThan<_1, _2, AccountId, CouncilCollective>
->;
-
-/// Parameterized slow adjusting fee updated based on
-/// https://w3f-research.readthedocs.io/en/latest/polkadot/Token%20Economics.html#-2.-slow-adjusting-mechanism
-pub type SlowAdjustingFeeUpdate<R> = TargetedFeeAdjustment<
-	R,
-	TargetBlockFullness,
-	AdjustmentVariable,
-	MinimumMultiplier
+	pallet_collective::EnsureProportionMoreThan<_1, _2, AccountId, CouncilCollectiveInstance>
 >;
 
 /// The type used for currency conversion.
@@ -135,14 +155,6 @@ pub type SignedExtra = (
 pub type UncheckedExtrinsic = generic::UncheckedExtrinsic<Address, Call, Signature, SignedExtra>;
 /// Extrinsic type that has already been checked.
 pub type CheckedExtrinsic = generic::CheckedExtrinsic<AccountId, Nonce, Call>;
-/// Executive: handles dispatch to the various modules.
-pub type Executive = frame_executive::Executive<
-	Runtime,
-	Block,
-	frame_system::ChainContext<Runtime>,
-	Runtime,
-	AllPallets,
->;
 /// The payload being signed in transactions.
 pub type SignedPayload = generic::SignedPayload<Call, SignedExtra>;
 
