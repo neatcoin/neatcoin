@@ -68,26 +68,32 @@ pub enum Error {
 
 	#[error(transparent)]
 	Telemetry(#[from] sc_telemetry::Error),
+}
 
-	#[error("Unknown chain varient")]
-	UnknownChainVarient,
+#[derive(Copy, Clone, Eq, PartialEq, Debug)]
+pub enum ChainVariant {
+	Neatcoin,
+	Staging,
+}
+
+impl Default for ChainVariant {
+	fn default() -> Self {
+		Self::Neatcoin
+	}
 }
 
 /// Can be called for a `Configuration` to check if it is a configuration for the `Kusama` network.
 pub trait IdentifyVariant {
-	/// Returns if this is a configuration for the `Neatcoin` network.
-	fn is_neatcoin(&self) -> bool;
-
-	/// Returns if this is a configuration for the `Staging` network.
-	fn is_staging(&self) -> bool;
+	fn identify_variant(&self) -> ChainVariant;
 }
 
 impl IdentifyVariant for Box<dyn ChainSpec> {
-	fn is_neatcoin(&self) -> bool {
-		self.id().starts_with("neatcoin")
-	}
-	fn is_staging(&self) -> bool {
-		self.id().starts_with("staging")
+	fn identify_variant(&self) -> ChainVariant {
+		if self.id().starts_with("staging") {
+			ChainVariant::Staging
+		} else {
+			ChainVariant::Neatcoin
+		}
 	}
 }
 
@@ -498,14 +504,15 @@ pub fn new_full<RuntimeApi, Executor>(
 pub fn build_full(
 	config: Configuration,
 ) -> Result<NewFull<Client>, Error> {
-	if config.chain_spec.is_neatcoin() {
-		new_full::<neatcoin_runtime::RuntimeApi, NeatcoinExecutor>(config)
-			.map(|full| full.with_client(Client::Neatcoin))
-	} else if config.chain_spec.is_staging() {
-		new_full::<staging_runtime::RuntimeApi, StagingExecutor>(config)
-			.map(|full| full.with_client(Client::Staging))
-	} else {
-		return Err(Error::UnknownChainVarient)
+	match config.chain_spec.identify_variant() {
+		ChainVariant::Neatcoin => {
+			new_full::<neatcoin_runtime::RuntimeApi, NeatcoinExecutor>(config)
+				.map(|full| full.with_client(Client::Neatcoin))
+		},
+		ChainVariant::Staging => {
+			new_full::<staging_runtime::RuntimeApi, StagingExecutor>(config)
+				.map(|full| full.with_client(Client::Staging))
+		},
 	}
 }
 
@@ -634,11 +641,8 @@ fn new_light<Runtime, Dispatch>(config: Configuration) -> Result<NewLight, Error
 }
 
 pub fn build_light(config: Configuration) -> Result<NewLight, Error> {
-	if config.chain_spec.is_neatcoin() {
-		new_light::<neatcoin_runtime::RuntimeApi, NeatcoinExecutor>(config)
-	} else if config.chain_spec.is_staging() {
-		new_light::<staging_runtime::RuntimeApi, StagingExecutor>(config)
-	} else {
-		return Err(Error::UnknownChainVarient)
+	match config.chain_spec.identify_variant() {
+		ChainVariant::Neatcoin => new_light::<neatcoin_runtime::RuntimeApi, NeatcoinExecutor>(config),
+		ChainVariant::Staging => new_light::<staging_runtime::RuntimeApi, StagingExecutor>(config)
 	}
 }

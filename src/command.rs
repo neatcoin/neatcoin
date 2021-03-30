@@ -20,7 +20,7 @@ use crate::{chain_spec, service};
 use crate::cli::{Cli, Subcommand};
 use sc_cli::{SubstrateCli, RuntimeVersion, Role, ChainSpec};
 use sc_service::PartialComponents;
-use neatcoin_runtime::Block;
+use neatcoin_service::chain_spec;
 
 impl SubstrateCli for Cli {
 	fn impl_name() -> String {
@@ -49,16 +49,19 @@ impl SubstrateCli for Cli {
 
 	fn load_spec(&self, id: &str) -> Result<Box<dyn sc_service::ChainSpec>, String> {
 		Ok(match id {
-			"dev" => Box::new(chain_spec::development_config()?),
-			"" | "local" => Box::new(chain_spec::local_testnet_config()?),
+			"staging" => Box::new(chain_spec::staging_config()?),
+			"" | "neatcoin" | "mainnet" => Box::new(chain_spec::neatcoin_config()?),
 			path => Box::new(chain_spec::ChainSpec::from_json_file(
 				std::path::PathBuf::from(path),
 			)?),
 		})
 	}
 
-	fn native_runtime_version(_: &Box<dyn ChainSpec>) -> &'static RuntimeVersion {
-		&neatcoin_runtime::VERSION
+	fn native_runtime_version(spec: &Box<dyn ChainSpec>) -> &'static RuntimeVersion {
+		match spec.identify_variant {
+			ChainVariant::Neatcoin => &service::neatcoin_runtime::VERSION,
+			ChainVariant::Staging => &service::staging_runtime::VERSION,
+		}
 	}
 }
 
