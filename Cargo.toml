@@ -58,6 +58,7 @@ runtime-benchmarks = [
 [workspace]
 members = [
 	"service",
+	"rpc",
 	"runtime/neatcoin",
 	"runtime/staging",
 	"primitives/domain",

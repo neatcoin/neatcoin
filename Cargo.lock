@@ -3687,6 +3687,35 @@ dependencies = [
 ]
 
 [[package]]
+name = "neatcoin-rpc"
+version = "0.1.0"
+dependencies = [
+ "jsonrpc-core",
+ "np-opaque",
+ "pallet-transaction-payment-rpc",
+ "parity-scale-codec",
+ "sc-chain-spec",
+ "sc-client-api",
+ "sc-consensus-babe",
+ "sc-consensus-babe-rpc",
+ "sc-consensus-epochs",
+ "sc-finality-grandpa",
+ "sc-finality-grandpa-rpc",
+ "sc-keystore",
+ "sc-rpc",
+ "sc-sync-state-rpc",
+ "sp-api",
+ "sp-block-builder",
+ "sp-blockchain",
+ "sp-consensus",
+ "sp-consensus-babe",
+ "sp-keystore",
+ "sp-runtime",
+ "sp-transaction-pool",
+ "substrate-frame-rpc-system",
+]
+
+[[package]]
 name = "neatcoin-runtime"
 version = "0.1.0"
 dependencies = [
@@ -3757,6 +3786,7 @@ dependencies = [
  "frame-benchmarking",
  "frame-system-rpc-runtime-api",
  "jsonrpc-core",
+ "neatcoin-rpc",
  "neatcoin-runtime",
  "np-opaque",
  "pallet-transaction-payment-rpc",
@@ -3792,6 +3822,8 @@ dependencies = [
  "staging-runtime",
  "structopt",
  "substrate-frame-rpc-system",
+ "substrate-prometheus-endpoint",
+ "thiserror",
 ]
 
 [[package]]
@@ -6041,6 +6073,30 @@ dependencies = [
 ]
 
 [[package]]
+name = "sc-consensus-babe-rpc"
+version = "0.9.0"
+source = "git+https://github.com/paritytech/substrate?branch=neatcoin#b4e27ee13ca7c86a647656643e07d624fcf0cc15"
+dependencies = [
+ "derive_more",
+ "futures 0.3.13",
+ "jsonrpc-core",
+ "jsonrpc-core-client",
+ "jsonrpc-derive",
+ "sc-consensus-babe",
+ "sc-consensus-epochs",
+ "sc-rpc-api",
+ "serde",
+ "sp-api",
+ "sp-application-crypto",
+ "sp-blockchain",
+ "sp-consensus",
+ "sp-consensus-babe",
+ "sp-core",
+ "sp-keystore",
+ "sp-runtime",
+]
+
+[[package]]
 name = "sc-consensus-epochs"
 version = "0.9.0"
 source = "git+https://github.com/paritytech/substrate?branch=neatcoin#b4e27ee13ca7c86a647656643e07d624fcf0cc15"
@@ -6209,6 +6265,30 @@ dependencies = [
  "sp-runtime",
  "sp-utils",
  "substrate-prometheus-endpoint",
+]
+
+[[package]]
+name = "sc-finality-grandpa-rpc"
+version = "0.9.0"
+source = "git+https://github.com/paritytech/substrate?branch=neatcoin#b4e27ee13ca7c86a647656643e07d624fcf0cc15"
+dependencies = [
+ "derive_more",
+ "finality-grandpa",
+ "futures 0.3.13",
+ "jsonrpc-core",
+ "jsonrpc-core-client",
+ "jsonrpc-derive",
+ "jsonrpc-pubsub",
+ "log",
+ "parity-scale-codec",
+ "sc-client-api",
+ "sc-finality-grandpa",
+ "sc-rpc",
+ "serde",
+ "serde_json",
+ "sp-blockchain",
+ "sp-core",
+ "sp-runtime",
 ]
 
 [[package]]
@@ -6539,6 +6619,26 @@ dependencies = [
  "parking_lot 0.11.1",
  "sc-client-api",
  "sp-core",
+ "thiserror",
+]
+
+[[package]]
+name = "sc-sync-state-rpc"
+version = "0.9.0"
+source = "git+https://github.com/paritytech/substrate?branch=neatcoin#b4e27ee13ca7c86a647656643e07d624fcf0cc15"
+dependencies = [
+ "jsonrpc-core",
+ "jsonrpc-core-client",
+ "jsonrpc-derive",
+ "sc-chain-spec",
+ "sc-client-api",
+ "sc-consensus-babe",
+ "sc-consensus-epochs",
+ "sc-finality-grandpa",
+ "sc-rpc-api",
+ "serde_json",
+ "sp-blockchain",
+ "sp-runtime",
  "thiserror",
 ]
 
