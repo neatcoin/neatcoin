@@ -16,11 +16,23 @@
 // You should have received a copy of the GNU General Public License
 // along with Neatcoin. If not, see <http://www.gnu.org/licenses/>.
 
-use crate::{chain_spec, service};
-use crate::cli::{Cli, Subcommand};
+use std::sync::Arc;
+use futures::future::TryFutureExt;
 use sc_cli::{SubstrateCli, RuntimeVersion, Role, ChainSpec};
-use sc_service::PartialComponents;
-use neatcoin_service::chain_spec;
+use neatcoin_service::{chain_spec, IdentifyVariant, ChainVariant};
+use crate::cli::{Cli, Subcommand};
+
+#[derive(thiserror::Error, Debug)]
+pub enum Error {
+	#[error(transparent)]
+	NeatcoinService(#[from] neatcoin_service::Error),
+
+	#[error(transparent)]
+	SubstrateCli(#[from] sc_cli::Error),
+
+	#[error(transparent)]
+	SubstrateService(#[from] sc_service::Error),
+}
 
 impl SubstrateCli for Cli {
 	fn impl_name() -> String {
@@ -51,92 +63,154 @@ impl SubstrateCli for Cli {
 		Ok(match id {
 			"staging" => Box::new(chain_spec::staging_config()?),
 			"" | "neatcoin" | "mainnet" => Box::new(chain_spec::neatcoin_config()?),
-			path => Box::new(chain_spec::ChainSpec::from_json_file(
-				std::path::PathBuf::from(path),
-			)?),
+			_path => return Err("Custom chain spec is not supported".into()),
 		})
 	}
 
 	fn native_runtime_version(spec: &Box<dyn ChainSpec>) -> &'static RuntimeVersion {
-		match spec.identify_variant {
-			ChainVariant::Neatcoin => &service::neatcoin_runtime::VERSION,
-			ChainVariant::Staging => &service::staging_runtime::VERSION,
+		match spec.identify_variant() {
+			ChainVariant::Neatcoin => &neatcoin_service::neatcoin_runtime::VERSION,
+			ChainVariant::Staging => &neatcoin_service::staging_runtime::VERSION,
 		}
 	}
 }
 
-/// Parse and run command line arguments
-pub fn run() -> sc_cli::Result<()> {
+fn set_default_ss58_version(spec: &Box<dyn sc_service::ChainSpec>) {
+	use sp_core::crypto::Ss58AddressFormat;
+
+	let ss58_version = match spec.identify_variant() {
+		ChainVariant::Neatcoin => Ss58AddressFormat::NeatcoinAccount,
+		ChainVariant::Staging => Ss58AddressFormat::SubstrateAccount,
+	};
+
+	sp_core::crypto::set_default_ss58_version(ss58_version);
+}
+
+/// Parses polkadot specific CLI arguments and run the service.
+pub fn run() -> Result<(), Error> {
 	let cli = Cli::from_args();
 
 	match &cli.subcommand {
-		Some(Subcommand::Key(cmd)) => cmd.run(&cli),
+		None => {
+			let runner = cli.create_runner(&cli.run)
+				.map_err(Error::from)?;
+			let chain_spec = &runner.config().chain_spec;
+
+			set_default_ss58_version(chain_spec);
+
+			runner.run_node_until_exit(move |config| async move {
+				let role = config.role.clone();
+
+				let task_manager = match role {
+					Role::Light => neatcoin_service::build_light(config).map(|light| light.task_manager),
+					_ => neatcoin_service::build_full(config).map(|full| full.task_manager),
+				}?;
+				Ok::<_, Error>(task_manager)
+			})
+		},
 		Some(Subcommand::BuildSpec(cmd)) => {
 			let runner = cli.create_runner(cmd)?;
-			runner.sync_run(|config| cmd.run(config.chain_spec, config.network))
+			Ok(runner.sync_run(|config| {
+				cmd.run(config.chain_spec, config.network)
+			})?)
 		},
 		Some(Subcommand::CheckBlock(cmd)) => {
-			let runner = cli.create_runner(cmd)?;
-			runner.async_run(|config| {
-				let PartialComponents { client, task_manager, import_queue, ..}
-					= service::new_partial(&config)?;
-				Ok((cmd.run(client, import_queue), task_manager))
+			let runner = cli.create_runner(cmd)
+				.map_err(Error::SubstrateCli)?;
+			let chain_spec = &runner.config().chain_spec;
+
+			set_default_ss58_version(chain_spec);
+
+			runner.async_run(|mut config| {
+				let ops = neatcoin_service::new_chain_ops(&mut config)?;
+				Ok((cmd.run(Arc::new(ops.client), ops.import_queue).map_err(Error::SubstrateCli), ops.task_manager))
 			})
 		},
 		Some(Subcommand::ExportBlocks(cmd)) => {
 			let runner = cli.create_runner(cmd)?;
-			runner.async_run(|config| {
-				let PartialComponents { client, task_manager, ..}
-					= service::new_partial(&config)?;
-				Ok((cmd.run(client, config.database), task_manager))
-			})
+			let chain_spec = &runner.config().chain_spec;
+
+			set_default_ss58_version(chain_spec);
+
+			Ok(runner.async_run(|mut config| {
+				let ops = neatcoin_service::new_chain_ops(&mut config)?;
+				Ok((cmd.run(Arc::new(ops.client), config.database).map_err(Error::SubstrateCli), ops.task_manager))
+			})?)
 		},
 		Some(Subcommand::ExportState(cmd)) => {
 			let runner = cli.create_runner(cmd)?;
-			runner.async_run(|config| {
-				let PartialComponents { client, task_manager, ..}
-					= service::new_partial(&config)?;
-				Ok((cmd.run(client, config.chain_spec), task_manager))
-			})
+			let chain_spec = &runner.config().chain_spec;
+
+			set_default_ss58_version(chain_spec);
+
+			Ok(runner.async_run(|mut config| {
+				let ops = neatcoin_service::new_chain_ops(&mut config)?;
+				Ok((cmd.run(Arc::new(ops.client), config.chain_spec).map_err(Error::SubstrateCli), ops.task_manager))
+			})?)
 		},
 		Some(Subcommand::ImportBlocks(cmd)) => {
 			let runner = cli.create_runner(cmd)?;
-			runner.async_run(|config| {
-				let PartialComponents { client, task_manager, import_queue, ..}
-					= service::new_partial(&config)?;
-				Ok((cmd.run(client, import_queue), task_manager))
-			})
+			let chain_spec = &runner.config().chain_spec;
+
+			set_default_ss58_version(chain_spec);
+
+			Ok(runner.async_run(|mut config| {
+				let ops = neatcoin_service::new_chain_ops(&mut config)?;
+				Ok((cmd.run(Arc::new(ops.client), ops.import_queue).map_err(Error::SubstrateCli), ops.task_manager))
+			})?)
 		},
 		Some(Subcommand::PurgeChain(cmd)) => {
 			let runner = cli.create_runner(cmd)?;
-			runner.sync_run(|config| cmd.run(config.database))
+			Ok(runner.sync_run(|config| cmd.run(config.database))?)
 		},
 		Some(Subcommand::Revert(cmd)) => {
 			let runner = cli.create_runner(cmd)?;
-			runner.async_run(|config| {
-				let PartialComponents { client, task_manager, backend, ..}
-					= service::new_partial(&config)?;
-				Ok((cmd.run(client, backend), task_manager))
-			})
+			let chain_spec = &runner.config().chain_spec;
+
+			set_default_ss58_version(chain_spec);
+
+			Ok(runner.async_run(|mut config| {
+				let ops = neatcoin_service::new_chain_ops(&mut config)?;
+				Ok((cmd.run(Arc::new(ops.client), ops.backend).map_err(Error::SubstrateCli), ops.task_manager))
+			})?)
 		},
 		Some(Subcommand::Benchmark(cmd)) => {
-			if cfg!(feature = "runtime-benchmarks") {
-				let runner = cli.create_runner(cmd)?;
+			let runner = cli.create_runner(cmd)?;
+			let chain_spec = &runner.config().chain_spec;
 
-				runner.sync_run(|config| cmd.run::<Block, service::Executor>(config))
-			} else {
-				Err("Benchmarking wasn't enabled when building the node. \
-				You can enable it with `--features runtime-benchmarks`.".into())
-			}
+			set_default_ss58_version(chain_spec);
+
+			Ok(runner.sync_run(|config| {
+				cmd.run::<neatcoin_service::neatcoin_runtime::Block, neatcoin_service::NeatcoinExecutor>(config)
+					.map_err(|e| Error::SubstrateCli(e))
+			})?)
 		},
-		None => {
-			let runner = cli.create_runner(&cli.run)?;
-			runner.run_node_until_exit(|config| async move {
-				match config.role {
-					Role::Light => service::new_light(config),
-					_ => service::new_full(config),
-				}.map_err(sc_cli::Error::Service)
+		Some(Subcommand::Key(cmd)) => Ok(cmd.run(&cli)?),
+		#[cfg(feature = "try-runtime")]
+		Some(Subcommand::TryRuntime(cmd)) => {
+			let runner = cli.create_runner(cmd)?;
+			let chain_spec = &runner.config().chain_spec;
+			set_default_ss58_version(chain_spec);
+
+			runner.async_run(|config| {
+				use sc_service::TaskManager;
+				let registry = config.prometheus_config.as_ref().map(|cfg| &cfg.registry);
+				let task_manager = TaskManager::new(
+					config.task_executor.clone(),
+					registry,
+				).map_err(|e| Error::SubstrateService(sc_service::Error::Prometheus(e)))?;
+
+				Ok((
+					cmd.run::<
+						service::kusama_runtime::Block,
+						service::KusamaExecutor,
+					>(config).map_err(Error::SubstrateCli),
+					task_manager
+				))
+				// NOTE: we fetch only the block number from the block type, the chance of disparity
+				// between kusama's and polkadot's block number is small enough to overlook this.
 			})
 		}
-	}
+	}?;
+	Ok(())
 }

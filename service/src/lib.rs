@@ -21,7 +21,7 @@ mod client;
 
 use std::{time::Duration, sync::Arc};
 use sp_api::ConstructRuntimeApi;
-use sp_runtime::traits::Block as BlockT;
+use sp_runtime::traits::{Block as BlockT, BlakeTwo256};
 use sc_service::{NativeExecutionDispatch, Configuration, RpcHandlers, TaskManager, ChainSpec};
 use sc_telemetry::{Telemetry, TelemetryWorker};
 use sc_executor::native_executor_instance;
@@ -30,6 +30,8 @@ use sc_client_api::{ExecutorProvider, backend::RemoteBackend};
 use sc_basic_authorship::ProposerFactory;
 use np_opaque::Block;
 
+pub use neatcoin_runtime;
+pub use staging_runtime;
 pub use crate::client::{AbstractClient, Client, ClientHandle, ExecuteWithClient, RuntimeApiCollection};
 
 native_executor_instance!(
@@ -513,6 +515,36 @@ pub fn build_full(
 			new_full::<staging_runtime::RuntimeApi, StagingExecutor>(config)
 				.map(|full| full.with_client(Client::Staging))
 		},
+	}
+}
+
+pub struct NewChainOps<C> {
+	pub task_manager: TaskManager,
+	pub client: C,
+	pub import_queue: sp_consensus::import_queue::BasicQueue<Block, sp_trie::PrefixedMemoryDB<BlakeTwo256>>,
+	pub backend: Arc<FullBackend>,
+}
+
+/// Builds a new object suitable for chain operations.
+pub fn new_chain_ops(mut config: &mut Configuration) -> Result<NewChainOps<Client>, Error> {
+	config.keystore = sc_service::config::KeystoreConfig::InMemory;
+	match config.chain_spec.identify_variant() {
+		ChainVariant::Neatcoin => {
+			let sc_service::PartialComponents { client, backend, import_queue, task_manager, .. }
+				= new_partial::<neatcoin_runtime::RuntimeApi, NeatcoinExecutor>(config)?;
+			Ok(NewChainOps {
+				client: Client::Neatcoin(client),
+				backend, import_queue, task_manager,
+			})
+		},
+		ChainVariant::Staging => {
+			let sc_service::PartialComponents { client, backend, import_queue, task_manager, .. }
+				= new_partial::<staging_runtime::RuntimeApi, StagingExecutor>(config)?;
+			Ok(NewChainOps {
+				client: Client::Staging(client),
+				backend, import_queue, task_manager,
+			})
+		}
 	}
 }
 

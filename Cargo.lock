@@ -3655,6 +3655,7 @@ dependencies = [
  "frame-benchmarking",
  "frame-benchmarking-cli",
  "funty",
+ "futures 0.3.13",
  "jsonrpc-core",
  "neatcoin-rpc",
  "neatcoin-service",
@@ -3685,6 +3686,7 @@ dependencies = [
  "structopt",
  "substrate-build-script-utils",
  "substrate-frame-rpc-system",
+ "thiserror",
 ]
 
 [[package]]
@@ -3825,6 +3827,7 @@ dependencies = [
  "sp-session",
  "sp-storage",
  "sp-transaction-pool",
+ "sp-trie",
  "staging-runtime",
  "structopt",
  "substrate-frame-rpc-system",

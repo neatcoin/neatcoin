@@ -17,15 +17,10 @@
 // along with Neatcoin. If not, see <http://www.gnu.org/licenses/>.
 
 //! Neatcoin CLI library.
-#![warn(missing_docs)]
 
-mod chain_spec;
-#[macro_use]
-mod service;
 mod cli;
 mod command;
-mod rpc;
 
-fn main() -> sc_cli::Result<()> {
+fn main() -> Result<(), command::Error> {
 	command::run()
 }

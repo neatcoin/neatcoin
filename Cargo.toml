@@ -27,7 +27,8 @@ sp-finality-grandpa = { version = "3.0.0", git = "https://github.com/paritytech/
 sc-client-api = { version = "3.0.0", git = "https://github.com/paritytech/substrate", branch = "neatcoin" }
 sp-runtime = { version = "3.0.0", git = "https://github.com/paritytech/substrate", branch = "neatcoin" }
 
-# These dependencies are used for the node template's RPCs
+futures = "0.3.12"
+thiserror = "1.0.23"
 jsonrpc-core = "15.1.0"
 sc-rpc = { version = "3.0.0", git = "https://github.com/paritytech/substrate", branch = "neatcoin" }
 sp-api = { version = "3.0.0", git = "https://github.com/paritytech/substrate", branch = "neatcoin" }
@@ -52,6 +53,7 @@ substrate-build-script-utils = { version = "3.0.0", git = "https://github.com/pa
 
 [features]
 default = []
+try-runtime = []
 runtime-benchmarks = [
 	"neatcoin-service/runtime-benchmarks",
 ]
