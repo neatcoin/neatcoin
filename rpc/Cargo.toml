@@ -1,0 +1,31 @@
+[package]
+name = "neatcoin-rpc"
+version = "0.1.0"
+authors = ["Wei Tang <wei@that.world>"]
+edition = "2018"
+license = "GPL-3.0-or-later"
+
+[dependencies]
+jsonrpc-core = "15.1.0"
+sc-client-api = { git = "https://github.com/paritytech/substrate", branch = "neatcoin"  }
+sp-blockchain = { git = "https://github.com/paritytech/substrate", branch = "neatcoin"  }
+sp-keystore = { git = "https://github.com/paritytech/substrate", branch = "neatcoin"  }
+sp-runtime = { git = "https://github.com/paritytech/substrate", branch = "neatcoin"  }
+sp-api = { git = "https://github.com/paritytech/substrate", branch = "neatcoin"  }
+sp-consensus = { git = "https://github.com/paritytech/substrate", branch = "neatcoin"  }
+sp-consensus-babe = { git = "https://github.com/paritytech/substrate", branch = "neatcoin"  }
+sc-chain-spec = { git = "https://github.com/paritytech/substrate", branch = "neatcoin" }
+sc-rpc = { git = "https://github.com/paritytech/substrate", branch = "neatcoin" }
+sc-consensus-babe = { git = "https://github.com/paritytech/substrate", branch = "neatcoin"}
+sc-consensus-babe-rpc = { git = "https://github.com/paritytech/substrate", branch = "neatcoin"}
+sc-consensus-epochs = { git = "https://github.com/paritytech/substrate", branch = "neatcoin"}
+sc-finality-grandpa = { git = "https://github.com/paritytech/substrate", branch = "neatcoin" }
+sc-finality-grandpa-rpc = { git = "https://github.com/paritytech/substrate", branch = "neatcoin" }
+sc-keystore = { git = "https://github.com/paritytech/substrate", branch = "neatcoin"}
+sc-sync-state-rpc = { git = "https://github.com/paritytech/substrate", branch = "neatcoin"}
+txpool-api = { package = "sp-transaction-pool", git = "https://github.com/paritytech/substrate", branch = "neatcoin" }
+frame-rpc-system = { package = "substrate-frame-rpc-system", git = "https://github.com/paritytech/substrate", branch = "neatcoin"  }
+pallet-transaction-payment-rpc = { git = "https://github.com/paritytech/substrate", branch = "neatcoin" }
+parity-scale-codec = { version = "2.0.0", default-features = false }
+sp-block-builder = { git = "https://github.com/paritytech/substrate", branch = "neatcoin" }
+np-opaque = { path = "../primitives/opaque" }
