@@ -16,21 +16,21 @@
 // You should have received a copy of the GNU General Public License
 // along with Neatcoin. If not, see <http://www.gnu.org/licenses/>.
 
-mod chain_spec;
+pub mod chain_spec;
 mod client;
 
 use std::{time::Duration, sync::Arc};
-use tracing::info;
 use sp_api::ConstructRuntimeApi;
 use sp_runtime::traits::Block as BlockT;
-use sc_service::{NativeExecutionDispatch, Configuration, RpcHandlers, TaskManager};
-use sc_telemetry::{Telemetry, TelemetryWorker, TelemetryWorkerHandle};
+use sc_service::{NativeExecutionDispatch, Configuration, RpcHandlers, TaskManager, ChainSpec};
+use sc_telemetry::{Telemetry, TelemetryWorker};
 use sc_executor::native_executor_instance;
 use sc_finality_grandpa::FinalityProofProvider as GrandpaFinalityProofProvider;
 use sc_client_api::{ExecutorProvider, backend::RemoteBackend};
 use sc_basic_authorship::ProposerFactory;
 use np_opaque::Block;
-use crate::client::RuntimeApiCollection;
+
+pub use crate::client::{AbstractClient, Client, ClientHandle, ExecuteWithClient, RuntimeApiCollection};
 
 native_executor_instance!(
 	pub NeatcoinExecutor,
@@ -68,6 +68,27 @@ pub enum Error {
 
 	#[error(transparent)]
 	Telemetry(#[from] sc_telemetry::Error),
+
+	#[error("Unknown chain varient")]
+	UnknownChainVarient,
+}
+
+/// Can be called for a `Configuration` to check if it is a configuration for the `Kusama` network.
+pub trait IdentifyVariant {
+	/// Returns if this is a configuration for the `Neatcoin` network.
+	fn is_neatcoin(&self) -> bool;
+
+	/// Returns if this is a configuration for the `Staging` network.
+	fn is_staging(&self) -> bool;
+}
+
+impl IdentifyVariant for Box<dyn ChainSpec> {
+	fn is_neatcoin(&self) -> bool {
+		self.id().starts_with("neatcoin")
+	}
+	fn is_staging(&self) -> bool {
+		self.id().starts_with("staging")
+	}
 }
 
 pub type FullBackend = sc_service::TFullBackend<Block>;
@@ -274,7 +295,7 @@ pub fn new_full<RuntimeApi, Executor>(
 	let role = config.role.clone();
 	let force_authoring = config.force_authoring;
 	let backoff_authoring_blocks = {
-		let mut backoff = sc_consensus_slots::BackoffAuthoringOnFinalizedHeadLagging {
+		let backoff = sc_consensus_slots::BackoffAuthoringOnFinalizedHeadLagging {
 			..Default::default()
 		};
 
@@ -293,7 +314,7 @@ pub fn new_full<RuntimeApi, Executor>(
 		import_queue,
 		transaction_pool,
 		inherent_data_providers,
-		other: (rpc_extensions_builder, import_setup, rpc_setup, slot_duration, mut telemetry)
+		other: (rpc_extensions_builder, import_setup, rpc_setup, _slot_duration, mut telemetry)
 	} = new_partial::<RuntimeApi, Executor>(&mut config)?;
 
 	let prometheus_registry = config.prometheus_registry().cloned();
@@ -344,9 +365,7 @@ pub fn new_full<RuntimeApi, Executor>(
 
 	let (block_import, link_half, babe_link) = import_setup;
 
-	let spawner = task_manager.spawn_handle();
-
-	let authority_discovery_service = if role.is_authority() {
+	if role.is_authority() {
 		use sc_network::Event;
 		use futures::StreamExt;
 
@@ -363,7 +382,7 @@ pub fn new_full<RuntimeApi, Executor>(
 				Event::Dht(e) => Some(e),
 				_ => None,
 			}});
-		let (worker, service) = sc_authority_discovery::new_worker_and_service(
+		let (worker, _service) = sc_authority_discovery::new_worker_and_service(
 			client.clone(),
 			network.clone(),
 			Box::pin(dht_event_stream),
@@ -372,10 +391,7 @@ pub fn new_full<RuntimeApi, Executor>(
 		);
 
 		task_manager.spawn_handle().spawn("authority-discovery-worker", worker.run());
-		Some(service)
-	} else {
-		None
-	};
+	}
 
 	// we'd say let overseer_handler = authority_discovery_service.map(|authority_discovery_service|, ...),
 	// but in that case we couldn't use ? to propagate errors
@@ -383,9 +399,6 @@ pub fn new_full<RuntimeApi, Executor>(
 	if local_keystore.is_none() {
 		tracing::info!("Cannot run as validator without local keystore.");
 	}
-
-	let maybe_params = local_keystore
-		.and_then(move |k| authority_discovery_service.map(|a| (a, k)));
 
 	if role.is_authority() {
 		let can_author_with =
@@ -482,13 +495,27 @@ pub fn new_full<RuntimeApi, Executor>(
 	})
 }
 
+pub fn build_full(
+	config: Configuration,
+) -> Result<NewFull<Client>, Error> {
+	if config.chain_spec.is_neatcoin() {
+		new_full::<neatcoin_runtime::RuntimeApi, NeatcoinExecutor>(config)
+			.map(|full| full.with_client(Client::Neatcoin))
+	} else if config.chain_spec.is_staging() {
+		new_full::<staging_runtime::RuntimeApi, StagingExecutor>(config)
+			.map(|full| full.with_client(Client::Staging))
+	} else {
+		return Err(Error::UnknownChainVarient)
+	}
+}
+
 pub struct NewLight {
 	pub task_manager: TaskManager,
 	pub rpc_handlers: RpcHandlers,
 }
 
 /// Builds a new service for a light client.
-fn new_light<Runtime, Dispatch>(mut config: Configuration) -> Result<NewLight, Error>
+fn new_light<Runtime, Dispatch>(config: Configuration) -> Result<NewLight, Error>
 	where
 		Runtime: 'static + Send + Sync + ConstructRuntimeApi<Block, LightClient<Runtime, Dispatch>>,
 		<Runtime as ConstructRuntimeApi<Block, LightClient<Runtime, Dispatch>>>::RuntimeApi:
@@ -604,4 +631,14 @@ fn new_light<Runtime, Dispatch>(mut config: Configuration) -> Result<NewLight, E
 	network_starter.start_network();
 
 	Ok(NewLight { task_manager, rpc_handlers })
+}
+
+pub fn build_light(config: Configuration) -> Result<NewLight, Error> {
+	if config.chain_spec.is_neatcoin() {
+		new_light::<neatcoin_runtime::RuntimeApi, NeatcoinExecutor>(config)
+	} else if config.chain_spec.is_staging() {
+		new_light::<staging_runtime::RuntimeApi, StagingExecutor>(config)
+	} else {
+		return Err(Error::UnknownChainVarient)
+	}
 }
