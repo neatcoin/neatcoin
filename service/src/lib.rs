@@ -19,10 +19,13 @@
 mod chain_spec;
 mod client;
 
+use std::sync::Arc;
 use sp_api::ConstructRuntimeApi;
 use sc_service::{NativeExecutionDispatch, Configuration};
-use sc_telemetry::{Telemetry, TelemetryWorkerHandle};
+use sc_telemetry::{Telemetry, TelemetryWorker, TelemetryWorkerHandle};
 use sc_executor::native_executor_instance;
+use sc_finality_grandpa::FinalityProofProvider as GrandpaFinalityProofProvider;
+use sc_client_api::ExecutorProvider;
 use np_opaque::Block;
 use crate::client::RuntimeApiCollection;
 
@@ -108,11 +111,11 @@ fn new_partial<RuntimeApi, Executor>(
 		RuntimeApiCollection<StateBackend = sc_client_api::StateBackendFor<FullBackend, Block>>,
 		Executor: NativeExecutionDispatch + 'static,
 {
-	let inherent_data_providers = inherents::InherentDataProviders::new();
+	let inherent_data_providers = sp_inherents::InherentDataProviders::new();
 
 	let telemetry = config.telemetry_endpoints.clone()
 		.filter(|x| !x.is_empty())
-		.map(move |endpoints| -> Result<_, telemetry::Error> {
+		.map(move |endpoints| -> Result<_, sc_telemetry::Error> {
 			let (worker, mut worker_handle) = if let Some(worker_handle) = telemetry_worker_handle {
 				(None, worker_handle)
 			} else {
@@ -126,7 +129,7 @@ fn new_partial<RuntimeApi, Executor>(
 		.transpose()?;
 
 	let (client, backend, keystore_container, task_manager) =
-		service::new_full_parts::<Block, RuntimeApi, Executor>(
+		sc_service::new_full_parts::<Block, RuntimeApi, Executor>(
 			&config,
 			telemetry.as_ref().map(|(_, telemetry)| telemetry.handle()),
 		)?;
@@ -153,7 +156,7 @@ fn new_partial<RuntimeApi, Executor>(
 	let grandpa_hard_forks = Vec::new();
 
 	let (grandpa_block_import, grandpa_link) =
-		grandpa::block_import_with_authority_set_hard_forks(
+		sc_finality_grandpa::block_import_with_authority_set_hard_forks(
 			client.clone(),
 			&(client.clone() as Arc<_>),
 			select_chain.clone(),
@@ -163,14 +166,14 @@ fn new_partial<RuntimeApi, Executor>(
 
 	let justification_import = grandpa_block_import.clone();
 
-	let babe_config = babe::Config::get_or_compute(&*client)?;
-	let (block_import, babe_link) = babe::block_import(
+	let babe_config = sc_consensus_babe::Config::get_or_compute(&*client)?;
+	let (block_import, babe_link) = sc_consensus_babe::block_import(
 		babe_config.clone(),
 		grandpa_block_import,
 		client.clone(),
 	)?;
 
-	let import_queue = babe::import_queue(
+	let import_queue = sc_consensus_babe::import_queue(
 		babe_link.clone(),
 		block_import.clone(),
 		Some(Box::new(justification_import)),
@@ -204,19 +207,19 @@ fn new_partial<RuntimeApi, Executor>(
 		let select_chain = select_chain.clone();
 		let chain_spec = config.chain_spec.cloned_box();
 
-		move |deny_unsafe, subscription_executor| -> polkadot_rpc::RpcExtension {
-			let deps = polkadot_rpc::FullDeps {
+		move |deny_unsafe, subscription_executor| -> neatcoin_rpc::RpcExtension {
+			let deps = neatcoin_rpc::FullDeps {
 				client: client.clone(),
 				pool: transaction_pool.clone(),
 				select_chain: select_chain.clone(),
 				chain_spec: chain_spec.cloned_box(),
 				deny_unsafe,
-				babe: polkadot_rpc::BabeDeps {
+				babe: neatcoin_rpc::BabeDeps {
 					babe_config: babe_config.clone(),
 					shared_epoch_changes: shared_epoch_changes.clone(),
 					keystore: keystore.clone(),
 				},
-				grandpa: polkadot_rpc::GrandpaDeps {
+				grandpa: neatcoin_rpc::GrandpaDeps {
 					shared_voter_state: shared_voter_state.clone(),
 					shared_authority_set: shared_authority_set.clone(),
 					justification_stream: justification_stream.clone(),
@@ -225,11 +228,11 @@ fn new_partial<RuntimeApi, Executor>(
 				},
 			};
 
-			polkadot_rpc::create_full(deps)
+			neatcoin_rpc::create_full(deps)
 		}
 	};
 
-	Ok(service::PartialComponents {
+	Ok(sc_service::PartialComponents {
 		client,
 		backend,
 		task_manager,
