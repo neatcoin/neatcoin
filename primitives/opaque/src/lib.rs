@@ -28,6 +28,8 @@ pub type BlockNumber = u32;
 pub type AccountId = sp_runtime::AccountId32;
 pub type Nonce = u32;
 pub type Balance = u128;
+/// A hash of some data.
+pub type Hash = sp_core::H256;
 
 /// Opaque, encoded, unchecked extrinsic.
 pub use sp_runtime::OpaqueExtrinsic as UncheckedExtrinsic;

@@ -6,10 +6,12 @@ license = "GPL-3.0-or-later"
 edition = "2018"
 
 [dependencies]
+sp-core = { git = "https://github.com/paritytech/substrate", default-features = false, branch = "neatcoin" }
 sp-runtime = { git = "https://github.com/paritytech/substrate", default-features = false, branch = "neatcoin" }
 
 [features]
 default = ["std"]
 std = [
+	"sp-core/std",
 	"sp-runtime/std",
 ]

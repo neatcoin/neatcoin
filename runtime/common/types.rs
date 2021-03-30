@@ -116,6 +116,7 @@ pub type AccountIndex = u32;
 
 /// A hash of some data.
 pub type Hash = sp_core::H256;
+static_assertions::assert_type_eq_all!(Hash, opaque::Hash);
 
 /// Index of a transaction.
 pub type Nonce = u32;

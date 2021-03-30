@@ -3861,6 +3861,7 @@ dependencies = [
 name = "np-opaque"
 version = "0.1.0"
 dependencies = [
+ "sp-core",
  "sp-runtime",
 ]
 
