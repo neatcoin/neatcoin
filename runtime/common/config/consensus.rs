@@ -17,7 +17,7 @@
 // along with Neatcoin. If not, see <http://www.gnu.org/licenses/>.
 
 use sp_std::prelude::*;
-use sp_core::u32_trait::{_3, _4};
+use sp_core::u32_trait::_1;
 use sp_runtime::{
 	KeyTypeId, Perbill, traits::OpaqueKeys, transaction_validity::TransactionPriority, curve::PiecewiseLinear,
 };
@@ -216,7 +216,7 @@ parameter_types! {
 type SlashCancelOrigin = EnsureOneOf<
 	AccountId,
 	EnsureRoot<AccountId>,
-	pallet_collective::EnsureProportionAtLeast<_3, _4, AccountId, CouncilCollectiveInstance>
+	pallet_collective::EnsureProportionAtLeast<_1, _1, AccountId, CouncilCollectiveInstance>
 >;
 
 impl pallet_staking::Config for Runtime {

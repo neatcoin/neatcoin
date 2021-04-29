@@ -23,9 +23,9 @@ use frame_support::{parameter_types, weights::Weight};
 use pallet_transaction_payment::{TargetedFeeAdjustment, Multiplier, CurrencyAdapter};
 use crate::{
 	Runtime, Origin, Call, Event, PalletInfo, Balances, System, OriginCaller,
-	Babe, Treasury, VERSION,
+	Babe, Treasury, VERSION, SS58_PREFIX,
 	types::{
-		BlockNumber, Nonce, Hash, BlakeTwo256, AccountId, Balance, AccountIndex, MoreThanHalfCouncil,
+		BlockNumber, Nonce, Hash, BlakeTwo256, AccountId, Balance, AccountIndex,
 		BlockWeights, RocksDbWeight, BlockHashCount, NORMAL_DISPATCH_RATIO,
 	},
 	constants::{currency::{deposit, CENTS, MILLICENTS, DOLLARS}, fee::WeightToFee, time::SLOT_DURATION},
@@ -47,7 +47,7 @@ parameter_types! {
 	pub BlockLength: limits::BlockLength =
 		limits::BlockLength::max_with_normal_ratio(5 * 1024 * 1024, NORMAL_DISPATCH_RATIO);
 	pub const Version: RuntimeVersion = VERSION;
-	pub const SS58Prefix: u8 = 48;
+	pub const SS58Prefix: u8 = SS58_PREFIX;
 }
 
 impl frame_system::Config for Runtime {
@@ -170,7 +170,7 @@ impl pallet_identity::Config for Runtime {
 	type MaxAdditionalFields = MaxAdditionalFields;
 	type MaxRegistrars = MaxRegistrars;
 	type Slashed = Treasury;
-	type ForceOrigin = MoreThanHalfCouncil;
-	type RegistrarOrigin = MoreThanHalfCouncil;
+	type ForceOrigin = frame_system::EnsureNever<AccountId>;
+	type RegistrarOrigin = frame_system::EnsureRoot<AccountId>;
 	type WeightInfo = ();
 }

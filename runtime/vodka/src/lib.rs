@@ -57,6 +57,8 @@ pub use crate::types::{
 #[cfg(feature = "std")]
 include!(concat!(env!("OUT_DIR"), "/wasm_binary.rs"));
 
+pub const SS58_PREFIX: u8 = 42;
+
 // Polkadot version identifier;
 /// Runtime version (Polkadot).
 pub const VERSION: RuntimeVersion = RuntimeVersion {
