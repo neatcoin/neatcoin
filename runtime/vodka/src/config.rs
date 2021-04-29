@@ -28,3 +28,5 @@ mod offchain;
 mod proxy;
 #[path = "../../common/config/utility.rs"]
 mod utility;
+#[path = "../../common/config/contracts.rs"]
+mod contracts;

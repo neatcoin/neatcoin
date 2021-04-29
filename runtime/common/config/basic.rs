@@ -22,7 +22,7 @@ use frame_system::{limits, EnsureRoot};
 use frame_support::{parameter_types, weights::Weight};
 use pallet_transaction_payment::{TargetedFeeAdjustment, Multiplier, CurrencyAdapter};
 use crate::{
-	Runtime, BaseFilter, Origin, Call, Event, PalletInfo, Balances, System, OriginCaller,
+	Runtime, Origin, Call, Event, PalletInfo, Balances, System, OriginCaller,
 	Babe, Treasury, VERSION,
 	types::{
 		BlockNumber, Nonce, Hash, BlakeTwo256, AccountId, Balance, AccountIndex, MoreThanHalfCouncil,
@@ -51,7 +51,7 @@ parameter_types! {
 }
 
 impl frame_system::Config for Runtime {
-	type BaseCallFilter = BaseFilter;
+	type BaseCallFilter = ();
 	type BlockWeights = BlockWeights;
 	type BlockLength = BlockLength;
 	type Origin = Origin;
