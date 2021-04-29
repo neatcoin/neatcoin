@@ -141,6 +141,11 @@ construct_runtime! {
 
 		// Contracts
 		Contracts: pallet_contracts::{Pallet, Call, Config<T>, Storage, Event<T>} = 32,
+
+		// Nomo
+		Registry: pallet_registry::{Pallet, Call, Storage, Event<T>} = 33,
+		Zone: pallet_zone::{Pallet, Call, Storage, Event} = 34,
+		FCFS: pallet_fcfs::{Pallet, Call, Storage, Event<T>} = 35,
 	}
 }
 

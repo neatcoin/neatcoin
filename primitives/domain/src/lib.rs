@@ -18,13 +18,17 @@
 
 #![cfg_attr(not(feature = "std"), no_std)]
 
+extern crate alloc;
+
 mod label;
 pub use crate::label::is_label;
 
+use alloc::vec::Vec;
 use codec::{Encode, Decode};
 #[cfg(feature = "std")]
 use serde::{Serialize, Deserialize};
-use sp_core::{blake2_256, H256};
+use primitive_types::H256;
+use blake2_rfc::blake2b::blake2b;
 
 #[cfg_attr(feature = "std", derive(Serialize, Deserialize))]
 #[derive(Eq, PartialEq, Clone, Encode, Decode, Debug)]
@@ -92,7 +96,7 @@ impl Name {
 			input[0..32].copy_from_slice(&current[..]);
 			input[32..64].copy_from_slice(&label.hash()[..]);
 
-			current = H256(blake2_256(&input));
+			current = H256::from_slice(blake2b(32, &[], &input).as_bytes());
 		}
 
 		current
@@ -152,6 +156,6 @@ impl<'de> Deserialize<'de> for Label {
 impl Label {
 	/// Get the label hash of a string.
 	pub fn hash(&self) -> H256 {
-		H256(blake2_256(&self.0))
+		H256::from_slice(blake2b(32, &[], &self.0).as_bytes())
 	}
 }

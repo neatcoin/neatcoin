@@ -3742,6 +3742,7 @@ dependencies = [
  "pallet-election-provider-multi-phase",
  "pallet-elections-phragmen",
  "pallet-eons",
+ "pallet-fcfs",
  "pallet-grandpa",
  "pallet-identity",
  "pallet-im-online",
@@ -3751,6 +3752,7 @@ dependencies = [
  "pallet-offences",
  "pallet-proxy",
  "pallet-randomness-collective-flip",
+ "pallet-registry",
  "pallet-scheduler",
  "pallet-session",
  "pallet-staking",
@@ -3763,6 +3765,7 @@ dependencies = [
  "pallet-utility",
  "pallet-variables",
  "pallet-vesting",
+ "pallet-zone",
  "parity-scale-codec",
  "serde",
  "smallvec 1.6.1",
@@ -3899,9 +3902,10 @@ dependencies = [
 name = "np-domain"
 version = "0.1.0"
 dependencies = [
+ "blake2-rfc",
  "parity-scale-codec",
+ "primitive-types",
  "serde",
- "sp-core",
 ]
 
 [[package]]
@@ -8909,6 +8913,7 @@ dependencies = [
  "pallet-election-provider-multi-phase",
  "pallet-elections-phragmen",
  "pallet-eons",
+ "pallet-fcfs",
  "pallet-grandpa",
  "pallet-identity",
  "pallet-im-online",
@@ -8918,6 +8923,7 @@ dependencies = [
  "pallet-offences",
  "pallet-proxy",
  "pallet-randomness-collective-flip",
+ "pallet-registry",
  "pallet-scheduler",
  "pallet-session",
  "pallet-staking",
@@ -8930,6 +8936,7 @@ dependencies = [
  "pallet-utility",
  "pallet-variables",
  "pallet-vesting",
+ "pallet-zone",
  "parity-scale-codec",
  "serde",
  "smallvec 1.6.1",

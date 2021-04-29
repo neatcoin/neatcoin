@@ -41,8 +41,6 @@ pub trait Config: pallet_balances::Config {
 	type Event: From<Event<Self>> + Into<<Self as frame_system::Config>::Event>;
 }
 
-pub struct Permit(Name);
-
 pub trait Registry {
 	type Ownership: Ownership;
 

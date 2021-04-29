@@ -9,12 +9,14 @@ edition = "2018"
 [dependencies]
 serde = { version = "1.0.101", optional = true }
 codec = { package = "parity-scale-codec", version = "2.0.0", default-features = false, features = ["derive"] }
-sp-core = { git = "https://github.com/paritytech/substrate", default-features = false, branch = "neatcoin" }
+primitive-types = { version = "0.9.0", default-features = false }
+blake2-rfc = { version = "0.2.18", default-features = false }
 
 [features]
 default = ["std"]
 std = [
 	"serde",
 	"codec/std",
-	"sp-core/std",
+	"primitive-types/std",
+	"blake2-rfc/std",
 ]

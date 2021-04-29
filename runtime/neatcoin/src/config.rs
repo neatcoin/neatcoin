@@ -30,3 +30,5 @@ mod proxy;
 mod utility;
 #[path = "../../common/config/contracts.rs"]
 mod contracts;
+#[path = "../../common/config/nomo.rs"]
+mod nomo;
