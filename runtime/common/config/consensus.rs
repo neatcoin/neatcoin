@@ -29,7 +29,7 @@ use crate::{
 	Timestamp, CouncilCollectiveInstance, Treasury, Session, ElectionProviderMultiPhase,
 	types::{
 		Moment, ImOnlineId, GrandpaId, AccountId, Balance, BlockWeights, BlockExecutionWeight,
-		CurrencyToVote, EpochDuration,
+		CurrencyToVote, EpochDuration, BlockLength,
 	},
 	constants::time::{EPOCH_DURATION_IN_BLOCKS, MILLISECS_PER_BLOCK},
 };
@@ -158,8 +158,11 @@ parameter_types! {
 
 sp_npos_elections::generate_solution_type!(
 	#[compact]
-	pub struct NposCompactSolution16::<u32, u16, sp_runtime::PerU16>(16)
-	// -------------------- ^^ <NominatorIndex, ValidatorIndex, Accuracy>
+	pub struct NposCompactSolution16::<
+		VoterIndex = u32,
+		TargetIndex = u16,
+		Accuracy = sp_runtime::PerU16,
+	>(16)
 );
 
 parameter_types! {
@@ -172,6 +175,14 @@ parameter_types! {
 		.max_extrinsic
 		.expect("Normal extrinsics have weight limit configured by default; qed")
 		.saturating_sub(BlockExecutionWeight::get());
+
+	/// A limit for off-chain phragmen unsigned solution length.
+	///
+	/// We allow up to 90% of the block's size to be consumed by the solution.
+	pub OffchainSolutionLengthLimit: u32 = Perbill::from_rational(90_u32, 100) *
+		*BlockLength::get()
+		.max
+		.get(DispatchClass::Normal);
 }
 
 impl pallet_election_provider_multi_phase::Config for Runtime {
@@ -181,7 +192,8 @@ impl pallet_election_provider_multi_phase::Config for Runtime {
 	type UnsignedPhase = UnsignedPhase;
 	type SolutionImprovementThreshold = SolutionImprovementThreshold;
 	type MinerMaxIterations = MinerMaxIterations;
-	type MinerMaxWeight = OffchainSolutionWeightLimit; // For now use the one from staking.
+	type MinerMaxWeight = OffchainSolutionWeightLimit;
+	type MinerMaxLength = OffchainSolutionLengthLimit;
 	type MinerTxPriority = NposSolutionPriority;
 	type DataProvider = Staking;
 	type OnChainAccuracy = Perbill;

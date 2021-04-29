@@ -62,11 +62,11 @@ where
 mod tests {
 	use super::*;
 	use frame_system::limits;
-	use frame_support::{parameter_types, weights::DispatchClass};
+	use frame_support::{parameter_types, PalletId, weights::DispatchClass};
 	use frame_support::traits::FindAuthor;
 	use sp_core::H256;
 	use sp_runtime::{
-		testing::Header, ModuleId,
+		testing::Header,
 		traits::{BlakeTwo256, IdentityLookup},
 		Perbill,
 	};
@@ -123,6 +123,7 @@ mod tests {
 		type OnNewAccount = ();
 		type OnKilledAccount = ();
 		type SystemWeightInfo = ();
+		type OnSetCode = ();
 		type SS58Prefix = ();
 	}
 
@@ -137,7 +138,8 @@ mod tests {
 	}
 
 	parameter_types! {
-		pub const TreasuryModuleId: ModuleId = ModuleId(*b"py/trsry");
+		pub const TreasuryPalletId: PalletId = PalletId(*b"py/trsry");
+		pub const MaxApprovals: u32 = 100;
 	}
 
 	impl pallet_treasury::Config for Test {
@@ -151,7 +153,8 @@ mod tests {
 		type SpendPeriod = ();
 		type Burn = ();
 		type BurnDestination = ();
-		type ModuleId = TreasuryModuleId;
+		type PalletId = TreasuryPalletId;
+		type MaxApprovals = MaxApprovals;
 		type SpendFunds = ();
 		type WeightInfo = ();
 	}
@@ -189,10 +192,8 @@ mod tests {
 
 			DealWithFees::on_unbalanceds(vec![fee, tip].into_iter());
 
-			// Author gets 100% of tip and 20% of fee = 22
-			assert_eq!(Balances::free_balance(AccountId::default()), 22);
-			// Treasury gets 80% of fee
-			assert_eq!(Balances::free_balance(Treasury::account_id()), 8);
+			assert_eq!(Balances::free_balance(AccountId::default()), 20);
+			assert_eq!(Balances::free_balance(Treasury::account_id()), 0);
 		});
 	}
 }

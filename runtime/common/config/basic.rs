@@ -18,7 +18,7 @@
 
 use sp_version::RuntimeVersion;
 use sp_runtime::{Perquintill, Perbill, FixedPointNumber, traits::AccountIdLookup};
-use frame_system::{limits, EnsureRoot};
+use frame_system::EnsureRoot;
 use frame_support::{parameter_types, weights::Weight};
 use pallet_transaction_payment::{TargetedFeeAdjustment, Multiplier, CurrencyAdapter};
 use crate::{
@@ -26,7 +26,7 @@ use crate::{
 	Babe, Treasury, VERSION, SS58_PREFIX,
 	types::{
 		BlockNumber, Nonce, Hash, BlakeTwo256, AccountId, Balance, AccountIndex,
-		BlockWeights, RocksDbWeight, BlockHashCount, NORMAL_DISPATCH_RATIO,
+		BlockWeights, RocksDbWeight, BlockHashCount, BlockLength,
 	},
 	constants::{currency::{deposit, CENTS, MILLICENTS, DOLLARS}, fee::WeightToFee, time::SLOT_DURATION},
 	impls::DealWithFees,
@@ -43,9 +43,6 @@ parameter_types! {
 	/// that combined with `AdjustmentVariable`, we can recover from the minimum.
 	/// See `multiplier_can_grow_from_zero`.
 	pub MinimumMultiplier: Multiplier = Multiplier::saturating_from_rational(1, 1_000_000u128);
-	/// Maximum length of block. Up to 5MB.
-	pub BlockLength: limits::BlockLength =
-		limits::BlockLength::max_with_normal_ratio(5 * 1024 * 1024, NORMAL_DISPATCH_RATIO);
 	pub const Version: RuntimeVersion = VERSION;
 	pub const SS58Prefix: u8 = SS58_PREFIX;
 }
@@ -72,6 +69,7 @@ impl frame_system::Config for Runtime {
 	type OnNewAccount = ();
 	type OnKilledAccount = ();
 	type SystemWeightInfo = ();
+	type OnSetCode = ();
 	type SS58Prefix = SS58Prefix;
 }
 
