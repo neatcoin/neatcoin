@@ -61,7 +61,7 @@ impl SubstrateCli for Cli {
 
 	fn load_spec(&self, id: &str) -> Result<Box<dyn sc_service::ChainSpec>, String> {
 		Ok(match id {
-			"staging" => Box::new(chain_spec::staging_config()?),
+			"vodka" | "testnet" => Box::new(chain_spec::vodka_config()?),
 			"" | "neatcoin" | "mainnet" => Box::new(chain_spec::neatcoin_config()?),
 			_path => return Err("Custom chain spec is not supported".into()),
 		})
@@ -70,7 +70,7 @@ impl SubstrateCli for Cli {
 	fn native_runtime_version(spec: &Box<dyn ChainSpec>) -> &'static RuntimeVersion {
 		match spec.identify_variant() {
 			ChainVariant::Neatcoin => &neatcoin_service::neatcoin_runtime::VERSION,
-			ChainVariant::Staging => &neatcoin_service::staging_runtime::VERSION,
+			ChainVariant::Vodka => &neatcoin_service::vodka_runtime::VERSION,
 		}
 	}
 }
@@ -80,7 +80,7 @@ fn set_default_ss58_version(spec: &Box<dyn sc_service::ChainSpec>) {
 
 	let ss58_version = match spec.identify_variant() {
 		ChainVariant::Neatcoin => Ss58AddressFormat::NeatcoinAccount,
-		ChainVariant::Staging => Ss58AddressFormat::SubstrateAccount,
+		ChainVariant::Vodka => Ss58AddressFormat::SubstrateAccount,
 	};
 
 	sp_core::crypto::set_default_ss58_version(ss58_version);

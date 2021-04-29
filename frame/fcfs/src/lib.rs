@@ -21,15 +21,13 @@
 
 #[cfg(feature = "std")]
 use serde::{Serialize, Deserialize};
-use codec::{Encode, EncodeLike, Decode};
+use codec::{Encode, Decode};
 use sp_std::{prelude::*, fmt::Debug, cmp};
-use sp_runtime::RuntimeDebug;
 use frame_support::{
-	dispatch::DispatchResult, decl_module, decl_storage, decl_event, decl_error, ensure,
+	decl_module, decl_storage, decl_event, decl_error, ensure,
 	traits::{Get, Currency, OnUnbalanced, WithdrawReasons, ExistenceRequirement},
 };
-use frame_system::{ensure_signed, ensure_root};
-use primitive_types::H160;
+use frame_system::ensure_signed;
 use np_domain::{Name, NameHash, NameValue};
 use pallet_registry::{Registry, Ownership};
 
@@ -96,7 +94,7 @@ decl_module! {
 
 			let fee = T::Fee::get();
 			let period = T::Period::get();
-			let expire_at = frame_system::Module::<T>::block_number() + period;
+			let expire_at = frame_system::Pallet::<T>::block_number() + period;
 			let info = RenewalInfo::<T> { fee, expire_at };
 
 			let imbalance = T::Currency::withdraw(
@@ -147,7 +145,7 @@ decl_module! {
 			T::Registry::ensure_can_set_ownership(&T::FCFSOwnership::get(), &name)?;
 
 			let info = Renewals::<T>::get(&name.hash()).into_value().ok_or(Error::<T>::RenewalInfoMissing)?;
-			ensure!(frame_system::Module::<T>::block_number() > info.expire_at, Error::<T>::NotExpired);
+			ensure!(frame_system::Pallet::<T>::block_number() > info.expire_at, Error::<T>::NotExpired);
 
 			T::Registry::set_ownership_unchecked(name.clone(), None);
 			Renewals::<T>::remove(&name.hash());

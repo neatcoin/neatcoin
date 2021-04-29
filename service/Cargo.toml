@@ -56,7 +56,7 @@ tracing = "0.1.25"
 np-opaque = { path = "../primitives/opaque" }
 neatcoin-rpc = { path = "../rpc" }
 neatcoin-runtime = { path = "../runtime/neatcoin" }
-staging-runtime = { path = "../runtime/staging" }
+vodka-runtime = { path = "../runtime/vodka" }
 
 [features]
 default = []

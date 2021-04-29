@@ -63,7 +63,7 @@ members = [
 	"service",
 	"rpc",
 	"runtime/neatcoin",
-	"runtime/staging",
+	"runtime/vodka",
 	"primitives/domain",
 	"primitives/opaque",
 	"frame/outmove",

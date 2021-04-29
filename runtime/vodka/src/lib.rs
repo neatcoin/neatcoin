@@ -30,9 +30,6 @@ mod constants;
 mod impls;
 #[path = "../../common/types.rs"]
 mod types;
-#[cfg(test)]
-#[path = "../../common/tests/mod.rs"]
-mod tests;
 
 use sp_std::prelude::*;
 use sp_runtime::{create_runtime_str, impl_opaque_keys};
@@ -63,8 +60,8 @@ include!(concat!(env!("OUT_DIR"), "/wasm_binary.rs"));
 // Polkadot version identifier;
 /// Runtime version (Polkadot).
 pub const VERSION: RuntimeVersion = RuntimeVersion {
-	spec_name: create_runtime_str!("staging"),
-	impl_name: create_runtime_str!("staging"),
+	spec_name: create_runtime_str!("vodka"),
+	impl_name: create_runtime_str!("vodka"),
 	authoring_version: 0,
 	spec_version: 0,
 	impl_version: 0,

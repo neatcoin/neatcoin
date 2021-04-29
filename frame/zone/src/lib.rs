@@ -19,14 +19,11 @@
 // Ensure we're `no_std` when compiling for Wasm.
 #![cfg_attr(not(feature = "std"), no_std)]
 
-use codec::{Encode, EncodeLike, Decode};
-use sp_std::{prelude::*, fmt::Debug};
-use sp_runtime::RuntimeDebug;
+use sp_std::prelude::*;
 use frame_support::{
-	dispatch::DispatchResult, decl_module, decl_storage, decl_event, decl_error, ensure
+	decl_module, decl_storage, decl_event, decl_error, ensure
 };
 use frame_system::{ensure_signed, ensure_root};
-use primitive_types::H160;
 use np_domain::{Name, NameHash, NameValue};
 use pallet_registry::{Registry, Ownership};
 

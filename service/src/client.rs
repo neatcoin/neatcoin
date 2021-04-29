@@ -135,7 +135,7 @@ pub trait ClientHandle {
 #[derive(Clone)]
 pub enum Client {
 	Neatcoin(Arc<crate::FullClient<neatcoin_runtime::RuntimeApi, crate::NeatcoinExecutor>>),
-	Staging(Arc<crate::FullClient<staging_runtime::RuntimeApi, crate::StagingExecutor>>),
+	Vodka(Arc<crate::FullClient<vodka_runtime::RuntimeApi, crate::VodkaExecutor>>),
 }
 
 impl ClientHandle for Client {
@@ -144,7 +144,7 @@ impl ClientHandle for Client {
 			Self::Neatcoin(client) => {
 				T::execute_with_client::<_, _, crate::FullBackend>(t, client.clone())
 			},
-			Self::Staging(client) => {
+			Self::Vodka(client) => {
 				T::execute_with_client::<_, _, crate::FullBackend>(t, client.clone())
 			},
 		}
@@ -155,7 +155,7 @@ impl sc_client_api::UsageProvider<Block> for Client {
 	fn usage_info(&self) -> sc_client_api::ClientInfo<Block> {
 		match self {
 			Self::Neatcoin(client) => client.usage_info(),
-			Self::Staging(client) => client.usage_info(),
+			Self::Vodka(client) => client.usage_info(),
 		}
 	}
 }
@@ -167,21 +167,21 @@ impl sc_client_api::BlockBackend<Block> for Client {
 	) -> sp_blockchain::Result<Option<Vec<<Block as BlockT>::Extrinsic>>> {
 		match self {
 			Self::Neatcoin(client) => client.block_body(id),
-			Self::Staging(client) => client.block_body(id),
+			Self::Vodka(client) => client.block_body(id),
 		}
 	}
 
 	fn block(&self, id: &BlockId<Block>) -> sp_blockchain::Result<Option<SignedBlock<Block>>> {
 		match self {
 			Self::Neatcoin(client) => client.block(id),
-			Self::Staging(client) => client.block(id),
+			Self::Vodka(client) => client.block(id),
 		}
 	}
 
 	fn block_status(&self, id: &BlockId<Block>) -> sp_blockchain::Result<sp_consensus::BlockStatus> {
 		match self {
 			Self::Neatcoin(client) => client.block_status(id),
-			Self::Staging(client) => client.block_status(id),
+			Self::Vodka(client) => client.block_status(id),
 		}
 	}
 
@@ -191,7 +191,7 @@ impl sc_client_api::BlockBackend<Block> for Client {
 	) -> sp_blockchain::Result<Option<Justifications>> {
 		match self {
 			Self::Neatcoin(client) => client.justifications(id),
-			Self::Staging(client) => client.justifications(id),
+			Self::Vodka(client) => client.justifications(id),
 		}
 	}
 
@@ -201,7 +201,7 @@ impl sc_client_api::BlockBackend<Block> for Client {
 	) -> sp_blockchain::Result<Option<<Block as BlockT>::Hash>> {
 		match self {
 			Self::Neatcoin(client) => client.block_hash(number),
-			Self::Staging(client) => client.block_hash(number),
+			Self::Vodka(client) => client.block_hash(number),
 		}
 	}
 
@@ -211,7 +211,7 @@ impl sc_client_api::BlockBackend<Block> for Client {
 	) -> sp_blockchain::Result<Option<Vec<u8>>> {
 		match self {
 			Self::Neatcoin(client) => client.indexed_transaction(id),
-			Self::Staging(client) => client.indexed_transaction(id),
+			Self::Vodka(client) => client.indexed_transaction(id),
 		}
 	}
 
@@ -225,7 +225,7 @@ impl sc_client_api::StorageProvider<Block, crate::FullBackend> for Client {
 	) -> sp_blockchain::Result<Option<StorageData>> {
 		match self {
 			Self::Neatcoin(client) => client.storage(id, key),
-			Self::Staging(client) => client.storage(id, key),
+			Self::Vodka(client) => client.storage(id, key),
 		}
 	}
 
@@ -236,7 +236,7 @@ impl sc_client_api::StorageProvider<Block, crate::FullBackend> for Client {
 	) -> sp_blockchain::Result<Vec<StorageKey>> {
 		match self {
 			Self::Neatcoin(client) => client.storage_keys(id, key_prefix),
-			Self::Staging(client) => client.storage_keys(id, key_prefix),
+			Self::Vodka(client) => client.storage_keys(id, key_prefix),
 		}
 	}
 
@@ -247,7 +247,7 @@ impl sc_client_api::StorageProvider<Block, crate::FullBackend> for Client {
 	) -> sp_blockchain::Result<Option<<Block as BlockT>::Hash>> {
 		match self {
 			Self::Neatcoin(client) => client.storage_hash(id, key),
-			Self::Staging(client) => client.storage_hash(id, key),
+			Self::Vodka(client) => client.storage_hash(id, key),
 		}
 	}
 
@@ -258,7 +258,7 @@ impl sc_client_api::StorageProvider<Block, crate::FullBackend> for Client {
 	) -> sp_blockchain::Result<Vec<(StorageKey, StorageData)>> {
 		match self {
 			Self::Neatcoin(client) => client.storage_pairs(id, key_prefix),
-			Self::Staging(client) => client.storage_pairs(id, key_prefix),
+			Self::Vodka(client) => client.storage_pairs(id, key_prefix),
 		}
 	}
 
@@ -270,7 +270,7 @@ impl sc_client_api::StorageProvider<Block, crate::FullBackend> for Client {
 	) -> sp_blockchain::Result<KeyIterator<'a, <crate::FullBackend as sc_client_api::Backend<Block>>::State, Block>> {
 		match self {
 			Self::Neatcoin(client) => client.storage_keys_iter(id, prefix, start_key),
-			Self::Staging(client) => client.storage_keys_iter(id, prefix, start_key),
+			Self::Vodka(client) => client.storage_keys_iter(id, prefix, start_key),
 		}
 	}
 
@@ -282,7 +282,7 @@ impl sc_client_api::StorageProvider<Block, crate::FullBackend> for Client {
 	) -> sp_blockchain::Result<Option<StorageData>> {
 		match self {
 			Self::Neatcoin(client) => client.child_storage(id, child_info, key),
-			Self::Staging(client) => client.child_storage(id, child_info, key),
+			Self::Vodka(client) => client.child_storage(id, child_info, key),
 		}
 	}
 
@@ -294,7 +294,7 @@ impl sc_client_api::StorageProvider<Block, crate::FullBackend> for Client {
 	) -> sp_blockchain::Result<Vec<StorageKey>> {
 		match self {
 			Self::Neatcoin(client) => client.child_storage_keys(id, child_info, key_prefix),
-			Self::Staging(client) => client.child_storage_keys(id, child_info, key_prefix),
+			Self::Vodka(client) => client.child_storage_keys(id, child_info, key_prefix),
 		}
 	}
 
@@ -306,7 +306,7 @@ impl sc_client_api::StorageProvider<Block, crate::FullBackend> for Client {
 	) -> sp_blockchain::Result<Option<<Block as BlockT>::Hash>> {
 		match self {
 			Self::Neatcoin(client) => client.child_storage_hash(id, child_info, key),
-			Self::Staging(client) => client.child_storage_hash(id, child_info, key),
+			Self::Vodka(client) => client.child_storage_hash(id, child_info, key),
 		}
 	}
 
@@ -317,7 +317,7 @@ impl sc_client_api::StorageProvider<Block, crate::FullBackend> for Client {
 	) -> sp_blockchain::Result<Option<(NumberFor<Block>, BlockId<Block>)>> {
 		match self {
 			Self::Neatcoin(client) => client.max_key_changes_range(first, last),
-			Self::Staging(client) => client.max_key_changes_range(first, last),
+			Self::Vodka(client) => client.max_key_changes_range(first, last),
 		}
 	}
 
@@ -330,7 +330,7 @@ impl sc_client_api::StorageProvider<Block, crate::FullBackend> for Client {
 	) -> sp_blockchain::Result<Vec<(NumberFor<Block>, u32)>> {
 		match self {
 			Self::Neatcoin(client) => client.key_changes(first, last, storage_key, key),
-			Self::Staging(client) => client.key_changes(first, last, storage_key, key),
+			Self::Vodka(client) => client.key_changes(first, last, storage_key, key),
 		}
 	}
 }
@@ -339,35 +339,35 @@ impl sp_blockchain::HeaderBackend<Block> for Client {
 	fn header(&self, id: BlockId<Block>) -> sp_blockchain::Result<Option<Header>> {
 		match self {
 			Self::Neatcoin(client) => client.header(&id),
-			Self::Staging(client) => client.header(&id),
+			Self::Vodka(client) => client.header(&id),
 		}
 	}
 
 	fn info(&self) -> sp_blockchain::Info<Block> {
 		match self {
 			Self::Neatcoin(client) => client.info(),
-			Self::Staging(client) => client.info(),
+			Self::Vodka(client) => client.info(),
 		}
 	}
 
 	fn status(&self, id: BlockId<Block>) -> sp_blockchain::Result<sp_blockchain::BlockStatus> {
 		match self {
 			Self::Neatcoin(client) => client.status(id),
-			Self::Staging(client) => client.status(id),
+			Self::Vodka(client) => client.status(id),
 		}
 	}
 
 	fn number(&self, hash: Hash) -> sp_blockchain::Result<Option<BlockNumber>> {
 		match self {
 			Self::Neatcoin(client) => client.number(hash),
-			Self::Staging(client) => client.number(hash),
+			Self::Vodka(client) => client.number(hash),
 		}
 	}
 
 	fn hash(&self, number: BlockNumber) -> sp_blockchain::Result<Option<Hash>> {
 		match self {
 			Self::Neatcoin(client) => client.hash(number),
-			Self::Staging(client) => client.hash(number),
+			Self::Vodka(client) => client.hash(number),
 		}
 	}
 }

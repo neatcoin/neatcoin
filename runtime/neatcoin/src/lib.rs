@@ -30,9 +30,6 @@ mod constants;
 mod impls;
 #[path = "../../common/types.rs"]
 mod types;
-#[cfg(test)]
-#[path = "../../common/tests/mod.rs"]
-mod tests;
 
 use sp_std::prelude::*;
 use sp_runtime::{create_runtime_str, impl_opaque_keys};

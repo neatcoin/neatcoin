@@ -62,7 +62,6 @@ where
 	}
 }
 
-
 #[cfg(test)]
 mod tests {
 	use super::*;
@@ -75,7 +74,7 @@ mod tests {
 		traits::{BlakeTwo256, IdentityLookup},
 		Perbill,
 	};
-	use primitives::v1::AccountId;
+	use crate::types::AccountId;
 
 	type UncheckedExtrinsic = frame_system::mocking::MockUncheckedExtrinsic<Test>;
 	type Block = frame_system::mocking::MockBlock<Test>;

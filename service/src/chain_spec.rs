@@ -19,7 +19,7 @@
 use sc_chain_spec::ChainType;
 
 pub type NeatcoinChainSpec = sc_service::GenericChainSpec<neatcoin_runtime::GenesisConfig>;
-pub type StagingChainSpec = sc_service::GenericChainSpec<staging_runtime::GenesisConfig>;
+pub type VodkaChainSpec = sc_service::GenericChainSpec<vodka_runtime::GenesisConfig>;
 
 pub fn neatcoin_config() -> Result<NeatcoinChainSpec, String> {
 	let _wasm_binary = neatcoin_runtime::WASM_BINARY.ok_or("Neatcoin development wasm not available")?;
@@ -38,18 +38,18 @@ pub fn neatcoin_config() -> Result<NeatcoinChainSpec, String> {
 	))
 }
 
-pub fn staging_config() -> Result<StagingChainSpec, String> {
-	let _wasm_binary = neatcoin_runtime::WASM_BINARY.ok_or("Staging development wasm not available")?;
+pub fn vodka_config() -> Result<VodkaChainSpec, String> {
+	let _wasm_binary = vodka_runtime::WASM_BINARY.ok_or("Vodka development wasm not available")?;
 	let boot_nodes = vec![];
 
-	Ok(StagingChainSpec::from_genesis(
-		"Staging",
-		"staging",
+	Ok(VodkaChainSpec::from_genesis(
+		"Vodka",
+		"vodka",
 		ChainType::Live,
 		move || Default::default(),
 		boot_nodes,
 		None,
-		Some("staging"),
+		Some("vodka"),
 		None,
 		Default::default()
 	))

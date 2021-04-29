@@ -24,7 +24,7 @@ use sp_std::{prelude::*, fmt::Debug};
 use frame_support::{
 	dispatch::DispatchResult, decl_module, decl_storage, decl_event, decl_error, ensure
 };
-use frame_system::{ensure_signed, ensure_root};
+use frame_system::ensure_root;
 use np_domain::{Name, NameHash, NameValue};
 
 pub trait Ownership: Encode + Decode + EncodeLike + Default + Eq + Debug + Clone {
