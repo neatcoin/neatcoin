@@ -70,4 +70,6 @@ members = [
 	"frame/registry",
 	"frame/zone",
 	"frame/fcfs",
+	"frame/eons",
+	"frame/variables",
 ]
