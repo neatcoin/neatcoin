@@ -65,3 +65,13 @@ impl pallet_eons::Config for Runtime { }
 impl pallet_variables::Config for Runtime {
 	type Event = Event;
 }
+
+parameter_types! {
+	pub ProofLimit: u32 = 1024;
+}
+
+impl pallet_atomic_swap::Config for Runtime {
+	type Event = Event;
+	type SwapAction = pallet_atomic_swap::BalanceSwapAction<Self::AccountId, Balances>;
+	type ProofLimit = ProofLimit;
+}

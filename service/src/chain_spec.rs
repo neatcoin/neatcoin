@@ -38,6 +38,10 @@ pub fn neatcoin_config() -> Result<NeatcoinChainSpec, String> {
 	))
 }
 
+pub fn vodka_genesis(wasm_binary: &[u8]) -> vodka_runtime::GenesisConfig {
+	unimplemented!()
+}
+
 pub fn vodka_config() -> Result<VodkaChainSpec, String> {
 	let _wasm_binary = vodka_runtime::WASM_BINARY.ok_or("Vodka development wasm not available")?;
 	let boot_nodes = vec![];

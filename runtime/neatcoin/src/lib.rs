@@ -140,14 +140,15 @@ construct_runtime! {
 		Tips: pallet_tips::{Pallet, Call, Storage, Event<T>} = 29,
 		Eons: pallet_eons::{Pallet, Call, Storage, Config<T>} = 30,
 		Variables: pallet_variables::{Pallet, Call, Storage, Event} = 31,
+		AtomicSwap: pallet_atomic_swap::{Pallet, Call, Storage, Event<T>} = 32,
 
 		// Contracts
-		Contracts: pallet_contracts::{Pallet, Call, Config<T>, Storage, Event<T>} = 32,
+		Contracts: pallet_contracts::{Pallet, Call, Config<T>, Storage, Event<T>} = 33,
 
 		// Nomo
-		Registry: pallet_registry::{Pallet, Call, Storage, Event<T>} = 33,
-		Zone: pallet_zone::{Pallet, Call, Storage, Event} = 34,
-		FCFS: pallet_fcfs::{Pallet, Call, Storage, Event<T>} = 35,
+		Registry: pallet_registry::{Pallet, Call, Storage, Event<T>} = 34,
+		Zone: pallet_zone::{Pallet, Call, Storage, Event} = 35,
+		FCFS: pallet_fcfs::{Pallet, Call, Storage, Event<T>} = 36,
 	}
 }
 
