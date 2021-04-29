@@ -36,7 +36,7 @@ use sp_runtime::{create_runtime_str, impl_opaque_keys};
 use sp_version::RuntimeVersion;
 #[cfg(any(feature = "std", test))]
 use sp_version::NativeVersion;
-use frame_support::{construct_runtime, traits::Filter};
+use frame_support::construct_runtime;
 use pallet_session::historical as session_historical;
 
 #[cfg(any(feature = "std", test))]
@@ -136,9 +136,11 @@ construct_runtime! {
 		Multisig: pallet_multisig::{Pallet, Call, Storage, Event<T>} = 27,
 		Bounties: pallet_bounties::{Pallet, Call, Storage, Event<T>} = 28,
 		Tips: pallet_tips::{Pallet, Call, Storage, Event<T>} = 29,
+		Eons: pallet_eons::{Pallet, Call, Storage, Config<T>} = 30,
+		Variables: pallet_variables::{Pallet, Call, Storage, Event} = 31,
 
 		// Contracts
-		Contracts: pallet_contracts::{Pallet, Call, Config<T>, Storage, Event<T>} = 30,
+		Contracts: pallet_contracts::{Pallet, Call, Config<T>, Storage, Event<T>} = 32,
 	}
 }
 

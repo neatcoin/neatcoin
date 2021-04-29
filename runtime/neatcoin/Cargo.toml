@@ -49,6 +49,8 @@ pallet-scheduler = { version = "3.0.0", default-features = false, git = "https:/
 pallet-authorship = { version = "3.0.0", default-features = false, git = "https://github.com/paritytech/substrate", branch = "neatcoin" }
 pallet-authority-discovery = { version = "3.0.0", default-features = false, git = "https://github.com/paritytech/substrate", branch = "neatcoin" }
 pallet-contracts = { version = "3.0.0", default-features = false, git = "https://github.com/paritytech/substrate", branch = "neatcoin" }
+pallet-eons = { path = "../../frame/eons", default-features = false }
+pallet-variables = { path = "../../frame/variables", default-features = false }
 
 sp-api = { version = "3.0.0", default-features = false, git = "https://github.com/paritytech/substrate", branch = "neatcoin" }
 sp-io = { version = "3.0.0", default-features = false, git = "https://github.com/paritytech/substrate", branch = "neatcoin" }
@@ -115,6 +117,7 @@ std = [
 	"pallet-authorship/std",
 	"pallet-authority-discovery/std",
 	"pallet-contracts/std",
+	"pallet-eons/std",
 	"sp-api/std",
 	"sp-io/std",
 	"sp-block-builder/std",

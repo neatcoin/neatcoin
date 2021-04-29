@@ -59,3 +59,9 @@ impl pallet_vesting::Config for Runtime {
 	type MinVestedTransfer = MinVestedTransfer;
 	type WeightInfo = ();
 }
+
+impl pallet_eons::Config for Runtime { }
+
+impl pallet_variables::Config for Runtime {
+	type Event = Event;
+}
