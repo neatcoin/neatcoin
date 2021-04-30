@@ -3861,6 +3861,7 @@ dependencies = [
  "pallet-staking",
  "pallet-transaction-payment-rpc",
  "pallet-transaction-payment-rpc-runtime-api",
+ "parity-scale-codec",
  "sc-authority-discovery",
  "sc-basic-authorship",
  "sc-chain-spec",

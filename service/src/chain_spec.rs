@@ -17,6 +17,7 @@
 // along with Neatcoin. If not, see <http://www.gnu.org/licenses/>.
 
 use std::{marker::PhantomData, collections::HashMap};
+use codec::Decode;
 use sp_core::crypto::{Ss58Codec, Ss58AddressFormat};
 use sp_runtime::Perbill;
 use sc_chain_spec::ChainType;
@@ -134,18 +135,29 @@ pub fn vodka_genesis(
 }
 
 pub fn vodka_config() -> Result<VodkaChainSpec, String> {
-	let _wasm_binary = vodka_runtime::WASM_BINARY.ok_or("Vodka development wasm not available")?;
 	let boot_nodes = vec![];
 
 	Ok(VodkaChainSpec::from_genesis(
 		"Vodka",
 		"vodka",
 		ChainType::Live,
-		move || Default::default(),
+		move || {
+			vodka_genesis(
+				include_bytes!("../res/vodka-0.wasm"),
+				vec![
+					(Default::default(), vodka_runtime::SessionKeys::default()),
+				],
+				Default::default(),
+			)
+		},
 		boot_nodes,
 		None,
 		Some("vodka"),
-		None,
+		Some(serde_json::json!({
+			"ss58Format": 42,
+			"tokenDecimals": 12,
+			"tokenSymbol": "VODKA"
+		}).as_object().expect("Created an object").clone()),
 		Default::default()
 	))
 }

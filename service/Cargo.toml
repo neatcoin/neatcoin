@@ -7,6 +7,7 @@ license = "GPL-3.0-or-later"
 
 [dependencies]
 structopt = "0.3.8"
+codec = { package = "parity-scale-codec", version = "2.0.0" }
 
 sc-cli = { version = "0.9.0", git = "https://github.com/paritytech/substrate", features = ["wasmtime"], branch = "neatcoin" }
 sp-core = { version = "3.0.0", git = "https://github.com/paritytech/substrate", branch = "neatcoin" }
