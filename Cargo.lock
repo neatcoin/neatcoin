@@ -3705,7 +3705,7 @@ dependencies = [
 
 [[package]]
 name = "neatcoin"
-version = "0.1.0"
+version = "1.0.0"
 dependencies = [
  "frame-benchmarking",
  "frame-benchmarking-cli",
@@ -3747,7 +3747,7 @@ dependencies = [
 
 [[package]]
 name = "neatcoin-rpc"
-version = "0.1.0"
+version = "1.0.0"
 dependencies = [
  "jsonrpc-core",
  "np-opaque",
@@ -3776,7 +3776,7 @@ dependencies = [
 
 [[package]]
 name = "neatcoin-runtime"
-version = "0.1.0"
+version = "1.0.0"
 dependencies = [
  "frame-benchmarking",
  "frame-executive",
@@ -3849,7 +3849,7 @@ dependencies = [
 
 [[package]]
 name = "neatcoin-service"
-version = "0.1.0"
+version = "1.0.0"
 dependencies = [
  "frame-benchmarking",
  "frame-system-rpc-runtime-api",
@@ -3962,7 +3962,7 @@ dependencies = [
 
 [[package]]
 name = "np-domain"
-version = "0.1.0"
+version = "1.0.0"
 dependencies = [
  "blake2-rfc",
  "parity-scale-codec",
@@ -3972,7 +3972,7 @@ dependencies = [
 
 [[package]]
 name = "np-opaque"
-version = "0.1.0"
+version = "1.0.0"
 dependencies = [
  "sp-core",
  "sp-runtime",
@@ -4304,7 +4304,7 @@ dependencies = [
 
 [[package]]
 name = "pallet-bootstrap"
-version = "0.1.0"
+version = "1.0.0"
 dependencies = [
  "frame-support",
  "frame-system",
@@ -4437,7 +4437,7 @@ dependencies = [
 
 [[package]]
 name = "pallet-eons"
-version = "0.1.0"
+version = "1.0.0"
 dependencies = [
  "frame-support",
  "frame-system",
@@ -4448,7 +4448,7 @@ dependencies = [
 
 [[package]]
 name = "pallet-fcfs"
-version = "0.1.0"
+version = "1.0.0"
 dependencies = [
  "frame-benchmarking",
  "frame-support",
@@ -4580,7 +4580,7 @@ dependencies = [
 
 [[package]]
 name = "pallet-outmove"
-version = "0.1.0"
+version = "1.0.0"
 dependencies = [
  "frame-support",
  "frame-system",
@@ -4620,7 +4620,7 @@ dependencies = [
 
 [[package]]
 name = "pallet-registry"
-version = "0.1.0"
+version = "1.0.0"
 dependencies = [
  "frame-benchmarking",
  "frame-support",
@@ -4822,7 +4822,7 @@ dependencies = [
 
 [[package]]
 name = "pallet-variables"
-version = "0.1.0"
+version = "1.0.0"
 dependencies = [
  "frame-support",
  "frame-system",
@@ -4847,7 +4847,7 @@ dependencies = [
 
 [[package]]
 name = "pallet-zone"
-version = "0.1.0"
+version = "1.0.0"
 dependencies = [
  "frame-benchmarking",
  "frame-support",
@@ -8970,7 +8970,7 @@ checksum = "5fecdca9a5291cc2b8dcf7dc02453fee791a280f3743cb0905f8822ae463b3fe"
 
 [[package]]
 name = "vodka-runtime"
-version = "0.1.0"
+version = "1.0.0"
 dependencies = [
  "frame-benchmarking",
  "frame-executive",

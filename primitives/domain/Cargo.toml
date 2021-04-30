@@ -1,6 +1,6 @@
 [package]
 name = "np-domain"
-version = "0.1.0"
+version = "1.0.0"
 authors = ["Wei Tang <wei@that.world>"]
 license = "GPL-3.0-or-later"
 description = "Domain handling for Nomo."

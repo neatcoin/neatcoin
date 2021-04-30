@@ -1,8 +1,8 @@
 [package]
-authors = ['Wei Tang <wei@that.world>']
-edition = '2018'
-name = 'pallet-outmove'
-version = "0.1.0"
+authors = ["Wei Tang <wei@that.world>"]
+edition = "2018"
+name = "pallet-outmove"
+version = "1.0.0"
 license = "GPL-3.0-or-later"
 
 [dependencies]
