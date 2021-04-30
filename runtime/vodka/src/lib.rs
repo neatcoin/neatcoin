@@ -145,6 +145,9 @@ construct_runtime! {
 		Variables: pallet_variables::{Pallet, Call, Storage, Event} = 31,
 		AtomicSwap: pallet_atomic_swap::{Pallet, Call, Storage, Event<T>} = 32,
 
+		// Sudo
+		Sudo: pallet_sudo::{Pallet, Call, Storage, Event<T>, Config<T>} = 101,
+
 		// Contracts
 		Contracts: pallet_contracts::{Pallet, Call, Config<T>, Storage, Event<T>} = 33,
 

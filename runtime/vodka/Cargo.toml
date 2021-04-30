@@ -50,6 +50,7 @@ pallet-authorship = { version = "3.0.0", default-features = false, git = "https:
 pallet-authority-discovery = { version = "3.0.0", default-features = false, git = "https://github.com/paritytech/substrate", branch = "neatcoin" }
 pallet-contracts = { version = "3.0.0", default-features = false, git = "https://github.com/paritytech/substrate", branch = "neatcoin" }
 pallet-atomic-swap = { version = "3.0.0", default-features = false, git = "https://github.com/paritytech/substrate", branch = "neatcoin" }
+pallet-sudo = { version = "3.0.0", default-features = false, git = "https://github.com/paritytech/substrate", branch = "neatcoin" }
 pallet-eons = { path = "../../frame/eons", default-features = false }
 pallet-variables = { path = "../../frame/variables", default-features = false }
 pallet-registry = { path = "../../frame/registry", default-features = false }
@@ -123,6 +124,7 @@ std = [
 	"pallet-authority-discovery/std",
 	"pallet-contracts/std",
 	"pallet-atomic-swap/std",
+	"pallet-sudo/std",
 	"pallet-eons/std",
 	"pallet-variables/std",
 	"pallet-registry/std",

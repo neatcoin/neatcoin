@@ -32,3 +32,14 @@ mod utility;
 mod contracts;
 #[path = "../../common/config/nomo.rs"]
 mod nomo;
+
+mod sudo {
+	use crate::{Runtime, Event, Call};
+
+	impl pallet_sudo::Config for Runtime {
+		type Event = Event;
+		type Call = Call;
+	}
+}
+
+
