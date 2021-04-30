@@ -16,6 +16,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Neatcoin. If not, see <http://www.gnu.org/licenses/>.
 
+use core::marker::PhantomData;
+use sp_runtime::Perbill;
 use sc_chain_spec::ChainType;
 
 pub type NeatcoinChainSpec = sc_service::GenericChainSpec<neatcoin_runtime::GenesisConfig>;
@@ -39,7 +41,76 @@ pub fn neatcoin_config() -> Result<NeatcoinChainSpec, String> {
 }
 
 pub fn vodka_genesis(wasm_binary: &[u8]) -> vodka_runtime::GenesisConfig {
-	unimplemented!()
+	vodka_runtime::GenesisConfig {
+		frame_system: vodka_runtime::SystemConfig {
+			code: wasm_binary.to_vec(),
+			changes_trie_config: Default::default(),
+		},
+		pallet_balances: vodka_runtime::BalancesConfig {
+			balances: unimplemented!(),
+		},
+		pallet_indices: vodka_runtime::IndicesConfig {
+			indices: vec![],
+		},
+		pallet_session: vodka_runtime::SessionConfig {
+			keys: unimplemented!(),
+		},
+		pallet_staking: vodka_runtime::StakingConfig {
+			validator_count: unimplemented!(),
+			minimum_validator_count: unimplemented!(),
+			stakers: vec![],
+			invulnerables: vec![],
+			force_era: pallet_staking::Forcing::ForceNone,
+			canceled_payout: Default::default(),
+			history_depth: Default::default(),
+			slash_reward_fraction: Perbill::from_percent(10),
+		},
+		pallet_authority_discovery: vodka_runtime::AuthorityDiscoveryConfig {
+			keys: vec![],
+		},
+		pallet_babe: vodka_runtime::BabeConfig {
+			authorities: vec![],
+			epoch_config: Some(vodka_runtime::BABE_GENESIS_EPOCH_CONFIG),
+		},
+		pallet_bootstrap: vodka_runtime::BootstrapConfig {
+			endoweds: unimplemented!(),
+		},
+		pallet_collective_Instance1: vodka_runtime::CouncilConfig {
+			phantom: PhantomData,
+			members: vec![],
+		},
+		pallet_collective_Instance2: vodka_runtime::TechnicalCommitteeConfig {
+			phantom: PhantomData,
+			members: vec![],
+		},
+		pallet_contracts: vodka_runtime::ContractsConfig {
+			current_schedule: Default::default(),
+		},
+		pallet_democracy: vodka_runtime::DemocracyConfig { },
+		pallet_elections_phragmen: vodka_runtime::ElectionsPhragmenConfig {
+			members: vec![],
+		},
+		pallet_eons: vodka_runtime::EonsConfig {
+			past_eons: vec![],
+		},
+		pallet_grandpa: vodka_runtime::GrandpaConfig {
+			authorities: vec![],
+		},
+		pallet_im_online: vodka_runtime::ImOnlineConfig {
+			keys: vec![],
+		},
+		pallet_membership_Instance1: vodka_runtime::TechnicalMembershipConfig {
+			phantom: PhantomData,
+			members: vec![],
+		},
+		pallet_sudo: vodka_runtime::SudoConfig {
+			key: unimplemented!(),
+		},
+		pallet_treasury: vodka_runtime::TreasuryConfig { },
+		pallet_vesting: vodka_runtime::VestingConfig {
+			vesting: vec![],
+		},
+	}
 }
 
 pub fn vodka_config() -> Result<VodkaChainSpec, String> {

@@ -35,6 +35,7 @@ sc-authority-discovery = { version = "0.9.0", git = "https://github.com/parityte
 sc-finality-grandpa-warp-sync = { version = "0.9.0", git = "https://github.com/paritytech/substrate", branch = "neatcoin" }
 sc-consensus-slots = { version = "0.9.0", git = "https://github.com/paritytech/substrate", branch = "neatcoin" }
 sp-trie = { version = "3.0.0", git = "https://github.com/paritytech/substrate", branch = "neatcoin" }
+pallet-staking = { version = "3.0.0", git = "https://github.com/paritytech/substrate", branch = "neatcoin" }
 
 jsonrpc-core = "15.1.0"
 sc-rpc = { version = "3.0.0", git = "https://github.com/paritytech/substrate", branch = "neatcoin" }

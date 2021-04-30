@@ -3857,6 +3857,7 @@ dependencies = [
  "neatcoin-rpc",
  "neatcoin-runtime",
  "np-opaque",
+ "pallet-staking",
  "pallet-transaction-payment-rpc",
  "pallet-transaction-payment-rpc-runtime-api",
  "sc-authority-discovery",
