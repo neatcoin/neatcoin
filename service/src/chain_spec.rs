@@ -135,7 +135,9 @@ pub fn vodka_genesis(
 }
 
 pub fn vodka_config() -> Result<VodkaChainSpec, String> {
-	let boot_nodes = vec![];
+	let boot_nodes = vec![
+		"/dns4/a.vodka.bootnode.neatcoin.org/tcp/27100/ws/p2p/12D3KooWHkNKLcFaxqAjgyRLxm4SeTQH9L3XZ2QDHijsLfrjGaW7".parse().expect("parse bootnode failed")
+	];
 
 	Ok(VodkaChainSpec::from_genesis(
 		"Vodka",
