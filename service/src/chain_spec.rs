@@ -54,7 +54,11 @@ pub fn genesis_allocations() -> HashMap<AccountId, Balance> {
 	}).collect()
 }
 
-pub fn vodka_genesis(wasm_binary: &[u8]) -> vodka_runtime::GenesisConfig {
+pub fn vodka_genesis(
+	wasm_binary: &[u8],
+	genesis_keys: Vec<(AccountId, vodka_runtime::SessionKeys)>,
+	sudo_key: AccountId,
+) -> vodka_runtime::GenesisConfig {
 	vodka_runtime::GenesisConfig {
 		frame_system: vodka_runtime::SystemConfig {
 			code: wasm_binary.to_vec(),
@@ -67,11 +71,13 @@ pub fn vodka_genesis(wasm_binary: &[u8]) -> vodka_runtime::GenesisConfig {
 			indices: vec![],
 		},
 		pallet_session: vodka_runtime::SessionConfig {
-			keys: unimplemented!(),
+			keys: genesis_keys.clone().into_iter().map(|(account, keys)| {
+				(account.clone(), account, keys)
+			}).collect(),
 		},
 		pallet_staking: vodka_runtime::StakingConfig {
-			validator_count: unimplemented!(),
-			minimum_validator_count: unimplemented!(),
+			validator_count: 17,
+			minimum_validator_count: 2,
 			stakers: vec![],
 			invulnerables: vec![],
 			force_era: pallet_staking::Forcing::ForceNone,
@@ -87,7 +93,7 @@ pub fn vodka_genesis(wasm_binary: &[u8]) -> vodka_runtime::GenesisConfig {
 			epoch_config: Some(vodka_runtime::BABE_GENESIS_EPOCH_CONFIG),
 		},
 		pallet_bootstrap: vodka_runtime::BootstrapConfig {
-			endoweds: unimplemented!(),
+			endoweds: genesis_keys.clone().into_iter().map(|(account, _)| account).collect(),
 		},
 		pallet_collective_Instance1: vodka_runtime::CouncilConfig {
 			phantom: PhantomData,
@@ -118,7 +124,7 @@ pub fn vodka_genesis(wasm_binary: &[u8]) -> vodka_runtime::GenesisConfig {
 			members: vec![],
 		},
 		pallet_sudo: vodka_runtime::SudoConfig {
-			key: unimplemented!(),
+			key: sudo_key,
 		},
 		pallet_treasury: vodka_runtime::TreasuryConfig { },
 		pallet_vesting: vodka_runtime::VestingConfig {
