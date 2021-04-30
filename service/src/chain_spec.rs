@@ -78,7 +78,7 @@ pub fn vodka_genesis(
 		},
 		pallet_staking: vodka_runtime::StakingConfig {
 			validator_count: 17,
-			minimum_validator_count: 7,
+			minimum_validator_count: 2, // NOTE: should set to 7 for mainnet.
 			stakers: vec![],
 			invulnerables: vec![],
 			force_era: pallet_staking::Forcing::ForceNone,
