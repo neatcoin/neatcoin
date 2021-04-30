@@ -3854,6 +3854,7 @@ dependencies = [
  "frame-benchmarking",
  "frame-system-rpc-runtime-api",
  "futures 0.3.14",
+ "hex",
  "jsonrpc-core",
  "neatcoin-rpc",
  "neatcoin-runtime",
