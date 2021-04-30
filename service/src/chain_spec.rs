@@ -16,9 +16,11 @@
 // You should have received a copy of the GNU General Public License
 // along with Neatcoin. If not, see <http://www.gnu.org/licenses/>.
 
-use core::marker::PhantomData;
+use std::{marker::PhantomData, collections::HashMap};
+use sp_core::crypto::{Ss58Codec, Ss58AddressFormat};
 use sp_runtime::Perbill;
 use sc_chain_spec::ChainType;
+use np_opaque::{AccountId, Balance};
 
 pub type NeatcoinChainSpec = sc_service::GenericChainSpec<neatcoin_runtime::GenesisConfig>;
 pub type VodkaChainSpec = sc_service::GenericChainSpec<vodka_runtime::GenesisConfig>;
@@ -40,6 +42,18 @@ pub fn neatcoin_config() -> Result<NeatcoinChainSpec, String> {
 	))
 }
 
+pub fn genesis_allocations() -> HashMap<AccountId, Balance> {
+	let raw: HashMap<String, String> = serde_json::from_slice(include_bytes!("../res/genesis.json"))
+		.expect("parse genesis.json failed");
+	raw.into_iter().map(|(key, value)| {
+		let (address, version) = AccountId::from_ss58check_with_version(&key)
+			.expect("parse address failed");
+		assert_eq!(version, Ss58AddressFormat::KulupuAccount);
+		let balance = u128::from_str_radix(&value, 10).expect("parse balance failed");
+		(address, balance)
+	}).collect()
+}
+
 pub fn vodka_genesis(wasm_binary: &[u8]) -> vodka_runtime::GenesisConfig {
 	vodka_runtime::GenesisConfig {
 		frame_system: vodka_runtime::SystemConfig {
@@ -47,7 +61,7 @@ pub fn vodka_genesis(wasm_binary: &[u8]) -> vodka_runtime::GenesisConfig {
 			changes_trie_config: Default::default(),
 		},
 		pallet_balances: vodka_runtime::BalancesConfig {
-			balances: unimplemented!(),
+			balances: genesis_allocations().into_iter().collect(),
 		},
 		pallet_indices: vodka_runtime::IndicesConfig {
 			indices: vec![],
