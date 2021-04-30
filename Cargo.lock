@@ -3712,6 +3712,7 @@ dependencies = [
  "funty",
  "futures 0.3.14",
  "jsonrpc-core",
+ "log",
  "neatcoin-rpc",
  "neatcoin-service",
  "pallet-transaction-payment-rpc",

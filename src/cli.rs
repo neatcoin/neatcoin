@@ -53,7 +53,16 @@ pub enum Subcommand {
 	/// Revert the chain to a previous state.
 	Revert(sc_cli::RevertCmd),
 
+	#[structopt(name = "export-builtin-wasm", setting = structopt::clap::AppSettings::Hidden)]
+	ExportBuiltinWasm(ExportBuiltinWasmCommand),
+
 	/// The custom benchmark subcommmand benchmarking runtime pallets.
 	#[structopt(name = "benchmark", about = "Benchmark runtime pallets.")]
 	Benchmark(frame_benchmarking_cli::BenchmarkCmd),
+}
+
+#[derive(Debug, StructOpt)]
+pub struct ExportBuiltinWasmCommand {
+	#[structopt()]
+	pub folder: String,
 }

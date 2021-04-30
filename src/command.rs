@@ -16,8 +16,9 @@
 // You should have received a copy of the GNU General Public License
 // along with Neatcoin. If not, see <http://www.gnu.org/licenses/>.
 
-use std::sync::Arc;
+use std::{sync::Arc, fs::File, io::Write, path::PathBuf};
 use futures::future::TryFutureExt;
+use log::info;
 use sc_cli::{SubstrateCli, RuntimeVersion, Role, ChainSpec};
 use neatcoin_service::{chain_spec, IdentifyVariant, ChainVariant};
 use crate::cli::{Cli, Subcommand};
@@ -32,6 +33,12 @@ pub enum Error {
 
 	#[error(transparent)]
 	SubstrateService(#[from] sc_service::Error),
+
+	#[error(transparent)]
+	Io(#[from] std::io::Error),
+
+	#[error("Wasm binary is not available")]
+	UnavailableWasmBinary,
 }
 
 impl SubstrateCli for Cli {
@@ -184,6 +191,61 @@ pub fn run() -> Result<(), Error> {
 				cmd.run::<neatcoin_service::neatcoin_runtime::Block, neatcoin_service::NeatcoinExecutor>(config)
 					.map_err(|e| Error::SubstrateCli(e))
 			})?)
+		},
+		Some(Subcommand::ExportBuiltinWasm(cmd)) => {
+			{
+				let wasm_binary_bloaty = neatcoin_service::neatcoin_runtime::WASM_BINARY_BLOATY
+					.ok_or(Error::UnavailableWasmBinary)?;
+				let wasm_binary = neatcoin_service::neatcoin_runtime::WASM_BINARY
+					.ok_or(Error::UnavailableWasmBinary)?;
+
+				info!("Exporting neatcoin builtin wasm binary to folder: {}", cmd.folder);
+
+				let folder = PathBuf::from(cmd.folder.clone());
+				{
+					let mut path = folder.clone();
+					path.push("neatcoin_runtime.compact.wasm");
+					let mut file = File::create(path)?;
+					file.write_all(&wasm_binary)?;
+					file.flush()?;
+				}
+
+				{
+					let mut path = folder.clone();
+					path.push("neatcoin_runtime.wasm");
+					let mut file = File::create(path)?;
+					file.write_all(&wasm_binary_bloaty)?;
+					file.flush()?;
+				}
+			}
+
+			{
+				let wasm_binary_bloaty = neatcoin_service::vodka_runtime::WASM_BINARY_BLOATY
+					.ok_or(Error::UnavailableWasmBinary)?;
+				let wasm_binary = neatcoin_service::vodka_runtime::WASM_BINARY
+					.ok_or(Error::UnavailableWasmBinary)?;
+
+				info!("Exporting vodka builtin wasm binary to folder: {}", cmd.folder);
+
+				let folder = PathBuf::from(cmd.folder.clone());
+				{
+					let mut path = folder.clone();
+					path.push("vodka_runtime.compact.wasm");
+					let mut file = File::create(path)?;
+					file.write_all(&wasm_binary)?;
+					file.flush()?;
+				}
+
+				{
+					let mut path = folder.clone();
+					path.push("vodka_runtime.wasm");
+					let mut file = File::create(path)?;
+					file.write_all(&wasm_binary_bloaty)?;
+					file.flush()?;
+				}
+			}
+
+			Ok(())
 		},
 		Some(Subcommand::Key(cmd)) => Ok(cmd.run(&cli)?),
 		#[cfg(feature = "try-runtime")]
