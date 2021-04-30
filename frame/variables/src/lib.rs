@@ -46,7 +46,7 @@ pub enum Value {
 }
 
 decl_storage! {
-	trait Store for Module<T: Config> as Eras {
+	trait Store for Module<T: Config> as Variables {
 		/// Storage values.
 		pub Values: map hasher(blake2_128_concat) Vec<u8> => Option<Value>;
 	}

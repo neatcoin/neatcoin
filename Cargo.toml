@@ -72,4 +72,5 @@ members = [
 	"frame/fcfs",
 	"frame/eons",
 	"frame/variables",
+	"frame/bootstrap",
 ]

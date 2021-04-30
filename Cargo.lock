@@ -3791,6 +3791,7 @@ dependencies = [
  "pallet-authorship",
  "pallet-babe",
  "pallet-balances",
+ "pallet-bootstrap",
  "pallet-bounties",
  "pallet-collective",
  "pallet-contracts",
@@ -4293,6 +4294,17 @@ dependencies = [
  "log",
  "parity-scale-codec",
  "sp-runtime",
+ "sp-std",
+]
+
+[[package]]
+name = "pallet-bootstrap"
+version = "0.1.0"
+dependencies = [
+ "frame-support",
+ "frame-system",
+ "parity-scale-codec",
+ "serde",
  "sp-std",
 ]
 
@@ -8956,6 +8968,7 @@ dependencies = [
  "pallet-authorship",
  "pallet-babe",
  "pallet-balances",
+ "pallet-bootstrap",
  "pallet-bounties",
  "pallet-collective",
  "pallet-contracts",

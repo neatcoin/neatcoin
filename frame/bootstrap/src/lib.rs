@@ -20,29 +20,24 @@
 
 #![cfg_attr(not(feature = "std"), no_std)]
 
-use codec::{Encode, Decode};
-#[cfg(feature = "std")]
-use serde::{Serialize, Deserialize};
 use sp_std::prelude::*;
 use frame_support::{decl_storage, decl_module};
-
-#[cfg_attr(feature = "std", derive(Serialize, Deserialize))]
-#[derive(Encode, Decode)]
-pub struct Eon<H> {
-	/// Genesis block hash of the eon.
-	pub genesis_block_hash: H,
-	/// Final block hash.
-	pub final_block_hash: H,
-	/// Final state root.
-	pub final_state_root: H,
-}
 
 pub trait Config: frame_system::Config { }
 
 decl_storage! {
-	trait Store for Module<T: Config> as Eons {
-		/// Past eons.
-		pub PastEons get(fn past_eons) config(past_eons): Vec<Eon<T::Hash>>;
+	trait Store for Module<T: Config> as Bootstrap {
+		/// Bootstrapping endowed accounts.
+		pub Endoweds get(fn endoweds): Vec<T::AccountId>;
+	}
+	add_extra_genesis {
+		config(endoweds): Vec<T::AccountId>;
+		build(|config: &GenesisConfig<T>| {
+			Endoweds::<T>::set(config.endoweds.clone());
+			for account in &config.endoweds {
+				frame_system::Pallet::<T>::inc_providers(account);
+			}
+		})
 	}
 }
 

@@ -104,6 +104,9 @@ construct_runtime! {
 		RandomnessCollectiveFlip: pallet_randomness_collective_flip::{Pallet, Storage} = 1,
 		Scheduler: pallet_scheduler::{Pallet, Call, Storage, Event<T>} = 2,
 
+		// Bootstrap
+		Bootstrap: pallet_bootstrap::{Pallet, Storage, Config<T>} = 100,
+
 		// Must be before session.
 		Babe: pallet_babe::{Pallet, Call, Storage, Config, ValidateUnsigned} = 3,
 		Timestamp: pallet_timestamp::{Pallet, Call, Storage, Inherent} = 4,

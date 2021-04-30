@@ -75,3 +75,5 @@ impl pallet_atomic_swap::Config for Runtime {
 	type SwapAction = pallet_atomic_swap::BalanceSwapAction<Self::AccountId, Balances>;
 	type ProofLimit = ProofLimit;
 }
+
+impl pallet_bootstrap::Config for Runtime { }

@@ -55,6 +55,7 @@ pallet-variables = { path = "../../frame/variables", default-features = false }
 pallet-registry = { path = "../../frame/registry", default-features = false }
 pallet-zone = { path = "../../frame/zone", default-features = false }
 pallet-fcfs = { path = "../../frame/fcfs", default-features = false }
+pallet-bootstrap = { path = "../../frame/bootstrap", default-features = false }
 
 sp-api = { version = "3.0.0", default-features = false, git = "https://github.com/paritytech/substrate", branch = "neatcoin" }
 sp-io = { version = "3.0.0", default-features = false, git = "https://github.com/paritytech/substrate", branch = "neatcoin" }
@@ -126,6 +127,7 @@ std = [
 	"pallet-registry/std",
 	"pallet-zone/std",
 	"pallet-fcfs/std",
+	"pallet-bootstrap/std",
 	"sp-api/std",
 	"sp-io/std",
 	"sp-block-builder/std",
