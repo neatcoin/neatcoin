@@ -27,7 +27,7 @@ use np_opaque::{AccountId, Balance};
 pub type NeatcoinChainSpec = sc_service::GenericChainSpec<neatcoin_runtime::GenesisConfig>;
 pub type VodkaChainSpec = sc_service::GenericChainSpec<vodka_runtime::GenesisConfig>;
 
-pub fn genesis_allocations() -> IndexMap<AccountId, Balance> {
+pub fn build_genesis_allocations() -> IndexMap<AccountId, Balance> {
 	let raw: IndexMap<String, String> = serde_json::from_slice(include_bytes!("../res/genesis.json"))
 		.expect("parse genesis.json failed");
 	raw.into_iter().map(|(key, value)| {
@@ -39,7 +39,7 @@ pub fn genesis_allocations() -> IndexMap<AccountId, Balance> {
 	}).collect()
 }
 
-pub fn neatcoin_genesis(
+pub fn build_neatcoin_genesis(
 	wasm_binary: &[u8],
 	genesis_keys: Vec<(AccountId, neatcoin_runtime::SessionKeys)>,
 ) -> neatcoin_runtime::GenesisConfig {
@@ -49,7 +49,7 @@ pub fn neatcoin_genesis(
 			changes_trie_config: Default::default(),
 		},
 		pallet_balances: neatcoin_runtime::BalancesConfig {
-			balances: genesis_allocations().into_iter().collect(),
+			balances: build_genesis_allocations().into_iter().collect(),
 		},
 		pallet_indices: neatcoin_runtime::IndicesConfig {
 			indices: vec![],
@@ -114,7 +114,7 @@ pub fn neatcoin_genesis(
 	}
 }
 
-pub fn neatcoin_config() -> Result<NeatcoinChainSpec, String> {
+pub fn build_neatcoin_config() -> Result<NeatcoinChainSpec, String> {
 	let boot_nodes = vec![
 		"/dns4/a.bootnode.neatcoin.org/tcp/26100/ws/p2p/12D3KooWJcQDt9NaXgJvkiQmWB6NHrvAJFybp6JwjKPDEgvnRAoM".parse().expect("parse bootnode failed")
 	];
@@ -136,7 +136,7 @@ pub fn neatcoin_config() -> Result<NeatcoinChainSpec, String> {
 				}).collect()
 			};
 
-			neatcoin_genesis(
+			build_neatcoin_genesis(
 				include_bytes!("../res/neatcoin-0.wasm"),
 				init_vals,
 			)
@@ -153,7 +153,11 @@ pub fn neatcoin_config() -> Result<NeatcoinChainSpec, String> {
 	))
 }
 
-pub fn vodka_genesis(
+pub fn neatcoin_config() -> Result<NeatcoinChainSpec, String> {
+	NeatcoinChainSpec::from_json_bytes(&include_bytes!("../res/neatcoin-spec.json")[..])
+}
+
+pub fn build_vodka_genesis(
 	wasm_binary: &[u8],
 	genesis_keys: Vec<(AccountId, vodka_runtime::SessionKeys)>,
 	sudo_key: AccountId,
@@ -164,7 +168,7 @@ pub fn vodka_genesis(
 			changes_trie_config: Default::default(),
 		},
 		pallet_balances: vodka_runtime::BalancesConfig {
-			balances: genesis_allocations().into_iter().collect(),
+			balances: build_genesis_allocations().into_iter().collect(),
 		},
 		pallet_indices: vodka_runtime::IndicesConfig {
 			indices: vec![],
@@ -232,7 +236,7 @@ pub fn vodka_genesis(
 	}
 }
 
-pub fn vodka_config() -> Result<VodkaChainSpec, String> {
+pub fn build_vodka_config() -> Result<VodkaChainSpec, String> {
 	let boot_nodes = vec![
 		"/dns4/a.vodka.bootnode.neatcoin.org/tcp/27100/ws/p2p/12D3KooWHkNKLcFaxqAjgyRLxm4SeTQH9L3XZ2QDHijsLfrjGaW7".parse().expect("parse bootnode failed")
 	];
@@ -254,7 +258,7 @@ pub fn vodka_config() -> Result<VodkaChainSpec, String> {
 				}).collect()
 			};
 
-			vodka_genesis(
+			build_vodka_genesis(
 				include_bytes!("../res/vodka-0.wasm"),
 				init_vals,
 				AccountId::from_ss58check("5DjqKKzLzYHTzgMgG2mxtZaSojShWwp9N3qPhnWuRoL3sFeD").expect("parse address failed"),
@@ -270,4 +274,8 @@ pub fn vodka_config() -> Result<VodkaChainSpec, String> {
 		}).as_object().expect("Created an object").clone()),
 		Default::default()
 	))
+}
+
+pub fn vodka_config() -> Result<VodkaChainSpec, String> {
+	VodkaChainSpec::from_json_bytes(&include_bytes!("../res/vodka-spec.json")[..])
 }
