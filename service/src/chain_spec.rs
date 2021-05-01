@@ -26,23 +26,6 @@ use np_opaque::{AccountId, Balance};
 pub type NeatcoinChainSpec = sc_service::GenericChainSpec<neatcoin_runtime::GenesisConfig>;
 pub type VodkaChainSpec = sc_service::GenericChainSpec<vodka_runtime::GenesisConfig>;
 
-pub fn neatcoin_config() -> Result<NeatcoinChainSpec, String> {
-	let _wasm_binary = neatcoin_runtime::WASM_BINARY.ok_or("Neatcoin development wasm not available")?;
-	let boot_nodes = vec![];
-
-	Ok(NeatcoinChainSpec::from_genesis(
-		"Neatcoin",
-		"neatcoin",
-		ChainType::Live,
-		move || Default::default(),
-		boot_nodes,
-		None,
-		Some("neatcoin"),
-		None,
-		Default::default()
-	))
-}
-
 pub fn genesis_allocations() -> HashMap<AccountId, Balance> {
 	let raw: HashMap<String, String> = serde_json::from_slice(include_bytes!("../res/genesis.json"))
 		.expect("parse genesis.json failed");
@@ -53,6 +36,106 @@ pub fn genesis_allocations() -> HashMap<AccountId, Balance> {
 		let balance = u128::from_str_radix(&value, 10).expect("parse balance failed");
 		(address, balance)
 	}).collect()
+}
+
+pub fn neatcoin_genesis(
+	wasm_binary: &[u8],
+	genesis_keys: Vec<(AccountId, neatcoin_runtime::SessionKeys)>,
+) -> neatcoin_runtime::GenesisConfig {
+	neatcoin_runtime::GenesisConfig {
+		frame_system: neatcoin_runtime::SystemConfig {
+			code: wasm_binary.to_vec(),
+			changes_trie_config: Default::default(),
+		},
+		pallet_balances: neatcoin_runtime::BalancesConfig {
+			balances: genesis_allocations().into_iter().collect(),
+		},
+		pallet_indices: neatcoin_runtime::IndicesConfig {
+			indices: vec![],
+		},
+		pallet_session: neatcoin_runtime::SessionConfig {
+			keys: genesis_keys.clone().into_iter().map(|(account, keys)| {
+				(account.clone(), account, keys)
+			}).collect(),
+		},
+		pallet_staking: neatcoin_runtime::StakingConfig {
+			validator_count: 17,
+			minimum_validator_count: 7,
+			stakers: vec![],
+			invulnerables: vec![],
+			force_era: pallet_staking::Forcing::ForceNone,
+			canceled_payout: Default::default(),
+			history_depth: Default::default(),
+			slash_reward_fraction: Perbill::from_percent(10),
+		},
+		pallet_authority_discovery: neatcoin_runtime::AuthorityDiscoveryConfig {
+			keys: vec![],
+		},
+		pallet_babe: neatcoin_runtime::BabeConfig {
+			authorities: vec![],
+			epoch_config: Some(neatcoin_runtime::BABE_GENESIS_EPOCH_CONFIG),
+		},
+		pallet_bootstrap: neatcoin_runtime::BootstrapConfig {
+			endoweds: genesis_keys.clone().into_iter().map(|(account, _)| account).collect(),
+		},
+		pallet_collective_Instance1: neatcoin_runtime::CouncilConfig {
+			phantom: PhantomData,
+			members: vec![],
+		},
+		pallet_collective_Instance2: neatcoin_runtime::TechnicalCommitteeConfig {
+			phantom: PhantomData,
+			members: vec![],
+		},
+		pallet_contracts: neatcoin_runtime::ContractsConfig {
+			current_schedule: Default::default(),
+		},
+		pallet_democracy: neatcoin_runtime::DemocracyConfig { },
+		pallet_elections_phragmen: neatcoin_runtime::ElectionsPhragmenConfig {
+			members: vec![],
+		},
+		pallet_eons: neatcoin_runtime::EonsConfig {
+			past_eons: vec![],
+		},
+		pallet_grandpa: neatcoin_runtime::GrandpaConfig {
+			authorities: vec![],
+		},
+		pallet_im_online: neatcoin_runtime::ImOnlineConfig {
+			keys: vec![],
+		},
+		pallet_membership_Instance1: neatcoin_runtime::TechnicalMembershipConfig {
+			phantom: PhantomData,
+			members: vec![],
+		},
+		pallet_treasury: neatcoin_runtime::TreasuryConfig { },
+		pallet_vesting: neatcoin_runtime::VestingConfig {
+			vesting: vec![],
+		},
+	}
+}
+
+pub fn neatcoin_config() -> Result<NeatcoinChainSpec, String> {
+	let boot_nodes = vec![];
+
+	Ok(NeatcoinChainSpec::from_genesis(
+		"Neatcoin",
+		"neatcoin",
+		ChainType::Live,
+		move || {
+			neatcoin_genesis(
+				include_bytes!("../res/neatcoin-0.wasm"),
+				vec![(AccountId::default(), neatcoin_runtime::SessionKeys::default())],
+			)
+		},
+		boot_nodes,
+		None,
+		Some("neatcoin"),
+		Some(serde_json::json!({
+			"ss58Format": 48,
+			"tokenDecimals": 12,
+			"tokenSymbol": "NEAT"
+		}).as_object().expect("Created an object").clone()),
+		Default::default()
+	))
 }
 
 pub fn vodka_genesis(

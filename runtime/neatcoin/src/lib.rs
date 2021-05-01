@@ -50,7 +50,7 @@ pub use crate::api::{api::dispatch, RuntimeApi};
 pub use crate::types::{
 	opaque, BlockNumber, Moment, Signature, AccountPublic, AccountId, AccountIndex,
 	Hash, Nonce, Address, Header, Block, SignedBlock, BlockId, SignedExtra,
-	UncheckedExtrinsic, CheckedExtrinsic, SignedPayload,
+	UncheckedExtrinsic, CheckedExtrinsic, SignedPayload, BABE_GENESIS_EPOCH_CONFIG,
 };
 
 // Make the WASM binary available.
