@@ -16,7 +16,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Neatcoin. If not, see <http://www.gnu.org/licenses/>.
 
-use std::{marker::PhantomData, collections::HashMap};
+use std::marker::PhantomData;
+use indexmap::IndexMap;
 use codec::Decode;
 use sp_core::crypto::{Ss58Codec, Ss58AddressFormat};
 use sp_runtime::Perbill;
@@ -26,8 +27,8 @@ use np_opaque::{AccountId, Balance};
 pub type NeatcoinChainSpec = sc_service::GenericChainSpec<neatcoin_runtime::GenesisConfig>;
 pub type VodkaChainSpec = sc_service::GenericChainSpec<vodka_runtime::GenesisConfig>;
 
-pub fn genesis_allocations() -> HashMap<AccountId, Balance> {
-	let raw: HashMap<String, String> = serde_json::from_slice(include_bytes!("../res/genesis.json"))
+pub fn genesis_allocations() -> IndexMap<AccountId, Balance> {
+	let raw: IndexMap<String, String> = serde_json::from_slice(include_bytes!("../res/genesis.json"))
 		.expect("parse genesis.json failed");
 	raw.into_iter().map(|(key, value)| {
 		let (address, version) = AccountId::from_ss58check_with_version(&key)
@@ -124,7 +125,7 @@ pub fn neatcoin_config() -> Result<NeatcoinChainSpec, String> {
 		ChainType::Live,
 		move || {
 			let init_vals = {
-				let raw: HashMap<String, String> = serde_json::from_slice(include_bytes!("../res/neatcoin-initvals.json"))
+				let raw: IndexMap<String, String> = serde_json::from_slice(include_bytes!("../res/neatcoin-initvals.json"))
 					.expect("parse neatcoin-initvals.json failed");
 
 				raw.into_iter().map(|(key, value)| {
@@ -242,7 +243,7 @@ pub fn vodka_config() -> Result<VodkaChainSpec, String> {
 		ChainType::Live,
 		move || {
 			let init_vals = {
-				let raw: HashMap<String, String> = serde_json::from_slice(include_bytes!("../res/vodka-initvals.json"))
+				let raw: IndexMap<String, String> = serde_json::from_slice(include_bytes!("../res/vodka-initvals.json"))
 					.expect("parse vodka-initvals.json failed");
 
 				raw.into_iter().map(|(key, value)| {

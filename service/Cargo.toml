@@ -57,6 +57,7 @@ thiserror = "1.0.23"
 tracing = "0.1.25"
 serde_json = "1.0.59"
 hex = "0.4.3"
+indexmap = { version = "1.6.2", features = ["serde-1"] }
 np-opaque = { path = "../primitives/opaque" }
 neatcoin-rpc = { path = "../rpc" }
 neatcoin-runtime = { path = "../runtime/neatcoin" }
