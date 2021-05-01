@@ -115,7 +115,7 @@ pub fn neatcoin_genesis(
 
 pub fn neatcoin_config() -> Result<NeatcoinChainSpec, String> {
 	let boot_nodes = vec![
-		"/dns4/a.bootnode.neatcoin.org/tcp/26100/ws/p2p/12D3KooWJcQDt9NaXgJvkiQmWB6NHrvAJFybp6JwjKPDEgvnRAoM"
+		"/dns4/a.bootnode.neatcoin.org/tcp/26100/ws/p2p/12D3KooWJcQDt9NaXgJvkiQmWB6NHrvAJFybp6JwjKPDEgvnRAoM".parse().expect("parse bootnode failed")
 	];
 
 	Ok(NeatcoinChainSpec::from_genesis(
@@ -130,14 +130,14 @@ pub fn neatcoin_config() -> Result<NeatcoinChainSpec, String> {
 				raw.into_iter().map(|(key, value)| {
 					(
 						AccountId::from_ss58check(&key).expect("parse address failed"),
-						vodka_runtime::SessionKeys::decode(&mut &hex::decode(&value).expect("decode hex failed")[..]).expect("decode session keys failed")
+						neatcoin_runtime::SessionKeys::decode(&mut &hex::decode(&value).expect("decode hex failed")[..]).expect("decode session keys failed")
 					)
 				}).collect()
 			};
 
 			neatcoin_genesis(
 				include_bytes!("../res/neatcoin-0.wasm"),
-				vec![(AccountId::default(), neatcoin_runtime::SessionKeys::default())],
+				init_vals,
 			)
 		},
 		boot_nodes,
