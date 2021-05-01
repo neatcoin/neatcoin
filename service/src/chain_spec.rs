@@ -227,18 +227,21 @@ pub fn vodka_config() -> Result<VodkaChainSpec, String> {
 		"vodka",
 		ChainType::Live,
 		move || {
+			let init_vals = {
+				let raw: HashMap<String, String> = serde_json::from_slice(include_bytes!("../res/vodka-initvals.json"))
+					.expect("parse vodka-initvals.json failed");
+
+				raw.into_iter().map(|(key, value)| {
+					(
+						AccountId::from_ss58check(&key).expect("parse address failed"),
+						vodka_runtime::SessionKeys::decode(&mut &hex::decode(&value).expect("decode hex failed")[..]).expect("decode session keys failed")
+					)
+				}).collect()
+			};
+
 			vodka_genesis(
 				include_bytes!("../res/vodka-0.wasm"),
-				vec![
-					(
-						AccountId::from_ss58check("5CtjMW8mAT66Ngqt8eNpPA72yGNqYrYuSap22DmW6u9Li3kw").expect("parse address failed"),
-						vodka_runtime::SessionKeys::decode(&mut &hex::decode("f1d2930a35f331e3d48c54fe57f8b3a7fb078f73bd3b375b9ffd23a25106853568032655e232f099510a9e3239ca287f0e10a32838d71c5de2f493b542be31436039b56045dcb9bcd53378286f4d67335c63de91b21a1c9312acf8e28003ae049c138d1fd5533b990d68fb131dca0375eb9de30c8613f8b607b814f937615958").expect("decode hex failed")[..]).expect("decode session keys failed")
-					),
-					(
-						AccountId::from_ss58check("5FjHEJ7LtBkzMsnKkyPGHyVehh5iLwPVbehq7KV4DggJ5NPp").expect("parse address failed"),
-						vodka_runtime::SessionKeys::decode(&mut &hex::decode("b1d26ea9c73e8c6cf18fd788c068fe56b9604a67cdb8e7c6e63d959a6d34a76a6482cc5559c5c7478e8b3540622f5cbb3c0c472cd6841d6eb3b9cd31a870213436f6328de16ce9404a06aab9debae82d428bc2b700bdedc8c9eaf64a1765d410be315eb7d7d537d1ae473e5f967991ed15ff670d36756a0a1cda7536938fe107").expect("decode hex failed")[..]).expect("decode session keys failed")
-					)
-				],
+				init_vals,
 				AccountId::from_ss58check("5DjqKKzLzYHTzgMgG2mxtZaSojShWwp9N3qPhnWuRoL3sFeD").expect("parse address failed"),
 			)
 		},
