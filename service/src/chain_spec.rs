@@ -121,6 +121,18 @@ pub fn neatcoin_config() -> Result<NeatcoinChainSpec, String> {
 		"neatcoin",
 		ChainType::Live,
 		move || {
+			let init_vals = {
+				let raw: HashMap<String, String> = serde_json::from_slice(include_bytes!("../res/neatcoin-initvals.json"))
+					.expect("parse neatcoin-initvals.json failed");
+
+				raw.into_iter().map(|(key, value)| {
+					(
+						AccountId::from_ss58check(&key).expect("parse address failed"),
+						vodka_runtime::SessionKeys::decode(&mut &hex::decode(&value).expect("decode hex failed")[..]).expect("decode session keys failed")
+					)
+				}).collect()
+			};
+
 			neatcoin_genesis(
 				include_bytes!("../res/neatcoin-0.wasm"),
 				vec![(AccountId::default(), neatcoin_runtime::SessionKeys::default())],
