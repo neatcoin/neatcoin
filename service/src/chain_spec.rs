@@ -114,7 +114,9 @@ pub fn neatcoin_genesis(
 }
 
 pub fn neatcoin_config() -> Result<NeatcoinChainSpec, String> {
-	let boot_nodes = vec![];
+	let boot_nodes = vec![
+		"/dns4/a.bootnode.neatcoin.org/tcp/26100/ws/p2p/12D3KooWJcQDt9NaXgJvkiQmWB6NHrvAJFybp6JwjKPDEgvnRAoM"
+	];
 
 	Ok(NeatcoinChainSpec::from_genesis(
 		"Neatcoin",
