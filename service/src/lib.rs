@@ -22,12 +22,13 @@ mod client;
 use std::{time::Duration, sync::Arc};
 use sp_api::ConstructRuntimeApi;
 use sp_runtime::traits::{Block as BlockT, BlakeTwo256};
-use sc_service::{NativeExecutionDispatch, Configuration, RpcHandlers, TaskManager, ChainSpec};
+use sc_service::{NativeExecutionDispatch, Configuration, RpcHandlers, TaskManager, ChainSpec, config::PrometheusConfig};
 use sc_telemetry::{Telemetry, TelemetryWorker};
 use sc_executor::native_executor_instance;
 use sc_finality_grandpa::FinalityProofProvider as GrandpaFinalityProofProvider;
 use sc_client_api::{ExecutorProvider, backend::RemoteBackend};
 use sc_basic_authorship::ProposerFactory;
+use substrate_prometheus_endpoint::Registry;
 use np_opaque::Block;
 
 pub use neatcoin_runtime;
@@ -110,6 +111,15 @@ pub type LightBackend = sc_service::TLightBackendWithHash<Block, sp_runtime::tra
 pub type LightClient<RuntimeApi, Executor> =
 	sc_service::TLightClientWithBackend<Block, RuntimeApi, Executor, LightBackend>;
 
+// If we're using prometheus, use a registry with a prefix of `neatcoin`.
+fn set_prometheus_registry(config: &mut Configuration) -> Result<(), Error> {
+	if let Some(PrometheusConfig { registry, .. }) = config.prometheus_config.as_mut() {
+		*registry = Registry::new_custom(Some("neatcoin".into()), None)?;
+	}
+
+	Ok(())
+}
+
 fn new_partial<RuntimeApi, Executor>(
 	config: &mut Configuration,
 ) -> Result<
@@ -142,6 +152,8 @@ fn new_partial<RuntimeApi, Executor>(
 		RuntimeApiCollection<StateBackend = sc_client_api::StateBackendFor<FullBackend, Block>>,
 		Executor: NativeExecutionDispatch + 'static,
 {
+	set_prometheus_registry(config)?;
+
 	let inherent_data_providers = sp_inherents::InherentDataProviders::new();
 
 	let telemetry = config.telemetry_endpoints.clone()
@@ -554,13 +566,15 @@ pub struct NewLight {
 }
 
 /// Builds a new service for a light client.
-fn new_light<Runtime, Dispatch>(config: Configuration) -> Result<NewLight, Error>
+fn new_light<Runtime, Dispatch>(mut config: Configuration) -> Result<NewLight, Error>
 	where
 		Runtime: 'static + Send + Sync + ConstructRuntimeApi<Block, LightClient<Runtime, Dispatch>>,
 		<Runtime as ConstructRuntimeApi<Block, LightClient<Runtime, Dispatch>>>::RuntimeApi:
 		RuntimeApiCollection<StateBackend = sc_client_api::StateBackendFor<LightBackend, Block>>,
 		Dispatch: NativeExecutionDispatch + 'static,
 {
+	set_prometheus_registry(&mut config)?;
+
 	let telemetry = config.telemetry_endpoints.clone()
 		.filter(|x| !x.is_empty())
 		.map(|endpoints| -> Result<_, sc_telemetry::Error> {
