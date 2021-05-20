@@ -146,7 +146,7 @@ construct_runtime! {
 		AtomicSwap: pallet_atomic_swap::{Pallet, Call, Storage, Event<T>} = 32,
 
 		// Contracts
-		Contracts: pallet_contracts::{Pallet, Call, Config<T>, Storage, Event<T>} = 33,
+		Contracts: pallet_contracts::{Pallet, Call, Storage, Event<T>} = 33,
 
 		// Nomo
 		Registry: pallet_registry::{Pallet, Call, Storage, Event<T>} = 34,

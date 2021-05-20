@@ -26,7 +26,7 @@ use frame_system::{EnsureOneOf, EnsureRoot};
 use frame_support::{parameter_types, traits::KeyOwnerProofSystem, weights::{Weight, DispatchClass}};
 use crate::{
 	Runtime, Historical, Offences, Event, Babe, Staking, ImOnline, Call, SessionKeys, Balances,
-	Timestamp, CouncilCollectiveInstance, Treasury, Session, ElectionProviderMultiPhase,
+	Timestamp, CouncilCollectiveInstance, Treasury, Session, ElectionProviderMultiPhase, BlockNumber,
 	types::{
 		Moment, ImOnlineId, GrandpaId, AccountId, Balance, BlockWeights, BlockExecutionWeight,
 		CurrencyToVote, EpochDuration, BlockLength,
@@ -175,7 +175,6 @@ parameter_types! {
 		.max_extrinsic
 		.expect("Normal extrinsics have weight limit configured by default; qed")
 		.saturating_sub(BlockExecutionWeight::get());
-
 	/// A limit for off-chain phragmen unsigned solution length.
 	///
 	/// We allow up to 90% of the block's size to be consumed by the solution.
@@ -183,6 +182,7 @@ parameter_types! {
 		*BlockLength::get()
 		.max
 		.get(DispatchClass::Normal);
+	pub OffchainRepeat: BlockNumber = 5;
 }
 
 impl pallet_election_provider_multi_phase::Config for Runtime {
@@ -194,6 +194,7 @@ impl pallet_election_provider_multi_phase::Config for Runtime {
 	type MinerMaxIterations = MinerMaxIterations;
 	type MinerMaxWeight = OffchainSolutionWeightLimit;
 	type MinerMaxLength = OffchainSolutionLengthLimit;
+	type OffchainRepeat = OffchainRepeat;
 	type MinerTxPriority = NposSolutionPriority;
 	type DataProvider = Staking;
 	type OnChainAccuracy = Perbill;
@@ -253,13 +254,8 @@ impl pallet_staking::Config for Runtime {
 	type WeightInfo = ();
 }
 
-parameter_types! {
-	pub OffencesWeightSoftLimit: Weight = Perbill::from_percent(60) * BlockWeights::get().max_block;
-}
-
 impl pallet_offences::Config for Runtime {
 	type Event = Event;
 	type IdentificationTuple = pallet_session::historical::IdentificationTuple<Self>;
 	type OnOffenceHandler = Staking;
-	type WeightSoftLimit = OffencesWeightSoftLimit;
 }

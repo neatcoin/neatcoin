@@ -87,9 +87,6 @@ pub fn build_neatcoin_genesis(
 			phantom: PhantomData,
 			members: vec![],
 		},
-		pallet_contracts: neatcoin_runtime::ContractsConfig {
-			current_schedule: Default::default(),
-		},
 		pallet_democracy: neatcoin_runtime::DemocracyConfig { },
 		pallet_elections_phragmen: neatcoin_runtime::ElectionsPhragmenConfig {
 			members: vec![],
@@ -205,9 +202,6 @@ pub fn build_vodka_genesis(
 		pallet_collective_Instance2: vodka_runtime::TechnicalCommitteeConfig {
 			phantom: PhantomData,
 			members: vec![],
-		},
-		pallet_contracts: vodka_runtime::ContractsConfig {
-			current_schedule: Default::default(),
 		},
 		pallet_democracy: vodka_runtime::DemocracyConfig { },
 		pallet_elections_phragmen: vodka_runtime::ElectionsPhragmenConfig {

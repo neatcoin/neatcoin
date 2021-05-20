@@ -26,7 +26,7 @@ use sp_runtime::{
 };
 #[cfg(feature = "runtime-benchmarks")]
 use sp_runtime::RuntimeString;
-use frame_support::traits::{Randomness, KeyOwnerProofSystem};
+use frame_support::traits::KeyOwnerProofSystem;
 use pallet_grandpa::fg_primitives;
 use pallet_transaction_payment::{FeeDetails, RuntimeDispatchInfo};
 use crate::{
@@ -80,10 +80,6 @@ sp_api::impl_runtime_apis! {
 			data: sp_inherents::InherentData,
 		) -> sp_inherents::CheckInherentsResult {
 			data.check_extrinsics(&block)
-		}
-
-		fn random_seed() -> <Block as BlockT>::Hash {
-			pallet_babe::RandomnessFromOneEpochAgo::<Runtime>::random_seed().0
 		}
 	}
 

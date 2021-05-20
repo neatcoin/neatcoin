@@ -154,8 +154,6 @@ fn new_partial<RuntimeApi, Executor>(
 {
 	set_prometheus_registry(config)?;
 
-	let inherent_data_providers = sp_inherents::InherentDataProviders::new();
-
 	let telemetry = config.telemetry_endpoints.clone()
 		.filter(|x| !x.is_empty())
 		.map(|endpoints| -> Result<_, sc_telemetry::Error> {
@@ -208,13 +206,29 @@ fn new_partial<RuntimeApi, Executor>(
 		client.clone(),
 	)?;
 
+	let slot_duration = babe_link.config().slot_duration();
 	let import_queue = sc_consensus_babe::import_queue(
 		babe_link.clone(),
 		block_import.clone(),
 		Some(Box::new(justification_import)),
 		client.clone(),
 		select_chain.clone(),
-		inherent_data_providers.clone(),
+		move |_, ()| {
+			async move {
+				let timestamp = sp_timestamp::InherentDataProvider::from_system_time();
+
+				let slot =
+					sp_consensus_babe::inherents::InherentDataProvider::from_timestamp_and_duration(
+						*timestamp,
+						slot_duration,
+					);
+
+				let uncles =
+					sp_authorship::InherentDataProvider::<<Block as BlockT>::Header>::check_inherents();
+
+				Ok((timestamp, slot, uncles))
+			}
+		},
 		&task_manager.spawn_essential_handle(),
 		config.prometheus_registry(),
 		sp_consensus::CanAuthorWithNativeVersion::new(client.executor().clone()),
@@ -275,14 +289,12 @@ fn new_partial<RuntimeApi, Executor>(
 		select_chain,
 		import_queue,
 		transaction_pool,
-		inherent_data_providers,
 		other: (rpc_extensions_builder, import_setup, rpc_setup, slot_duration, telemetry)
 	})
 }
 
 pub struct NewFull<C> {
 	pub task_manager: TaskManager,
-	pub inherent_data_providers: sp_inherents::InherentDataProviders,
 	pub client: C,
 	pub network: Arc<sc_network::NetworkService<Block, <Block as BlockT>::Hash>>,
 	pub network_status_sinks: sc_service::NetworkStatusSinks<Block>,
@@ -295,7 +307,6 @@ impl<C> NewFull<C> {
 		NewFull {
 			client: func(self.client),
 			task_manager: self.task_manager,
-			inherent_data_providers: self.inherent_data_providers,
 			network: self.network,
 			network_status_sinks: self.network_status_sinks,
 			rpc_handlers: self.rpc_handlers,
@@ -333,7 +344,6 @@ pub fn new_full<RuntimeApi, Executor>(
 		select_chain,
 		import_queue,
 		transaction_pool,
-		inherent_data_providers,
 		other: (rpc_extensions_builder, import_setup, rpc_setup, _slot_duration, mut telemetry)
 	} = new_partial::<RuntimeApi, Executor>(&mut config)?;
 
@@ -432,6 +442,8 @@ pub fn new_full<RuntimeApi, Executor>(
 			telemetry.as_ref().map(|x| x.handle()),
 		);
 
+		let client_clone = client.clone();
+		let slot_duration = babe_link.config().slot_duration();
 		let babe_config = sc_consensus_babe::BabeParams {
 			keystore: keystore_container.sync_keystore(),
 			client: client.clone(),
@@ -439,11 +451,29 @@ pub fn new_full<RuntimeApi, Executor>(
 			block_import,
 			env: proposer,
 			sync_oracle: network.clone(),
-			inherent_data_providers: inherent_data_providers.clone(),
 			force_authoring,
 			backoff_authoring_blocks,
 			babe_link,
 			can_author_with,
+			create_inherent_data_providers: move |parent, ()| {
+				let client_clone = client_clone.clone();
+				async move {
+					let uncles = sc_consensus_uncles::create_uncles_inherent_data_provider(
+						&*client_clone,
+						parent,
+					)?;
+
+					let timestamp = sp_timestamp::InherentDataProvider::from_system_time();
+
+					let slot =
+						sp_consensus_babe::inherents::InherentDataProvider::from_timestamp_and_duration(
+							*timestamp,
+							slot_duration,
+						);
+
+					Ok((timestamp, slot, uncles))
+				}
+			},
 			block_proposal_slot_portion: sc_consensus_babe::SlotProportion::new(2f32 / 3f32),
 			telemetry: telemetry.as_ref().map(|x| x.handle()),
 		};
@@ -508,7 +538,6 @@ pub fn new_full<RuntimeApi, Executor>(
 	Ok(NewFull {
 		task_manager,
 		client,
-		inherent_data_providers,
 		network,
 		network_status_sinks,
 		rpc_handlers,
@@ -620,8 +649,7 @@ fn new_light<Runtime, Dispatch>(mut config: Configuration) -> Result<NewLight, E
 		client.clone(),
 	)?;
 
-	let inherent_data_providers = sp_inherents::InherentDataProviders::new();
-
+	let slot_duration = babe_link.config().slot_duration();
 	// FIXME: pruning task isn't started since light client doesn't do `AuthoritySetup`.
 	let import_queue = sc_consensus_babe::import_queue(
 		babe_link,
@@ -629,7 +657,20 @@ fn new_light<Runtime, Dispatch>(mut config: Configuration) -> Result<NewLight, E
 		Some(Box::new(justification_import)),
 		client.clone(),
 		select_chain.clone(),
-		inherent_data_providers.clone(),
+		move |_, ()| async move {
+			let timestamp = sp_timestamp::InherentDataProvider::from_system_time();
+
+			let slot =
+				sp_consensus_babe::inherents::InherentDataProvider::from_timestamp_and_duration(
+					*timestamp,
+					slot_duration,
+				);
+
+			let uncles =
+				sp_authorship::InherentDataProvider::<<Block as BlockT>::Header>::check_inherents();
+
+			Ok((timestamp, slot, uncles))
+		},
 		&task_manager.spawn_essential_handle(),
 		config.prometheus_registry(),
 		sp_consensus::NeverCanAuthor,

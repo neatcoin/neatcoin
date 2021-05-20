@@ -149,7 +149,7 @@ construct_runtime! {
 		Sudo: pallet_sudo::{Pallet, Call, Storage, Event<T>, Config<T>} = 101,
 
 		// Contracts
-		Contracts: pallet_contracts::{Pallet, Call, Config<T>, Storage, Event<T>} = 33,
+		Contracts: pallet_contracts::{Pallet, Call, Storage, Event<T>} = 33,
 
 		// Nomo
 		Registry: pallet_registry::{Pallet, Call, Storage, Event<T>} = 34,
