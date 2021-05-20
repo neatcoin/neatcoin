@@ -3725,7 +3725,7 @@ dependencies = [
 
 [[package]]
 name = "neatcoin"
-version = "1.0.0"
+version = "1.1.0"
 dependencies = [
  "frame-benchmarking",
  "frame-benchmarking-cli",
@@ -3796,7 +3796,7 @@ dependencies = [
 
 [[package]]
 name = "neatcoin-runtime"
-version = "1.0.0"
+version = "1.1.0"
 dependencies = [
  "frame-benchmarking",
  "frame-executive",
@@ -9050,7 +9050,7 @@ checksum = "5fecdca9a5291cc2b8dcf7dc02453fee791a280f3743cb0905f8822ae463b3fe"
 
 [[package]]
 name = "vodka-runtime"
-version = "1.0.0"
+version = "1.1.0"
 dependencies = [
  "frame-benchmarking",
  "frame-executive",

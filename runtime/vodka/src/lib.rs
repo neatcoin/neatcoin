@@ -65,7 +65,7 @@ pub const VERSION: RuntimeVersion = RuntimeVersion {
 	spec_name: create_runtime_str!("vodka"),
 	impl_name: create_runtime_str!("vodka"),
 	authoring_version: 0,
-	spec_version: 0,
+	spec_version: 1,
 	impl_version: 0,
 	apis: crate::api::PRUNTIME_API_VERSIONS,
 	transaction_version: 0,
