@@ -3685,8 +3685,9 @@ dependencies = [
 name = "neatcoin-rpc"
 version = "1.0.0"
 dependencies = [
- "jsonrpc-core 15.1.0",
+ "jsonrpc-core 18.0.0",
  "np-opaque",
+ "pallet-contracts-rpc",
  "pallet-transaction-payment-rpc",
  "parity-scale-codec",
  "sc-chain-spec",
@@ -3698,7 +3699,9 @@ dependencies = [
  "sc-finality-grandpa-rpc",
  "sc-keystore",
  "sc-rpc",
+ "sc-rpc-api",
  "sc-sync-state-rpc",
+ "sc-transaction-pool-api",
  "sp-api",
  "sp-block-builder",
  "sp-blockchain",
@@ -4350,6 +4353,38 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn",
+]
+
+[[package]]
+name = "pallet-contracts-rpc"
+version = "4.0.0-dev"
+source = "git+https://github.com/paritytech/substrate#91b386ff07a85b3dd50ff3ed29c97e6b29d15f05"
+dependencies = [
+ "jsonrpc-core 18.0.0",
+ "jsonrpc-core-client",
+ "jsonrpc-derive",
+ "pallet-contracts-primitives",
+ "pallet-contracts-rpc-runtime-api",
+ "parity-scale-codec",
+ "serde",
+ "sp-api",
+ "sp-blockchain",
+ "sp-core",
+ "sp-rpc",
+ "sp-runtime",
+]
+
+[[package]]
+name = "pallet-contracts-rpc-runtime-api"
+version = "4.0.0-dev"
+source = "git+https://github.com/paritytech/substrate#91b386ff07a85b3dd50ff3ed29c97e6b29d15f05"
+dependencies = [
+ "pallet-contracts-primitives",
+ "parity-scale-codec",
+ "scale-info",
+ "sp-api",
+ "sp-runtime",
+ "sp-std",
 ]
 
 [[package]]
@@ -8595,6 +8630,7 @@ name = "vodka-runtime"
 version = "1.1.0"
 dependencies = [
  "frame-benchmarking",
+ "frame-election-provider-support",
  "frame-executive",
  "frame-support",
  "frame-system",
