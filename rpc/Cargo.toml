@@ -7,25 +7,25 @@ license = "GPL-3.0-or-later"
 
 [dependencies]
 jsonrpc-core = "15.1.0"
-sc-client-api = { git = "https://github.com/paritytech/substrate", branch = "neatcoin"  }
-sp-blockchain = { git = "https://github.com/paritytech/substrate", branch = "neatcoin"  }
-sp-keystore = { git = "https://github.com/paritytech/substrate", branch = "neatcoin"  }
-sp-runtime = { git = "https://github.com/paritytech/substrate", branch = "neatcoin"  }
-sp-api = { git = "https://github.com/paritytech/substrate", branch = "neatcoin"  }
-sp-consensus = { git = "https://github.com/paritytech/substrate", branch = "neatcoin"  }
-sp-consensus-babe = { git = "https://github.com/paritytech/substrate", branch = "neatcoin"  }
-sc-chain-spec = { git = "https://github.com/paritytech/substrate", branch = "neatcoin" }
-sc-rpc = { git = "https://github.com/paritytech/substrate", branch = "neatcoin" }
-sc-consensus-babe = { git = "https://github.com/paritytech/substrate", branch = "neatcoin"}
-sc-consensus-babe-rpc = { git = "https://github.com/paritytech/substrate", branch = "neatcoin"}
-sc-consensus-epochs = { git = "https://github.com/paritytech/substrate", branch = "neatcoin"}
-sc-finality-grandpa = { git = "https://github.com/paritytech/substrate", branch = "neatcoin" }
-sc-finality-grandpa-rpc = { git = "https://github.com/paritytech/substrate", branch = "neatcoin" }
-sc-keystore = { git = "https://github.com/paritytech/substrate", branch = "neatcoin"}
-sc-sync-state-rpc = { git = "https://github.com/paritytech/substrate", branch = "neatcoin"}
-txpool-api = { package = "sp-transaction-pool", git = "https://github.com/paritytech/substrate", branch = "neatcoin" }
-frame-rpc-system = { package = "substrate-frame-rpc-system", git = "https://github.com/paritytech/substrate", branch = "neatcoin"  }
-pallet-transaction-payment-rpc = { git = "https://github.com/paritytech/substrate", branch = "neatcoin" }
+sc-client-api = { git = "https://github.com/paritytech/substrate"  }
+sp-blockchain = { git = "https://github.com/paritytech/substrate"  }
+sp-keystore = { git = "https://github.com/paritytech/substrate"  }
+sp-runtime = { git = "https://github.com/paritytech/substrate"  }
+sp-api = { git = "https://github.com/paritytech/substrate"  }
+sp-consensus = { git = "https://github.com/paritytech/substrate"  }
+sp-consensus-babe = { git = "https://github.com/paritytech/substrate"  }
+sc-chain-spec = { git = "https://github.com/paritytech/substrate" }
+sc-rpc = { git = "https://github.com/paritytech/substrate" }
+sc-consensus-babe = { git = "https://github.com/paritytech/substrate"}
+sc-consensus-babe-rpc = { git = "https://github.com/paritytech/substrate"}
+sc-consensus-epochs = { git = "https://github.com/paritytech/substrate"}
+sc-finality-grandpa = { git = "https://github.com/paritytech/substrate" }
+sc-finality-grandpa-rpc = { git = "https://github.com/paritytech/substrate" }
+sc-keystore = { git = "https://github.com/paritytech/substrate"}
+sc-sync-state-rpc = { git = "https://github.com/paritytech/substrate"}
+txpool-api = { package = "sp-transaction-pool", git = "https://github.com/paritytech/substrate" }
+frame-rpc-system = { package = "substrate-frame-rpc-system", git = "https://github.com/paritytech/substrate"  }
+pallet-transaction-payment-rpc = { git = "https://github.com/paritytech/substrate" }
 parity-scale-codec = { version = "2.0.0", default-features = false }
-sp-block-builder = { git = "https://github.com/paritytech/substrate", branch = "neatcoin" }
+sp-block-builder = { git = "https://github.com/paritytech/substrate" }
 np-opaque = { path = "../primitives/opaque" }
