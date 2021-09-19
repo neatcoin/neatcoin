@@ -25,13 +25,14 @@ pub use crate::label::is_label;
 
 use alloc::vec::Vec;
 use codec::{Encode, Decode};
+use scale_info::TypeInfo;
 #[cfg(feature = "std")]
 use serde::{Serialize, Deserialize};
 use primitive_types::H256;
 use blake2_rfc::blake2b::blake2b;
 
 #[cfg_attr(feature = "std", derive(Serialize, Deserialize))]
-#[derive(Eq, PartialEq, Clone, Encode, Decode, Debug)]
+#[derive(Eq, PartialEq, Clone, Encode, Decode, Debug, TypeInfo)]
 pub struct NameValue<T>(Option<(Name, T)>);
 
 impl<T> Default for NameValue<T> {
@@ -82,7 +83,7 @@ pub type NameHash = H256;
 
 /// A domain name. It's a list of labels, with the top-level one in the front.
 #[cfg_attr(feature = "std", derive(Serialize, Deserialize))]
-#[derive(Default, Eq, PartialEq, Clone, Encode, Decode, Debug)]
+#[derive(Default, Eq, PartialEq, Clone, Encode, Decode, Debug, TypeInfo)]
 pub struct Name(pub Vec<Label>);
 
 impl Name {
@@ -119,7 +120,7 @@ impl Name {
 
 /// A domain label.
 #[cfg_attr(feature = "std", derive(Serialize))]
-#[derive(Eq, PartialEq, Clone, Encode, Debug)]
+#[derive(Eq, PartialEq, Clone, Encode, Debug, TypeInfo)]
 pub struct Label(Vec<u8>);
 
 /// Unvalidated raw domain label.

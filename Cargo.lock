@@ -3907,7 +3907,8 @@ version = "1.0.0"
 dependencies = [
  "blake2-rfc",
  "parity-scale-codec",
- "primitive-types 0.9.1",
+ "primitive-types",
+ "scale-info",
  "serde",
 ]
 
@@ -4262,6 +4263,7 @@ dependencies = [
  "frame-support",
  "frame-system",
  "parity-scale-codec",
+ "scale-info",
  "serde",
  "sp-std",
 ]
@@ -4408,6 +4410,7 @@ dependencies = [
  "frame-support",
  "frame-system",
  "parity-scale-codec",
+ "scale-info",
  "serde",
  "sp-std",
 ]
@@ -4422,7 +4425,8 @@ dependencies = [
  "np-domain",
  "pallet-registry",
  "parity-scale-codec",
- "primitive-types 0.9.1",
+ "primitive-types",
+ "scale-info",
  "serde",
  "sp-core",
  "sp-io",
@@ -4603,6 +4607,7 @@ dependencies = [
  "np-domain",
  "pallet-balances",
  "parity-scale-codec",
+ "scale-info",
  "serde",
  "sp-core",
  "sp-io",
@@ -4812,6 +4817,7 @@ dependencies = [
  "frame-support",
  "frame-system",
  "parity-scale-codec",
+ "scale-info",
  "serde",
  "sp-core",
  "sp-std",
@@ -4841,7 +4847,8 @@ dependencies = [
  "np-domain",
  "pallet-registry",
  "parity-scale-codec",
- "primitive-types 0.9.1",
+ "primitive-types",
+ "scale-info",
  "serde",
  "sp-core",
  "sp-io",
@@ -4925,7 +4932,7 @@ dependencies = [
  "impl-trait-for-tuples",
  "parity-util-mem-derive",
  "parking_lot 0.11.2",
- "primitive-types 0.10.1",
+ "primitive-types",
  "smallvec",
  "winapi 0.3.9",
 ]
@@ -5235,17 +5242,6 @@ name = "ppv-lite86"
 version = "0.2.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ac74c624d6b2d21f425f752262f42188365d7b8ff1aff74c82e45136510a4857"
-
-[[package]]
-name = "primitive-types"
-version = "0.9.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "06345ee39fbccfb06ab45f3a1a5798d9dafa04cb8921a76d227040003a234b0e"
-dependencies = [
- "fixed-hash",
- "impl-codec",
- "uint",
-]
 
 [[package]]
 name = "primitive-types"
@@ -7405,7 +7401,7 @@ dependencies = [
  "parity-scale-codec",
  "parity-util-mem",
  "parking_lot 0.11.2",
- "primitive-types 0.10.1",
+ "primitive-types",
  "rand 0.7.3",
  "regex",
  "scale-info",
@@ -7633,7 +7629,7 @@ source = "git+https://github.com/paritytech/substrate#91b386ff07a85b3dd50ff3ed29
 dependencies = [
  "impl-trait-for-tuples",
  "parity-scale-codec",
- "primitive-types 0.10.1",
+ "primitive-types",
  "sp-externalities",
  "sp-runtime-interface-proc-macro",
  "sp-std",

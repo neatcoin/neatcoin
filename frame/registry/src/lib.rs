@@ -20,6 +20,7 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
 use codec::{Encode, EncodeLike, Decode};
+use scale_info::TypeInfo;
 use sp_std::{prelude::*, fmt::Debug};
 use frame_support::{
 	dispatch::DispatchResult, decl_module, decl_storage, decl_event, decl_error, ensure
@@ -27,7 +28,7 @@ use frame_support::{
 use frame_system::ensure_root;
 use np_domain::{Name, NameHash, NameValue};
 
-pub trait Ownership: Encode + Decode + EncodeLike + Default + Eq + Debug + Clone {
+pub trait Ownership: Encode + Decode + EncodeLike + Default + Eq + Debug + Clone + TypeInfo {
 	type AccountId;
 
 	/// Explictly owned by root.
