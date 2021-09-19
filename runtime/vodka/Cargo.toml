@@ -52,6 +52,8 @@ pallet-authorship = { default-features = false, git = "https://github.com/parity
 pallet-authority-discovery = { default-features = false, git = "https://github.com/paritytech/substrate" }
 pallet-contracts = { default-features = false, git = "https://github.com/paritytech/substrate" }
 pallet-atomic-swap = { default-features = false, git = "https://github.com/paritytech/substrate" }
+pallet-contracts-rpc-runtime-api = { default-features = false, git = "https://github.com/paritytech/substrate" }
+pallet-contracts-primitives = { default-features = false, git = "https://github.com/paritytech/substrate" }
 pallet-sudo = { default-features = false, git = "https://github.com/paritytech/substrate" }
 pallet-eons = { path = "../../frame/eons", default-features = false }
 pallet-variables = { path = "../../frame/variables", default-features = false }
@@ -128,6 +130,8 @@ std = [
 	"pallet-authority-discovery/std",
 	"pallet-contracts/std",
 	"pallet-atomic-swap/std",
+	"pallet-contracts-rpc-runtime-api/std",
+	"pallet-contracts-primitives/std",
 	"pallet-sudo/std",
 	"pallet-eons/std",
 	"pallet-variables/std",

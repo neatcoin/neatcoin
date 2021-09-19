@@ -39,6 +39,7 @@ pub trait RuntimeApiCollection:
 	+ sp_offchain::OffchainWorkerApi<Block>
 	+ sp_session::SessionKeys<Block>
 	+ sp_authority_discovery::AuthorityDiscoveryApi<Block>
+	+ pallet_contracts_rpc_runtime_api::ContractsApi<Block, AccountId, Balance, BlockNumber, Hash>
 where
 	<Self as sp_api::ApiExt<Block>>::StateBackend: sp_api::StateBackend<BlakeTwo256>,
 {}
@@ -55,7 +56,8 @@ where
 		+ sp_api::Metadata<Block>
 		+ sp_offchain::OffchainWorkerApi<Block>
 		+ sp_session::SessionKeys<Block>
-		+ sp_authority_discovery::AuthorityDiscoveryApi<Block>,
+		+ sp_authority_discovery::AuthorityDiscoveryApi<Block>
+		+ pallet_contracts_rpc_runtime_api::ContractsApi<Block, AccountId, Balance, BlockNumber, Hash>,
 	<Self as sp_api::ApiExt<Block>>::StateBackend: sp_api::StateBackend<BlakeTwo256>,
 {}
 
@@ -134,8 +136,8 @@ pub trait ClientHandle {
 /// See [`ExecuteWithClient`] for more information.
 #[derive(Clone)]
 pub enum Client {
-	Neatcoin(Arc<crate::FullClient<neatcoin_runtime::RuntimeApi, crate::NeatcoinExecutor>>),
-	Vodka(Arc<crate::FullClient<vodka_runtime::RuntimeApi, crate::VodkaExecutor>>),
+	Neatcoin(Arc<crate::FullClient<neatcoin_runtime::RuntimeApi, crate::NeatcoinExecutorDispatch>>),
+	Vodka(Arc<crate::FullClient<vodka_runtime::RuntimeApi, crate::VodkaExecutorDispatch>>),
 }
 
 impl ClientHandle for Client {
@@ -215,6 +217,15 @@ impl sc_client_api::BlockBackend<Block> for Client {
 		}
 	}
 
+	fn block_indexed_body(
+		&self,
+		id: &BlockId<Block>,
+	) -> sp_blockchain::Result<Option<Vec<Vec<u8>>>> {
+		match self {
+			Self::Neatcoin(client) => client.block_indexed_body(id),
+			Self::Vodka(client) => client.block_indexed_body(id),
+		}
+	}
 }
 
 impl sc_client_api::StorageProvider<Block, crate::FullBackend> for Client {
@@ -295,6 +306,21 @@ impl sc_client_api::StorageProvider<Block, crate::FullBackend> for Client {
 		match self {
 			Self::Neatcoin(client) => client.child_storage_keys(id, child_info, key_prefix),
 			Self::Vodka(client) => client.child_storage_keys(id, child_info, key_prefix),
+		}
+	}
+
+	fn child_storage_keys_iter<'a>(
+		&self,
+		id: &BlockId<Block>,
+		child_info: ChildInfo,
+		prefix: Option<&'a StorageKey>,
+		start_key: Option<&StorageKey>,
+	) -> sp_blockchain::Result<
+		KeyIterator<'a, <crate::FullBackend as sc_client_api::Backend<Block>>::State, Block>,
+	> {
+		match self {
+			Self::Neatcoin(client) => client.child_storage_keys_iter(id, child_info, prefix, start_key),
+			Self::Vodka(client) => client.child_storage_keys_iter(id, child_info, prefix, start_key),
 		}
 	}
 

@@ -31,7 +31,7 @@ use pallet_grandpa::fg_primitives;
 use pallet_transaction_payment::{FeeDetails, RuntimeDispatchInfo};
 use crate::{
 	Runtime, Executive, Grandpa, Historical, Babe, AuthorityDiscovery, SessionKeys, System,
-	TransactionPayment, InherentDataExt, VERSION,
+	TransactionPayment, InherentDataExt, BlockNumber, Hash, Contracts, VERSION,
 	types::{
 		Block, GrandpaId, EpochDuration, AuthorityDiscoveryId, AccountId, Nonce, Balance,
 		BABE_GENESIS_EPOCH_CONFIG,
@@ -221,6 +221,41 @@ sp_api::impl_runtime_apis! {
 		}
 		fn query_fee_details(uxt: <Block as BlockT>::Extrinsic, len: u32) -> FeeDetails<Balance> {
 			TransactionPayment::query_fee_details(uxt, len)
+		}
+	}
+
+	impl pallet_contracts_rpc_runtime_api::ContractsApi<
+		Block, AccountId, Balance, BlockNumber, Hash,
+	>
+		for Runtime
+	{
+		fn call(
+			origin: AccountId,
+			dest: AccountId,
+			value: Balance,
+			gas_limit: u64,
+			input_data: Vec<u8>,
+		) -> pallet_contracts_primitives::ContractExecResult {
+			Contracts::bare_call(origin, dest, value, gas_limit, input_data, true)
+		}
+
+		fn instantiate(
+			origin: AccountId,
+			endowment: Balance,
+			gas_limit: u64,
+			code: pallet_contracts_primitives::Code<Hash>,
+			data: Vec<u8>,
+			salt: Vec<u8>,
+		) -> pallet_contracts_primitives::ContractInstantiateResult<AccountId>
+		{
+			Contracts::bare_instantiate(origin, endowment, gas_limit, code, data, salt, true)
+		}
+
+		fn get_storage(
+			address: AccountId,
+			key: [u8; 32],
+		) -> pallet_contracts_primitives::GetStorageResult {
+			Contracts::get_storage(address, key)
 		}
 	}
 

@@ -54,6 +54,7 @@ frame-system-rpc-runtime-api = { git = "https://github.com/paritytech/substrate"
 pallet-transaction-payment-rpc-runtime-api = { git = "https://github.com/paritytech/substrate" }
 frame-benchmarking = { git = "https://github.com/paritytech/substrate" }
 substrate-prometheus-endpoint = { git = "https://github.com/paritytech/substrate" }
+pallet-contracts-rpc-runtime-api = { git = "https://github.com/paritytech/substrate" }
 
 futures = "0.3.12"
 thiserror = "1.0.23"

@@ -44,22 +44,22 @@ pub fn build_neatcoin_genesis(
 	genesis_keys: Vec<(AccountId, neatcoin_runtime::SessionKeys)>,
 ) -> neatcoin_runtime::GenesisConfig {
 	neatcoin_runtime::GenesisConfig {
-		frame_system: neatcoin_runtime::SystemConfig {
+		system: neatcoin_runtime::SystemConfig {
 			code: wasm_binary.to_vec(),
 			changes_trie_config: Default::default(),
 		},
-		pallet_balances: neatcoin_runtime::BalancesConfig {
+		balances: neatcoin_runtime::BalancesConfig {
 			balances: build_genesis_allocations().into_iter().collect(),
 		},
-		pallet_indices: neatcoin_runtime::IndicesConfig {
+		indices: neatcoin_runtime::IndicesConfig {
 			indices: vec![],
 		},
-		pallet_session: neatcoin_runtime::SessionConfig {
+		session: neatcoin_runtime::SessionConfig {
 			keys: genesis_keys.clone().into_iter().map(|(account, keys)| {
 				(account.clone(), account, keys)
 			}).collect(),
 		},
-		pallet_staking: neatcoin_runtime::StakingConfig {
+		staking: neatcoin_runtime::StakingConfig {
 			validator_count: 17,
 			minimum_validator_count: 7,
 			stakers: vec![],
@@ -68,44 +68,45 @@ pub fn build_neatcoin_genesis(
 			canceled_payout: Default::default(),
 			history_depth: Default::default(),
 			slash_reward_fraction: Perbill::from_percent(10),
+			..Default::default()
 		},
-		pallet_authority_discovery: neatcoin_runtime::AuthorityDiscoveryConfig {
+		authority_discovery: neatcoin_runtime::AuthorityDiscoveryConfig {
 			keys: vec![],
 		},
-		pallet_babe: neatcoin_runtime::BabeConfig {
+		babe: neatcoin_runtime::BabeConfig {
 			authorities: vec![],
 			epoch_config: Some(neatcoin_runtime::BABE_GENESIS_EPOCH_CONFIG),
 		},
-		pallet_bootstrap: neatcoin_runtime::BootstrapConfig {
+		bootstrap: neatcoin_runtime::BootstrapConfig {
 			endoweds: genesis_keys.clone().into_iter().map(|(account, _)| account).collect(),
 		},
-		pallet_collective_Instance1: neatcoin_runtime::CouncilConfig {
+		council: neatcoin_runtime::CouncilConfig {
 			phantom: PhantomData,
 			members: vec![],
 		},
-		pallet_collective_Instance2: neatcoin_runtime::TechnicalCommitteeConfig {
+		technical_committee: neatcoin_runtime::TechnicalCommitteeConfig {
 			phantom: PhantomData,
 			members: vec![],
 		},
-		pallet_democracy: neatcoin_runtime::DemocracyConfig { },
-		pallet_elections_phragmen: neatcoin_runtime::ElectionsPhragmenConfig {
+		democracy: neatcoin_runtime::DemocracyConfig::default(),
+		elections_phragmen: neatcoin_runtime::ElectionsPhragmenConfig {
 			members: vec![],
 		},
-		pallet_eons: neatcoin_runtime::EonsConfig {
+		eons: neatcoin_runtime::EonsConfig {
 			past_eons: vec![],
 		},
-		pallet_grandpa: neatcoin_runtime::GrandpaConfig {
+		grandpa: neatcoin_runtime::GrandpaConfig {
 			authorities: vec![],
 		},
-		pallet_im_online: neatcoin_runtime::ImOnlineConfig {
+		im_online: neatcoin_runtime::ImOnlineConfig {
 			keys: vec![],
 		},
-		pallet_membership_Instance1: neatcoin_runtime::TechnicalMembershipConfig {
+		technical_membership: neatcoin_runtime::TechnicalMembershipConfig {
 			phantom: PhantomData,
 			members: vec![],
 		},
-		pallet_treasury: neatcoin_runtime::TreasuryConfig { },
-		pallet_vesting: neatcoin_runtime::VestingConfig {
+		treasury: neatcoin_runtime::TreasuryConfig { },
+		vesting: neatcoin_runtime::VestingConfig {
 			vesting: vec![],
 		},
 	}
@@ -160,22 +161,22 @@ pub fn build_vodka_genesis(
 	sudo_key: AccountId,
 ) -> vodka_runtime::GenesisConfig {
 	vodka_runtime::GenesisConfig {
-		frame_system: vodka_runtime::SystemConfig {
+		system: vodka_runtime::SystemConfig {
 			code: wasm_binary.to_vec(),
 			changes_trie_config: Default::default(),
 		},
-		pallet_balances: vodka_runtime::BalancesConfig {
+		balances: vodka_runtime::BalancesConfig {
 			balances: build_genesis_allocations().into_iter().collect(),
 		},
-		pallet_indices: vodka_runtime::IndicesConfig {
+		indices: vodka_runtime::IndicesConfig {
 			indices: vec![],
 		},
-		pallet_session: vodka_runtime::SessionConfig {
+		session: vodka_runtime::SessionConfig {
 			keys: genesis_keys.clone().into_iter().map(|(account, keys)| {
 				(account.clone(), account, keys)
 			}).collect(),
 		},
-		pallet_staking: vodka_runtime::StakingConfig {
+		staking: vodka_runtime::StakingConfig {
 			validator_count: 17,
 			minimum_validator_count: 2, // NOTE: should set to 7 for mainnet.
 			stakers: vec![],
@@ -184,47 +185,48 @@ pub fn build_vodka_genesis(
 			canceled_payout: Default::default(),
 			history_depth: Default::default(),
 			slash_reward_fraction: Perbill::from_percent(10),
+			..Default::default()
 		},
-		pallet_authority_discovery: vodka_runtime::AuthorityDiscoveryConfig {
+		authority_discovery: vodka_runtime::AuthorityDiscoveryConfig {
 			keys: vec![],
 		},
-		pallet_babe: vodka_runtime::BabeConfig {
+		babe: vodka_runtime::BabeConfig {
 			authorities: vec![],
 			epoch_config: Some(vodka_runtime::BABE_GENESIS_EPOCH_CONFIG),
 		},
-		pallet_bootstrap: vodka_runtime::BootstrapConfig {
+		bootstrap: vodka_runtime::BootstrapConfig {
 			endoweds: genesis_keys.clone().into_iter().map(|(account, _)| account).collect(),
 		},
-		pallet_collective_Instance1: vodka_runtime::CouncilConfig {
+		council: vodka_runtime::CouncilConfig {
 			phantom: PhantomData,
 			members: vec![],
 		},
-		pallet_collective_Instance2: vodka_runtime::TechnicalCommitteeConfig {
+		technical_committee: vodka_runtime::TechnicalCommitteeConfig {
 			phantom: PhantomData,
 			members: vec![],
 		},
-		pallet_democracy: vodka_runtime::DemocracyConfig { },
-		pallet_elections_phragmen: vodka_runtime::ElectionsPhragmenConfig {
+		democracy: vodka_runtime::DemocracyConfig::default(),
+		elections_phragmen: vodka_runtime::ElectionsPhragmenConfig {
 			members: vec![],
 		},
-		pallet_eons: vodka_runtime::EonsConfig {
+		eons: vodka_runtime::EonsConfig {
 			past_eons: vec![],
 		},
-		pallet_grandpa: vodka_runtime::GrandpaConfig {
+		grandpa: vodka_runtime::GrandpaConfig {
 			authorities: vec![],
 		},
-		pallet_im_online: vodka_runtime::ImOnlineConfig {
+		im_online: vodka_runtime::ImOnlineConfig {
 			keys: vec![],
 		},
-		pallet_membership_Instance1: vodka_runtime::TechnicalMembershipConfig {
+		technical_membership: vodka_runtime::TechnicalMembershipConfig {
 			phantom: PhantomData,
 			members: vec![],
 		},
-		pallet_sudo: vodka_runtime::SudoConfig {
+		sudo: vodka_runtime::SudoConfig {
 			key: sudo_key,
 		},
-		pallet_treasury: vodka_runtime::TreasuryConfig { },
-		pallet_vesting: vodka_runtime::VestingConfig {
+		treasury: vodka_runtime::TreasuryConfig { },
+		vesting: vodka_runtime::VestingConfig {
 			vesting: vec![],
 		},
 	}

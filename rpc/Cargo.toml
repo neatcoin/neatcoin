@@ -31,4 +31,5 @@ substrate-frame-rpc-system = { git = "https://github.com/paritytech/substrate" }
 pallet-transaction-payment-rpc = { git = "https://github.com/paritytech/substrate" }
 parity-scale-codec = { version = "2.0.0", default-features = false }
 sp-block-builder = { git = "https://github.com/paritytech/substrate" }
+pallet-contracts-rpc-runtime-api = { git = "https://github.com/paritytech/substrate" }
 np-opaque = { path = "../primitives/opaque" }
