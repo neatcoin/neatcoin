@@ -19,7 +19,7 @@
 use sp_version::RuntimeVersion;
 use sp_runtime::{Perquintill, Perbill, FixedPointNumber, traits::AccountIdLookup};
 use frame_system::EnsureRoot;
-use frame_support::{parameter_types, weights::Weight};
+use frame_support::{parameter_types, weights::Weight, traits::Everything};
 use pallet_transaction_payment::{TargetedFeeAdjustment, Multiplier, CurrencyAdapter};
 use crate::{
 	Runtime, Origin, Call, Event, PalletInfo, Balances, System, OriginCaller,
@@ -48,7 +48,7 @@ parameter_types! {
 }
 
 impl frame_system::Config for Runtime {
-	type BaseCallFilter = ();
+	type BaseCallFilter = Everything;
 	type BlockWeights = BlockWeights;
 	type BlockLength = BlockLength;
 	type Origin = Origin;
@@ -96,6 +96,7 @@ impl pallet_transaction_payment::Config for Runtime {
 parameter_types! {
 	pub const ExistentialDeposit: Balance = 100 * CENTS;
 	pub const MaxLocks: u32 = 50;
+	pub const MaxReserves: u32 = 50;
 }
 
 impl pallet_balances::Config for Runtime {
@@ -105,6 +106,8 @@ impl pallet_balances::Config for Runtime {
 	type ExistentialDeposit = ExistentialDeposit;
 	type AccountStore = System;
 	type MaxLocks = MaxLocks;
+	type MaxReserves = MaxReserves;
+	type ReserveIdentifier = [u8; 8];
 	type WeightInfo = ();
 }
 
@@ -172,3 +175,5 @@ impl pallet_identity::Config for Runtime {
 	type RegistrarOrigin = frame_system::EnsureRoot<AccountId>;
 	type WeightInfo = ();
 }
+
+impl pallet_randomness_collective_flip::Config for Runtime { }

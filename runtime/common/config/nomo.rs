@@ -17,6 +17,7 @@
 // along with Neatcoin. If not, see <http://www.gnu.org/licenses/>.
 
 use codec::{Encode, Decode};
+use scale_info::TypeInfo;
 #[cfg(feature = "std")]
 use serde::{Serialize, Deserialize};
 use sp_core::RuntimeDebug;
@@ -27,7 +28,7 @@ use crate::{
 	constants::{currency::UNITS, time::DAYS},
 };
 
-#[derive(Encode, Decode, Clone, RuntimeDebug, PartialEq, Eq)]
+#[derive(Encode, Decode, Clone, RuntimeDebug, PartialEq, Eq, TypeInfo)]
 #[cfg_attr(feature = "std", derive(Serialize, Deserialize))]
 pub enum Ownership {
 	None,
