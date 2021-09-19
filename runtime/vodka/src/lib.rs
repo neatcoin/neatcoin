@@ -117,15 +117,15 @@ construct_runtime! {
 		// Consensus support.
 		Authorship: pallet_authorship::{Pallet, Call, Storage} = 8,
 		Staking: pallet_staking::{Pallet, Call, Storage, Config<T>, Event<T>} = 9,
-		Offences: pallet_offences::{Pallet, Call, Storage, Event} = 10,
+		Offences: pallet_offences::{Pallet, Storage, Event} = 10,
 		Historical: session_historical::{Pallet} = 11,
 		Session: pallet_session::{Pallet, Call, Storage, Event, Config<T>} = 12,
 		Grandpa: pallet_grandpa::{Pallet, Call, Storage, Config, Event, ValidateUnsigned} = 13,
 		ImOnline: pallet_im_online::{Pallet, Call, Storage, Event<T>, ValidateUnsigned, Config<T>} = 14,
-		AuthorityDiscovery: pallet_authority_discovery::{Pallet, Call, Config} = 15,
+		AuthorityDiscovery: pallet_authority_discovery::{Pallet, Config} = 15,
 
 		// Governance stuff.
-		Democracy: pallet_democracy::{Pallet, Call, Storage, Config, Event<T>} = 16,
+		Democracy: pallet_democracy::{Pallet, Call, Storage, Config<T>, Event<T>} = 16,
 		Council: pallet_collective::<Instance1>::{Pallet, Call, Storage, Origin<T>, Event<T>, Config<T>} = 17,
 		TechnicalCommittee: pallet_collective::<Instance2>::{Pallet, Call, Storage, Origin<T>, Event<T>, Config<T>} = 18,
 		ElectionsPhragmen: pallet_elections_phragmen::{Pallet, Call, Storage, Event<T>, Config<T>} = 19,
