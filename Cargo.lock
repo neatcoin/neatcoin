@@ -4605,6 +4605,7 @@ dependencies = [
  "frame-system",
  "omv",
  "parity-scale-codec",
+ "scale-info",
  "serde",
  "sp-runtime",
  "sp-std",
