@@ -62,7 +62,7 @@ where
 mod tests {
 	use super::*;
 	use frame_system::limits;
-	use frame_support::{parameter_types, PalletId, weights::DispatchClass};
+	use frame_support::{parameter_types, PalletId, weights::{DispatchClass, constants::{ExtrinsicBaseWeight, WEIGHT_PER_SECOND}}};
 	use frame_support::traits::FindAuthor;
 	use sp_core::H256;
 	use sp_runtime::{
@@ -92,10 +92,10 @@ mod tests {
 		pub const BlockHashCount: u64 = 250;
 		pub BlockWeights: limits::BlockWeights = limits::BlockWeights::builder()
 			.for_class(DispatchClass::all(), |weight| {
-				weight.base_extrinsic = 100;
+				weight.base_extrinsic = ExtrinsicBaseWeight::get();
 			})
 			.for_class(DispatchClass::non_mandatory(), |weight| {
-				weight.max_total = Some(1024);
+				weight.max_total = Some(2 * WEIGHT_PER_SECOND);
 			})
 			.build_or_panic();
 		pub BlockLength: limits::BlockLength = limits::BlockLength::max(2 * 1024);
