@@ -1,6 +1,6 @@
 [package]
 name = "pallet-bootstrap"
-version = "1.0.0"
+version = "1.2.0-dev"
 authors = ["Wei Tang <wei@that.world>"]
 license = "GPL-3.0-or-later"
 edition = "2018"
