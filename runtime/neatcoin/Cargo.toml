@@ -45,7 +45,9 @@ pallet-treasury = { default-features = false, git = "https://github.com/parityte
 pallet-membership = { default-features = false, git = "https://github.com/paritytech/substrate" }
 pallet-democracy = { default-features = false, git = "https://github.com/paritytech/substrate" }
 pallet-offences = { default-features = false, git = "https://github.com/paritytech/substrate" }
+pallet-offences-benchmarking = { git = "https://github.com/paritytech/substrate", default-features = false, optional = true }
 pallet-session = { default-features = false, git = "https://github.com/paritytech/substrate" }
+pallet-session-benchmarking = { git = "https://github.com/paritytech/substrate", default-features = false, optional = true }
 pallet-indices = { default-features = false, git = "https://github.com/paritytech/substrate" }
 pallet-scheduler = { default-features = false, git = "https://github.com/paritytech/substrate" }
 pallet-authorship = { default-features = false, git = "https://github.com/paritytech/substrate" }
@@ -82,6 +84,8 @@ sp-npos-elections = { default-features = false, git = "https://github.com/parity
 frame-benchmarking = { default-features = false, git = "https://github.com/paritytech/substrate", optional = true }
 frame-system-benchmarking = { default-features = false, git = "https://github.com/paritytech/substrate", optional = true }
 hex-literal = { version = "0.3.1", optional = true }
+
+frame-try-runtime = { default-features = false, git = "https://github.com/paritytech/substrate", optional = true }
 
 [build-dependencies]
 substrate-wasm-builder = { git = "https://github.com/paritytech/substrate" }
@@ -152,16 +156,70 @@ std = [
 	"sp-authority-discovery/std",
 	"sp-consensus-babe/std",
 	"sp-npos-elections/std",
+	"frame-try-runtime/std",
 ]
 runtime-benchmarks = [
-	"sp-runtime/runtime-benchmarks",
+	"frame-benchmarking",
 	"frame-support/runtime-benchmarks",
 	"frame-system/runtime-benchmarks",
+	"pallet-election-provider-multi-phase/runtime-benchmarks",
+	"sp-runtime/runtime-benchmarks",
+	"pallet-babe/runtime-benchmarks",
 	"pallet-balances/runtime-benchmarks",
+	"pallet-bounties/runtime-benchmarks",
+	"pallet-collective/runtime-benchmarks",
+	"pallet-contracts/runtime-benchmarks",
+	"pallet-democracy/runtime-benchmarks",
+	"pallet-elections-phragmen/runtime-benchmarks",
+	"pallet-grandpa/runtime-benchmarks",
+	"pallet-identity/runtime-benchmarks",
+	"pallet-im-online/runtime-benchmarks",
+	"pallet-indices/runtime-benchmarks",
+	"pallet-membership/runtime-benchmarks",
+	"pallet-multisig/runtime-benchmarks",
+	"pallet-proxy/runtime-benchmarks",
+	"pallet-scheduler/runtime-benchmarks",
+	"pallet-staking/runtime-benchmarks",
 	"pallet-timestamp/runtime-benchmarks",
-
-	"frame-benchmarking",
+	"pallet-tips/runtime-benchmarks",
+	"pallet-treasury/runtime-benchmarks",
+	"pallet-utility/runtime-benchmarks",
+	"pallet-vesting/runtime-benchmarks",
+	"pallet-offences-benchmarking",
+	"pallet-session-benchmarking",
 	"frame-system-benchmarking",
 	"hex-literal",
 ]
-try-runtime = [] # TODO: implement this.
+try-runtime = [
+	"frame-executive/try-runtime",
+	"frame-try-runtime",
+	"frame-system/try-runtime",
+	"pallet-authority-discovery/try-runtime",
+	"pallet-authorship/try-runtime",
+	"pallet-babe/try-runtime",
+	"pallet-balances/try-runtime",
+	"pallet-bounties/try-runtime",
+	"pallet-collective/try-runtime",
+	"pallet-contracts/try-runtime",
+	"pallet-democracy/try-runtime",
+	"pallet-elections-phragmen/try-runtime",
+	"pallet-grandpa/try-runtime",
+	"pallet-im-online/try-runtime",
+	"pallet-indices/try-runtime",
+	"pallet-membership/try-runtime",
+	"pallet-multisig/try-runtime",
+	"pallet-identity/try-runtime",
+	"pallet-scheduler/try-runtime",
+	"pallet-offences/try-runtime",
+	"pallet-proxy/try-runtime",
+	"pallet-randomness-collective-flip/try-runtime",
+	"pallet-session/try-runtime",
+	"pallet-staking/try-runtime",
+	"pallet-election-provider-multi-phase/try-runtime",
+	"pallet-timestamp/try-runtime",
+	"pallet-tips/try-runtime",
+	"pallet-transaction-payment/try-runtime",
+	"pallet-treasury/try-runtime",
+	"pallet-utility/try-runtime",
+	"pallet-vesting/try-runtime",
+]

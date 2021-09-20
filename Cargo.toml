@@ -41,21 +41,26 @@ substrate-frame-rpc-system = { git = "https://github.com/paritytech/substrate" }
 pallet-transaction-payment-rpc = { git = "https://github.com/paritytech/substrate" }
 
 # These dependencies are used for runtime benchmarking
-frame-benchmarking = { git = "https://github.com/paritytech/substrate" }
-frame-benchmarking-cli = { git = "https://github.com/paritytech/substrate" }
+frame-benchmarking = { git = "https://github.com/paritytech/substrate", optional = true }
+frame-benchmarking-cli = { git = "https://github.com/paritytech/substrate", optional = true }
+
+try-runtime-cli = { git = "https://github.com/paritytech/substrate", optional = true }
 
 neatcoin-rpc = { path = "rpc" }
 neatcoin-service = { path = "service" }
-
-funty = "=1.1.0"
 
 [build-dependencies]
 substrate-build-script-utils = { git = "https://github.com/paritytech/substrate" }
 
 [features]
 default = []
-try-runtime = []
+try-runtime = [
+	"try-runtime-cli",
+	"neatcoin-service/try-runtime"
+]
 runtime-benchmarks = [
+	"frame-benchmarking",
+	"frame-benchmarking-cli",
 	"neatcoin-service/runtime-benchmarks",
 ]
 

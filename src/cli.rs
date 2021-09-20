@@ -56,7 +56,13 @@ pub enum Subcommand {
 	#[structopt(name = "export-builtin-wasm", setting = structopt::clap::AppSettings::Hidden)]
 	ExportBuiltinWasm(ExportBuiltinWasmCommand),
 
+	/// Try some command against runtime state.
+	#[cfg(feature = "try-runtime")]
+	#[structopt(name = "benchmark", about = "Benchmark runtime pallets.")]
+	TryRuntime(try_runtime_cli::TryRuntimeCmd),
+
 	/// The custom benchmark subcommmand benchmarking runtime pallets.
+	#[cfg(feature = "runtime-benchmarks")]
 	#[structopt(name = "benchmark", about = "Benchmark runtime pallets.")]
 	Benchmark(frame_benchmarking_cli::BenchmarkCmd),
 }
