@@ -199,6 +199,7 @@ pub fn run() -> Result<(), Error> {
 				))
 			})?)
 		}
+		#[cfg(feature = "runtime-benchmarks")]
 		Some(Subcommand::Benchmark(cmd)) => {
 			let runner = cli.create_runner(cmd)?;
 			let chain_spec = &runner.config().chain_spec;
