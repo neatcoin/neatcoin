@@ -6,7 +6,7 @@ variables:
   RUST_STABLE: 1.55.0
 
 jobs:
-- job: Linux additional
+- job: linux-additional
   pool:
     vmImage: 'ubuntu-latest'
   timeoutInMinutes: 0
@@ -24,7 +24,7 @@ jobs:
       RANDOMX_ARCH=default RUSTUP_TOOLCHAIN=$(RUST_STABLE) WASM_BUILD_TOOLCHAIN=$(RUST_STABLE) RUSTC_BOOTSTRAP=1 cargo build --release --locked --features try-runtime,runtime-benchmarks
     displayName: 'Build try-runtime and runtime-benchmarks'
 
-- job: Linux
+- job: linux
   pool:
     vmImage: 'ubuntu-latest'
   timeoutInMinutes: 0
@@ -58,7 +58,7 @@ jobs:
   - task: PublishBuildArtifacts@1
     displayName: 'Publish artifacts'
 
-- job: Lint
+- job: lint
   pool:
     vmImage: 'ubuntu-latest'
   timeoutInMinutes: 0
@@ -76,7 +76,7 @@ jobs:
       RANDOMX_ARCH=default RUSTUP_TOOLCHAIN=$(RUST_STABLE) WASM_BUILD_TOOLCHAIN=$(RUST_STABLE) RUSTC_BOOTSTRAP=1 cargo fmt --all -- --check
     displayName: 'Check rustfmt'
 
-- job: WebAssembly
+- job: webassembly
   pool:
     vmImage: 'ubuntu-latest'
   timeoutInMinutes: 0
@@ -91,7 +91,7 @@ jobs:
   - task: PublishBuildArtifacts@1
     displayName: 'Publish artifacts'
 
-- job: MacOS
+- job: macos
   pool:
     vmImage: 'macOS-latest'
   timeoutInMinutes: 0
@@ -121,7 +121,7 @@ jobs:
   - task: PublishBuildArtifacts@1
     displayName: 'Publish artifacts'
 
-- job: Windows
+- job: windows
   condition: false
   pool:
     vmImage: 'windows-2019'
