@@ -67,10 +67,10 @@ pub const VERSION: RuntimeVersion = RuntimeVersion {
 	spec_name: create_runtime_str!("neatcoin"),
 	impl_name: create_runtime_str!("neatcoin"),
 	authoring_version: 0,
-	spec_version: 2,
+	spec_version: 3,
 	impl_version: 0,
 	apis: crate::api::PRUNTIME_API_VERSIONS,
-	transaction_version: 0,
+	transaction_version: 1,
 };
 
 /// Native version.
