@@ -262,15 +262,57 @@ sp_api::impl_runtime_apis! {
 
 	#[cfg(feature = "try-runtime")]
 	impl frame_try_runtime::TryRuntime<Block> for Runtime {
-		fn on_runtime_upgrade() -> Result<(Weight, Weight), sp_runtime::RuntimeString> {
+		fn on_runtime_upgrade() -> Result<(frame_support::weights::Weight, frame_support::weights::Weight), sp_runtime::RuntimeString> {
 			log::info!("try-runtime::on_runtime_upgrade polkadot.");
 			let weight = Executive::try_runtime_upgrade()?;
-			Ok((weight, BlockWeights::get().max_block))
+			Ok((weight, crate::types::BlockWeights::get().max_block))
 		}
 	}
 
 	#[cfg(feature = "runtime-benchmarks")]
 	impl frame_benchmarking::Benchmark<Block> for Runtime {
+		fn benchmark_metadata(extra: bool) -> (
+			Vec<frame_benchmarking::BenchmarkList>,
+			Vec<frame_support::traits::StorageInfo>,
+		) {
+			use frame_benchmarking::{list_benchmark, Benchmarking, BenchmarkList};
+			use frame_support::traits::StorageInfoTrait;
+
+			use pallet_session_benchmarking::Pallet as SessionBench;
+			use pallet_offences_benchmarking::Pallet as OffencesBench;
+			use frame_system_benchmarking::Pallet as SystemBench;
+
+			let mut list = Vec::<BenchmarkList>::new();
+
+			list_benchmark!(list, extra, pallet_balances, crate::Balances);
+			list_benchmark!(list, extra, pallet_bounties, crate::Bounties);
+			list_benchmark!(list, extra, pallet_collective, crate::Council);
+			list_benchmark!(list, extra, pallet_collective, crate::TechnicalCommittee);
+			list_benchmark!(list, extra, pallet_democracy, crate::Democracy);
+			list_benchmark!(list, extra, pallet_elections_phragmen, crate::ElectionsPhragmen);
+			list_benchmark!(list, extra, pallet_election_provider_multi_phase, crate::ElectionProviderMultiPhase);
+			list_benchmark!(list, extra, pallet_identity, crate::Identity);
+			list_benchmark!(list, extra, pallet_im_online, crate::ImOnline);
+			list_benchmark!(list, extra, pallet_indices, crate::Indices);
+			list_benchmark!(list, extra, pallet_membership, crate::TechnicalMembership);
+			list_benchmark!(list, extra, pallet_multisig, crate::Multisig);
+			list_benchmark!(list, extra, pallet_offences, OffencesBench::<Runtime>);
+			list_benchmark!(list, extra, pallet_proxy, crate::Proxy);
+			list_benchmark!(list, extra, pallet_scheduler, crate::Scheduler);
+			list_benchmark!(list, extra, pallet_session, SessionBench::<Runtime>);
+			list_benchmark!(list, extra, pallet_staking, crate::Staking);
+			list_benchmark!(list, extra, frame_system, SystemBench::<Runtime>);
+			list_benchmark!(list, extra, pallet_timestamp, crate::Timestamp);
+			list_benchmark!(list, extra, pallet_tips, crate::Tips);
+			list_benchmark!(list, extra, pallet_treasury, crate::Treasury);
+			list_benchmark!(list, extra, pallet_utility, crate::Utility);
+			list_benchmark!(list, extra, pallet_vesting, crate::Vesting);
+
+			let storage_info = crate::AllPalletsWithSystem::storage_info();
+
+			return (list, storage_info)
+		}
+
 		fn dispatch_benchmark(
 			config: frame_benchmarking::BenchmarkConfig
 		) -> Result<Vec<frame_benchmarking::BenchmarkBatch>, RuntimeString> {
@@ -303,30 +345,28 @@ sp_api::impl_runtime_apis! {
 
 			let mut batches = Vec::<BenchmarkBatch>::new();
 			let params = (&config, &whitelist);
-			// Polkadot
-			add_benchmark!(params, batches, runtime_common::claims, Claims);
-			// Substrate
-			add_benchmark!(params, batches, pallet_balances, Balances);
-			add_benchmark!(params, batches, pallet_bounties, Bounties);
-			add_benchmark!(params, batches, pallet_collective, Council);
-			add_benchmark!(params, batches, pallet_democracy, Democracy);
-			add_benchmark!(params, batches, pallet_elections_phragmen, ElectionsPhragmen);
-			add_benchmark!(params, batches, pallet_election_provider_multi_phase, ElectionProviderMultiPhase);
-			add_benchmark!(params, batches, pallet_identity, Identity);
-			add_benchmark!(params, batches, pallet_im_online, ImOnline);
-			add_benchmark!(params, batches, pallet_indices, Indices);
-			add_benchmark!(params, batches, pallet_multisig, Multisig);
+
+			add_benchmark!(params, batches, pallet_balances, crate::Balances);
+			add_benchmark!(params, batches, pallet_bounties, crate::Bounties);
+			add_benchmark!(params, batches, pallet_collective, crate::Council);
+			add_benchmark!(params, batches, pallet_democracy, crate::Democracy);
+			add_benchmark!(params, batches, pallet_elections_phragmen, crate::ElectionsPhragmen);
+			add_benchmark!(params, batches, pallet_election_provider_multi_phase, crate::ElectionProviderMultiPhase);
+			add_benchmark!(params, batches, pallet_identity, crate::Identity);
+			add_benchmark!(params, batches, pallet_im_online, crate::ImOnline);
+			add_benchmark!(params, batches, pallet_indices, crate::Indices);
+			add_benchmark!(params, batches, pallet_multisig, crate::Multisig);
 			add_benchmark!(params, batches, pallet_offences, OffencesBench::<Runtime>);
-			add_benchmark!(params, batches, pallet_proxy, Proxy);
-			add_benchmark!(params, batches, pallet_scheduler, Scheduler);
+			add_benchmark!(params, batches, pallet_proxy, crate::Proxy);
+			add_benchmark!(params, batches, pallet_scheduler, crate::Scheduler);
 			add_benchmark!(params, batches, pallet_session, SessionBench::<Runtime>);
-			add_benchmark!(params, batches, pallet_staking, Staking);
+			add_benchmark!(params, batches, pallet_staking, crate::Staking);
 			add_benchmark!(params, batches, frame_system, SystemBench::<Runtime>);
-			add_benchmark!(params, batches, pallet_timestamp, Timestamp);
-			add_benchmark!(params, batches, pallet_tips, Tips);
-			add_benchmark!(params, batches, pallet_treasury, Treasury);
-			add_benchmark!(params, batches, pallet_utility, Utility);
-			add_benchmark!(params, batches, pallet_vesting, Vesting);
+			add_benchmark!(params, batches, pallet_timestamp, crate::Timestamp);
+			add_benchmark!(params, batches, pallet_tips, crate::Tips);
+			add_benchmark!(params, batches, pallet_treasury, crate::Treasury);
+			add_benchmark!(params, batches, pallet_utility, crate::Utility);
+			add_benchmark!(params, batches, pallet_vesting, crate::Vesting);
 
 			if batches.is_empty() { return Err("Benchmark not found for this pallet.".into()) }
 			Ok(batches)

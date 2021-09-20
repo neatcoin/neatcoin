@@ -71,4 +71,9 @@ vodka-runtime = { path = "../runtime/vodka" }
 default = []
 runtime-benchmarks = [
 	"neatcoin-runtime/runtime-benchmarks",
+	"vodka-runtime/runtime-benchmarks",
+]
+try-runtime = [
+	"neatcoin-runtime/try-runtime",
+	"vodka-runtime/try-runtime",
 ]
