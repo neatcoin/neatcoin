@@ -30,6 +30,8 @@ mod constants;
 mod impls;
 #[path = "../../common/types.rs"]
 mod types;
+#[path = "../../common/migrations.rs"]
+mod migrations;
 
 use sp_std::prelude::*;
 use sp_runtime::{create_runtime_str, impl_opaque_keys};
@@ -162,4 +164,11 @@ pub type Executive = frame_executive::Executive<
 	frame_system::ChainContext<Runtime>,
 	Runtime,
 	AllPallets,
+	(
+		crate::migrations::MigratePalletVersionToStorageVersion,
+		crate::migrations::CouncilStoragePrefixMigration,
+		crate::migrations::TechnicalCommitteeStoragePrefixMigration,
+		crate::migrations::TechnicalMembershipStoragePrefixMigration,
+		crate::migrations::MigrateTipsPalletPrefix,
+	)
 >;
