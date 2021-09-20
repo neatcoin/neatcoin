@@ -16,12 +16,12 @@
 // You should have received a copy of the GNU General Public License
 // along with Neatcoin. If not, see <http://www.gnu.org/licenses/>.
 
-use std::{sync::Arc, fs::File, io::Write, path::PathBuf};
+use crate::cli::{Cli, Subcommand};
 use futures::future::TryFutureExt;
 use log::info;
-use sc_cli::{SubstrateCli, RuntimeVersion, Role, ChainSpec};
-use neatcoin_service::{chain_spec, IdentifyVariant, ChainVariant};
-use crate::cli::{Cli, Subcommand};
+use neatcoin_service::{chain_spec, ChainVariant, IdentifyVariant};
+use sc_cli::{ChainSpec, Role, RuntimeVersion, SubstrateCli};
+use std::{fs::File, io::Write, path::PathBuf, sync::Arc};
 
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
@@ -99,8 +99,7 @@ pub fn run() -> Result<(), Error> {
 
 	match &cli.subcommand {
 		None => {
-			let runner = cli.create_runner(&cli.run)
-				.map_err(Error::from)?;
+			let runner = cli.create_runner(&cli.run).map_err(Error::from)?;
 			let chain_spec = &runner.config().chain_spec;
 
 			set_default_ss58_version(chain_spec);
@@ -109,30 +108,33 @@ pub fn run() -> Result<(), Error> {
 				let role = config.role.clone();
 
 				let task_manager = match role {
-					Role::Light => neatcoin_service::build_light(config).map(|light| light.task_manager),
+					Role::Light => {
+						neatcoin_service::build_light(config).map(|light| light.task_manager)
+					}
 					_ => neatcoin_service::build_full(config).map(|full| full.task_manager),
 				}?;
 				Ok::<_, Error>(task_manager)
 			})
-		},
+		}
 		Some(Subcommand::BuildSpec(cmd)) => {
 			let runner = cli.create_runner(cmd)?;
-			Ok(runner.sync_run(|config| {
-				cmd.run(config.chain_spec, config.network)
-			})?)
-		},
+			Ok(runner.sync_run(|config| cmd.run(config.chain_spec, config.network))?)
+		}
 		Some(Subcommand::CheckBlock(cmd)) => {
-			let runner = cli.create_runner(cmd)
-				.map_err(Error::SubstrateCli)?;
+			let runner = cli.create_runner(cmd).map_err(Error::SubstrateCli)?;
 			let chain_spec = &runner.config().chain_spec;
 
 			set_default_ss58_version(chain_spec);
 
 			runner.async_run(|mut config| {
 				let ops = neatcoin_service::new_chain_ops(&mut config)?;
-				Ok((cmd.run(Arc::new(ops.client), ops.import_queue).map_err(Error::SubstrateCli), ops.task_manager))
+				Ok((
+					cmd.run(Arc::new(ops.client), ops.import_queue)
+						.map_err(Error::SubstrateCli),
+					ops.task_manager,
+				))
 			})
-		},
+		}
 		Some(Subcommand::ExportBlocks(cmd)) => {
 			let runner = cli.create_runner(cmd)?;
 			let chain_spec = &runner.config().chain_spec;
@@ -141,9 +143,13 @@ pub fn run() -> Result<(), Error> {
 
 			Ok(runner.async_run(|mut config| {
 				let ops = neatcoin_service::new_chain_ops(&mut config)?;
-				Ok((cmd.run(Arc::new(ops.client), config.database).map_err(Error::SubstrateCli), ops.task_manager))
+				Ok((
+					cmd.run(Arc::new(ops.client), config.database)
+						.map_err(Error::SubstrateCli),
+					ops.task_manager,
+				))
 			})?)
-		},
+		}
 		Some(Subcommand::ExportState(cmd)) => {
 			let runner = cli.create_runner(cmd)?;
 			let chain_spec = &runner.config().chain_spec;
@@ -152,9 +158,13 @@ pub fn run() -> Result<(), Error> {
 
 			Ok(runner.async_run(|mut config| {
 				let ops = neatcoin_service::new_chain_ops(&mut config)?;
-				Ok((cmd.run(Arc::new(ops.client), config.chain_spec).map_err(Error::SubstrateCli), ops.task_manager))
+				Ok((
+					cmd.run(Arc::new(ops.client), config.chain_spec)
+						.map_err(Error::SubstrateCli),
+					ops.task_manager,
+				))
 			})?)
-		},
+		}
 		Some(Subcommand::ImportBlocks(cmd)) => {
 			let runner = cli.create_runner(cmd)?;
 			let chain_spec = &runner.config().chain_spec;
@@ -163,13 +173,17 @@ pub fn run() -> Result<(), Error> {
 
 			Ok(runner.async_run(|mut config| {
 				let ops = neatcoin_service::new_chain_ops(&mut config)?;
-				Ok((cmd.run(Arc::new(ops.client), ops.import_queue).map_err(Error::SubstrateCli), ops.task_manager))
+				Ok((
+					cmd.run(Arc::new(ops.client), ops.import_queue)
+						.map_err(Error::SubstrateCli),
+					ops.task_manager,
+				))
 			})?)
-		},
+		}
 		Some(Subcommand::PurgeChain(cmd)) => {
 			let runner = cli.create_runner(cmd)?;
 			Ok(runner.sync_run(|config| cmd.run(config.database))?)
-		},
+		}
 		Some(Subcommand::Revert(cmd)) => {
 			let runner = cli.create_runner(cmd)?;
 			let chain_spec = &runner.config().chain_spec;
@@ -178,9 +192,13 @@ pub fn run() -> Result<(), Error> {
 
 			Ok(runner.async_run(|mut config| {
 				let ops = neatcoin_service::new_chain_ops(&mut config)?;
-				Ok((cmd.run(Arc::new(ops.client), ops.backend).map_err(Error::SubstrateCli), ops.task_manager))
+				Ok((
+					cmd.run(Arc::new(ops.client), ops.backend)
+						.map_err(Error::SubstrateCli),
+					ops.task_manager,
+				))
 			})?)
-		},
+		}
 		Some(Subcommand::Benchmark(cmd)) => {
 			let runner = cli.create_runner(cmd)?;
 			let chain_spec = &runner.config().chain_spec;
@@ -191,7 +209,7 @@ pub fn run() -> Result<(), Error> {
 				cmd.run::<neatcoin_service::neatcoin_runtime::Block, neatcoin_service::NeatcoinExecutorDispatch>(config)
 					.map_err(|e| Error::SubstrateCli(e))
 			})?)
-		},
+		}
 		Some(Subcommand::ExportBuiltinWasm(cmd)) => {
 			{
 				let wasm_binary_bloaty = neatcoin_service::neatcoin_runtime::WASM_BINARY_BLOATY
@@ -199,7 +217,10 @@ pub fn run() -> Result<(), Error> {
 				let wasm_binary = neatcoin_service::neatcoin_runtime::WASM_BINARY
 					.ok_or(Error::UnavailableWasmBinary)?;
 
-				info!("Exporting neatcoin builtin wasm binary to folder: {}", cmd.folder);
+				info!(
+					"Exporting neatcoin builtin wasm binary to folder: {}",
+					cmd.folder
+				);
 
 				let folder = PathBuf::from(cmd.folder.clone());
 				{
@@ -225,7 +246,10 @@ pub fn run() -> Result<(), Error> {
 				let wasm_binary = neatcoin_service::vodka_runtime::WASM_BINARY
 					.ok_or(Error::UnavailableWasmBinary)?;
 
-				info!("Exporting vodka builtin wasm binary to folder: {}", cmd.folder);
+				info!(
+					"Exporting vodka builtin wasm binary to folder: {}",
+					cmd.folder
+				);
 
 				let folder = PathBuf::from(cmd.folder.clone());
 				{
@@ -246,7 +270,7 @@ pub fn run() -> Result<(), Error> {
 			}
 
 			Ok(())
-		},
+		}
 		Some(Subcommand::Key(cmd)) => Ok(cmd.run(&cli)?),
 		#[cfg(feature = "try-runtime")]
 		Some(Subcommand::TryRuntime(cmd)) => {
@@ -257,17 +281,13 @@ pub fn run() -> Result<(), Error> {
 			runner.async_run(|config| {
 				use sc_service::TaskManager;
 				let registry = config.prometheus_config.as_ref().map(|cfg| &cfg.registry);
-				let task_manager = TaskManager::new(
-					config.task_executor.clone(),
-					registry,
-				).map_err(|e| Error::SubstrateService(sc_service::Error::Prometheus(e)))?;
+				let task_manager = TaskManager::new(config.task_executor.clone(), registry)
+					.map_err(|e| Error::SubstrateService(sc_service::Error::Prometheus(e)))?;
 
 				Ok((
-					cmd.run::<
-						service::kusama_runtime::Block,
-						service::KusamaExecutor,
-					>(config).map_err(Error::SubstrateCli),
-					task_manager
+					cmd.run::<service::kusama_runtime::Block, service::KusamaExecutor>(config)
+						.map_err(Error::SubstrateCli),
+					task_manager,
 				))
 				// NOTE: we fetch only the block number from the block type, the chance of disparity
 				// between kusama's and polkadot's block number is small enough to overlook this.

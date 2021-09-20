@@ -18,8 +18,8 @@
 
 //! Auxillary struct/enums for polkadot runtime.
 
-use frame_support::traits::{OnUnbalanced, Imbalance, Currency};
 use crate::types::NegativeImbalance;
+use frame_support::traits::{Currency, Imbalance, OnUnbalanced};
 
 /// Logic for the author to get a portion of fees.
 pub struct ToAuthor<R>(sp_std::marker::PhantomData<R>);
@@ -33,8 +33,14 @@ where
 	fn on_nonzero_unbalanced(amount: NegativeImbalance<R>) {
 		let numeric_amount = amount.peek();
 		let author = <pallet_authorship::Pallet<R>>::author();
-		<pallet_balances::Pallet<R>>::resolve_creating(&<pallet_authorship::Pallet<R>>::author(), amount);
-		<frame_system::Pallet<R>>::deposit_event(pallet_balances::Event::Deposit(author, numeric_amount));
+		<pallet_balances::Pallet<R>>::resolve_creating(
+			&<pallet_authorship::Pallet<R>>::author(),
+			amount,
+		);
+		<frame_system::Pallet<R>>::deposit_event(pallet_balances::Event::Deposit(
+			author,
+			numeric_amount,
+		));
 	}
 }
 
@@ -47,7 +53,7 @@ where
 	<R as frame_system::Config>::AccountId: Into<super::AccountId>,
 	<R as frame_system::Config>::Event: From<pallet_balances::Event<R>>,
 {
-	fn on_unbalanceds<B>(mut fees_then_tips: impl Iterator<Item=NegativeImbalance<R>>) {
+	fn on_unbalanceds<B>(mut fees_then_tips: impl Iterator<Item = NegativeImbalance<R>>) {
 		if let Some(fees) = fees_then_tips.next() {
 			// Burn base fees.
 			drop(fees);
@@ -61,16 +67,23 @@ where
 #[cfg(test)]
 mod tests {
 	use super::*;
-	use frame_system::limits;
-	use frame_support::{parameter_types, PalletId, weights::{DispatchClass, constants::{ExtrinsicBaseWeight, WEIGHT_PER_SECOND}}};
+	use crate::types::AccountId;
 	use frame_support::traits::FindAuthor;
+	use frame_support::{
+		parameter_types,
+		weights::{
+			constants::{ExtrinsicBaseWeight, WEIGHT_PER_SECOND},
+			DispatchClass,
+		},
+		PalletId,
+	};
+	use frame_system::limits;
 	use sp_core::H256;
 	use sp_runtime::{
 		testing::Header,
 		traits::{BlakeTwo256, IdentityLookup},
 		Perbill,
 	};
-	use crate::types::AccountId;
 
 	type UncheckedExtrinsic = frame_system::mocking::MockUncheckedExtrinsic<Test>;
 	type Block = frame_system::mocking::MockBlock<Test>;
@@ -165,7 +178,8 @@ mod tests {
 	pub struct OneAuthor;
 	impl FindAuthor<AccountId> for OneAuthor {
 		fn find_author<'a, I>(_: I) -> Option<AccountId>
-			where I: 'a,
+		where
+			I: 'a,
 		{
 			Some(Default::default())
 		}
@@ -178,9 +192,13 @@ mod tests {
 	}
 
 	pub fn new_test_ext() -> sp_io::TestExternalities {
-		let mut t = frame_system::GenesisConfig::default().build_storage::<Test>().unwrap();
+		let mut t = frame_system::GenesisConfig::default()
+			.build_storage::<Test>()
+			.unwrap();
 		// We use default for brevity, but you can configure as desired if needed.
-		pallet_balances::GenesisConfig::<Test>::default().assimilate_storage(&mut t).unwrap();
+		pallet_balances::GenesisConfig::<Test>::default()
+			.assimilate_storage(&mut t)
+			.unwrap();
 		t.into()
 	}
 

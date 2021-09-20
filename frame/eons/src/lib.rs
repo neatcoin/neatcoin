@@ -20,12 +20,12 @@
 
 #![cfg_attr(not(feature = "std"), no_std)]
 
-use codec::{Encode, Decode};
+use codec::{Decode, Encode};
+use frame_support::{decl_module, decl_storage};
 use scale_info::TypeInfo;
 #[cfg(feature = "std")]
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 use sp_std::prelude::*;
-use frame_support::{decl_storage, decl_module};
 
 #[cfg_attr(feature = "std", derive(Serialize, Deserialize))]
 #[derive(Encode, Decode, TypeInfo)]
@@ -38,7 +38,7 @@ pub struct Eon<H> {
 	pub final_state_root: H,
 }
 
-pub trait Config: frame_system::Config { }
+pub trait Config: frame_system::Config {}
 
 decl_storage! {
 	trait Store for Module<T: Config> as Eons {

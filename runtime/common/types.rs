@@ -18,28 +18,38 @@
 
 //! Common runtime code for Neatcoin and Neatcoin testnet.
 
-use static_assertions::const_assert;
-use sp_core::u32_trait::{_1, _2};
-use sp_runtime::{generic, MultiSignature, Perbill, traits::{Verify, IdentifyAccount}};
-use frame_system::{limits, EnsureOneOf, EnsureRoot};
+use crate::{Call, CouncilCollectiveInstance, Runtime};
 use frame_support::{
-	parameter_types, weights::{Weight, constants::WEIGHT_PER_SECOND, DispatchClass}, traits::Currency,
+	parameter_types,
+	traits::Currency,
+	weights::{constants::WEIGHT_PER_SECOND, DispatchClass, Weight},
 };
-use crate::{Runtime, Call, CouncilCollectiveInstance};
+use frame_system::{limits, EnsureOneOf, EnsureRoot};
+use sp_core::u32_trait::{_1, _2};
+use sp_runtime::{
+	generic,
+	traits::{IdentifyAccount, Verify},
+	MultiSignature, Perbill,
+};
+use static_assertions::const_assert;
 
+pub use frame_support::weights::constants::{
+	BlockExecutionWeight, ExtrinsicBaseWeight, RocksDbWeight,
+};
+pub use pallet_grandpa::AuthorityId as GrandpaId;
+pub use pallet_im_online::sr25519::AuthorityId as ImOnlineId;
 pub use sp_authority_discovery::AuthorityId as AuthorityDiscoveryId;
 pub use sp_runtime::traits::BlakeTwo256;
-pub use frame_support::weights::constants::{BlockExecutionWeight, ExtrinsicBaseWeight, RocksDbWeight};
-pub use pallet_im_online::sr25519::AuthorityId as ImOnlineId;
-pub use pallet_grandpa::AuthorityId as GrandpaId;
 
-pub type NegativeImbalance<T> = <pallet_balances::Pallet<T> as Currency<<T as frame_system::Config>::AccountId>>::NegativeImbalance;
+pub type NegativeImbalance<T> = <pallet_balances::Pallet<T> as Currency<
+	<T as frame_system::Config>::AccountId,
+>>::NegativeImbalance;
 
 /// The BABE epoch configuration at genesis.
 pub const BABE_GENESIS_EPOCH_CONFIG: sp_consensus_babe::BabeEpochConfiguration =
 	sp_consensus_babe::BabeEpochConfiguration {
 		c: crate::constants::time::PRIMARY_PROBABILITY,
-		allowed_slots: sp_consensus_babe::AllowedSlots::PrimaryAndSecondaryVRFSlots
+		allowed_slots: sp_consensus_babe::AllowedSlots::PrimaryAndSecondaryVRFSlots,
 	};
 
 /// We assume that an on-initialize consumes 1% of the weight on average, hence a single extrinsic
@@ -84,7 +94,7 @@ parameter_types! {
 pub type MoreThanHalfCouncil = EnsureOneOf<
 	AccountId,
 	EnsureRoot<AccountId>,
-	pallet_collective::EnsureProportionMoreThan<_1, _2, AccountId, CouncilCollectiveInstance>
+	pallet_collective::EnsureProportionMoreThan<_1, _2, AccountId, CouncilCollectiveInstance>,
 >;
 
 /// The type used for currency conversion.

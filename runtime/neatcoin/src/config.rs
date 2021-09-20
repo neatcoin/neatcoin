@@ -20,15 +20,15 @@
 mod basic;
 #[path = "../../common/config/consensus.rs"]
 mod consensus;
+#[path = "../../common/config/contracts.rs"]
+mod contracts;
 #[path = "../../common/config/governance.rs"]
 mod governance;
+#[path = "../../common/config/nomo.rs"]
+mod nomo;
 #[path = "../../common/config/offchain.rs"]
 mod offchain;
 #[path = "../../common/config/proxy.rs"]
 mod proxy;
 #[path = "../../common/config/utility.rs"]
 mod utility;
-#[path = "../../common/config/contracts.rs"]
-mod contracts;
-#[path = "../../common/config/nomo.rs"]
-mod nomo;

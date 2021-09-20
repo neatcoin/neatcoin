@@ -28,32 +28,32 @@ mod api;
 mod constants;
 #[path = "../../common/impls.rs"]
 mod impls;
-#[path = "../../common/types.rs"]
-mod types;
 #[path = "../../common/migrations.rs"]
 mod migrations;
+#[path = "../../common/types.rs"]
+mod types;
 
-use sp_std::prelude::*;
-use sp_runtime::{create_runtime_str, impl_opaque_keys};
-use sp_version::RuntimeVersion;
-#[cfg(any(feature = "std", test))]
-use sp_version::NativeVersion;
 use frame_support::construct_runtime;
 use pallet_session::historical as session_historical;
-
+use sp_runtime::{create_runtime_str, impl_opaque_keys};
+use sp_std::prelude::*;
 #[cfg(any(feature = "std", test))]
-pub use sp_runtime::BuildStorage;
-pub use pallet_timestamp::Call as TimestampCall;
-pub use pallet_balances::Call as BalancesCall;
-#[cfg(feature = "std")]
-pub use pallet_staking::StakerStatus;
+use sp_version::NativeVersion;
+use sp_version::RuntimeVersion;
+
 #[cfg(feature = "std")]
 pub use crate::api::{api::dispatch, RuntimeApi};
 pub use crate::types::{
-	opaque, BlockNumber, Moment, Signature, AccountPublic, AccountId, AccountIndex,
-	Hash, Nonce, Address, Header, Block, SignedBlock, BlockId, SignedExtra,
-	UncheckedExtrinsic, CheckedExtrinsic, SignedPayload, BABE_GENESIS_EPOCH_CONFIG,
+	opaque, AccountId, AccountIndex, AccountPublic, Address, Block, BlockId, BlockNumber,
+	CheckedExtrinsic, Hash, Header, Moment, Nonce, Signature, SignedBlock, SignedExtra,
+	SignedPayload, UncheckedExtrinsic, BABE_GENESIS_EPOCH_CONFIG,
 };
+pub use pallet_balances::Call as BalancesCall;
+#[cfg(feature = "std")]
+pub use pallet_staking::StakerStatus;
+pub use pallet_timestamp::Call as TimestampCall;
+#[cfg(any(feature = "std", test))]
+pub use sp_runtime::BuildStorage;
 
 // Make the WASM binary available.
 #[cfg(feature = "std")]
@@ -170,5 +170,5 @@ pub type Executive = frame_executive::Executive<
 		crate::migrations::TechnicalCommitteeStoragePrefixMigration,
 		crate::migrations::TechnicalMembershipStoragePrefixMigration,
 		crate::migrations::MigrateTipsPalletPrefix,
-	)
+	),
 >;

@@ -24,12 +24,12 @@ mod label;
 pub use crate::label::is_label;
 
 use alloc::vec::Vec;
-use codec::{Encode, Decode};
+use blake2_rfc::blake2b::blake2b;
+use codec::{Decode, Encode};
+use primitive_types::H256;
 use scale_info::TypeInfo;
 #[cfg(feature = "std")]
-use serde::{Serialize, Deserialize};
-use primitive_types::H256;
-use blake2_rfc::blake2b::blake2b;
+use serde::{Deserialize, Serialize};
 
 #[cfg_attr(feature = "std", derive(Serialize, Deserialize))]
 #[derive(Eq, PartialEq, Clone, Encode, Decode, Debug, TypeInfo)]
@@ -131,7 +131,7 @@ impl Decode for Label {
 		let raw = RawLabel::decode(value)?;
 
 		if !is_label(&raw) {
-			return Err("label contains invalid character".into())
+			return Err("label contains invalid character".into());
 		}
 
 		Ok(Self(raw))
@@ -141,13 +141,15 @@ impl Decode for Label {
 #[cfg(feature = "std")]
 impl<'de> Deserialize<'de> for Label {
 	fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-    where
-        D: serde::Deserializer<'de>,
-    {
+	where
+		D: serde::Deserializer<'de>,
+	{
 		let raw = RawLabel::deserialize(deserializer)?;
 
 		if !is_label(&raw) {
-			return Err(<D::Error as serde::de::Error>::custom("label contains invalid character"))
+			return Err(<D::Error as serde::de::Error>::custom(
+				"label contains invalid character",
+			));
 		}
 
 		Ok(Self(raw))

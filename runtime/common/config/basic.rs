@@ -16,21 +16,25 @@
 // You should have received a copy of the GNU General Public License
 // along with Neatcoin. If not, see <http://www.gnu.org/licenses/>.
 
-use sp_version::RuntimeVersion;
-use sp_runtime::{Perquintill, Perbill, FixedPointNumber, traits::AccountIdLookup};
-use frame_system::EnsureRoot;
-use frame_support::{parameter_types, weights::Weight, traits::Everything};
-use pallet_transaction_payment::{TargetedFeeAdjustment, Multiplier, CurrencyAdapter};
 use crate::{
-	Runtime, Origin, Call, Event, PalletInfo, Balances, System, OriginCaller,
-	Babe, Treasury, VERSION, SS58_PREFIX,
-	types::{
-		BlockNumber, Nonce, Hash, BlakeTwo256, AccountId, Balance, AccountIndex,
-		BlockWeights, RocksDbWeight, BlockHashCount, BlockLength,
+	constants::{
+		currency::{deposit, CENTS, DOLLARS, MILLICENTS},
+		fee::WeightToFee,
+		time::SLOT_DURATION,
 	},
-	constants::{currency::{deposit, CENTS, MILLICENTS, DOLLARS}, fee::WeightToFee, time::SLOT_DURATION},
 	impls::DealWithFees,
+	types::{
+		AccountId, AccountIndex, Balance, BlakeTwo256, BlockHashCount, BlockLength, BlockNumber,
+		BlockWeights, Hash, Nonce, RocksDbWeight,
+	},
+	Babe, Balances, Call, Event, Origin, OriginCaller, PalletInfo, Runtime, System, Treasury,
+	SS58_PREFIX, VERSION,
 };
+use frame_support::{parameter_types, traits::Everything, weights::Weight};
+use frame_system::EnsureRoot;
+use pallet_transaction_payment::{CurrencyAdapter, Multiplier, TargetedFeeAdjustment};
+use sp_runtime::{traits::AccountIdLookup, FixedPointNumber, Perbill, Perquintill};
+use sp_version::RuntimeVersion;
 
 parameter_types! {
 	/// The portion of the `NORMAL_DISPATCH_RATIO` that we adjust the fees with. Blocks filled less
@@ -79,12 +83,8 @@ parameter_types! {
 
 /// Parameterized slow adjusting fee updated based on
 /// https://w3f-research.readthedocs.io/en/latest/polkadot/Token%20Economics.html#-2.-slow-adjusting-mechanism
-pub type SlowAdjustingFeeUpdate<R> = TargetedFeeAdjustment<
-	R,
-	TargetBlockFullness,
-	AdjustmentVariable,
-	MinimumMultiplier
->;
+pub type SlowAdjustingFeeUpdate<R> =
+	TargetedFeeAdjustment<R, TargetBlockFullness, AdjustmentVariable, MinimumMultiplier>;
 
 impl pallet_transaction_payment::Config for Runtime {
 	type OnChargeTransaction = CurrencyAdapter<Balances, DealWithFees<Runtime>>;
@@ -176,4 +176,4 @@ impl pallet_identity::Config for Runtime {
 	type WeightInfo = ();
 }
 
-impl pallet_randomness_collective_flip::Config for Runtime { }
+impl pallet_randomness_collective_flip::Config for Runtime {}

@@ -16,13 +16,13 @@
 // You should have received a copy of the GNU General Public License
 // along with Neatcoin. If not, see <http://www.gnu.org/licenses/>.
 
-use frame_support::{parameter_types, weights::Weight, traits::Nothing};
-use pallet_contracts::weights::WeightInfo;
 use crate::{
-	Balances, Event, RandomnessCollectiveFlip, Timestamp, Runtime, Call,
-	types::{BlockWeights, Balance, AVERAGE_ON_INITIALIZE_RATIO},
 	constants::currency::deposit,
+	types::{Balance, BlockWeights, AVERAGE_ON_INITIALIZE_RATIO},
+	Balances, Call, Event, RandomnessCollectiveFlip, Runtime, Timestamp,
 };
+use frame_support::{parameter_types, traits::Nothing, weights::Weight};
+use pallet_contracts::weights::WeightInfo;
 
 parameter_types! {
 	pub ContractDeposit: Balance = deposit(

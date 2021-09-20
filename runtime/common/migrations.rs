@@ -1,5 +1,7 @@
+use crate::{
+	AllPalletsWithSystem, Council, Runtime, TechnicalCommittee, TechnicalMembership, Tips,
+};
 use frame_support::{traits::OnRuntimeUpgrade, weights::constants::RocksDbWeight};
-use crate::{Runtime, TechnicalMembership, TechnicalCommittee, Tips, Council, AllPalletsWithSystem};
 
 /// Migrate from `PalletVersion` to the new `StorageVersion`
 pub struct MigratePalletVersionToStorageVersion;

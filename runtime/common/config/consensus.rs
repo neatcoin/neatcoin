@@ -16,27 +16,32 @@
 // You should have received a copy of the GNU General Public License
 // along with Neatcoin. If not, see <http://www.gnu.org/licenses/>.
 
-use sp_std::prelude::*;
+use crate::{
+	constants::{
+		currency::{deposit, UNITS},
+		time::{EPOCH_DURATION_IN_SLOTS, MILLISECS_PER_BLOCK},
+	},
+	types::{
+		AccountId, Balance, BlockExecutionWeight, BlockLength, BlockWeights, CurrencyToVote,
+		EpochDuration, GrandpaId, ImOnlineId, Moment,
+	},
+	Babe, Balances, BlockNumber, Call, CouncilCollectiveInstance, ElectionProviderMultiPhase,
+	Event, Historical, ImOnline, Offences, Runtime, Session, SessionKeys, Staking, Timestamp,
+	TransactionPayment, Treasury,
+};
+use frame_support::{
+	parameter_types,
+	traits::{Get, KeyOwnerProofSystem},
+	weights::{DispatchClass, Weight},
+};
+use frame_system::{EnsureOneOf, EnsureRoot};
 use sp_core::u32_trait::_1;
 use sp_runtime::{
-	KeyTypeId, Perbill, traits::OpaqueKeys, transaction_validity::TransactionPriority, curve::PiecewiseLinear,
+	curve::PiecewiseLinear, traits::OpaqueKeys, transaction_validity::TransactionPriority,
+	KeyTypeId, Perbill,
 };
 use sp_staking::SessionIndex;
-use frame_system::{EnsureOneOf, EnsureRoot};
-use frame_support::{parameter_types, traits::{Get, KeyOwnerProofSystem}, weights::{Weight, DispatchClass}};
-use crate::{
-	Runtime, Historical, Offences, Event, Babe, Staking, ImOnline, Call, SessionKeys, Balances,
-	Timestamp, CouncilCollectiveInstance, Treasury, Session, ElectionProviderMultiPhase, BlockNumber,
-	TransactionPayment,
-	types::{
-		Moment, ImOnlineId, GrandpaId, AccountId, Balance, BlockWeights, BlockExecutionWeight,
-		CurrencyToVote, EpochDuration, BlockLength,
-	},
-	constants::{
-		time::{EPOCH_DURATION_IN_SLOTS, MILLISECS_PER_BLOCK},
-		currency::{deposit, UNITS},
-	},
-};
+use sp_std::prelude::*;
 
 parameter_types! {
 	pub const ExpectedBlockTime: Moment = MILLISECS_PER_BLOCK;
@@ -117,7 +122,7 @@ impl pallet_grandpa::Config for Runtime {
 	type Call = Call;
 
 	type KeyOwnerProof =
-	<Self::KeyOwnerProofSystem as KeyOwnerProofSystem<(KeyTypeId, GrandpaId)>>::Proof;
+		<Self::KeyOwnerProofSystem as KeyOwnerProofSystem<(KeyTypeId, GrandpaId)>>::Proof;
 
 	type KeyOwnerIdentification = <Self::KeyOwnerProofSystem as KeyOwnerProofSystem<(
 		KeyTypeId,
@@ -126,8 +131,11 @@ impl pallet_grandpa::Config for Runtime {
 
 	type KeyOwnerProofSystem = Historical;
 
-	type HandleEquivocation =
-		pallet_grandpa::EquivocationHandler<Self::KeyOwnerIdentification, Offences, ReportLongevity>;
+	type HandleEquivocation = pallet_grandpa::EquivocationHandler<
+		Self::KeyOwnerIdentification,
+		Offences,
+		ReportLongevity,
+	>;
 
 	type WeightInfo = ();
 }
@@ -206,9 +214,7 @@ pub const MINER_MAX_ITERATIONS: u32 = 10;
 /// A source of random balance for the NPoS Solver, which is meant to be run by the offchain worker
 /// election miner.
 pub struct OffchainRandomBalancing;
-impl Get<Option<(usize, sp_npos_elections::ExtendedBalance)>>
-	for OffchainRandomBalancing
-{
+impl Get<Option<(usize, sp_npos_elections::ExtendedBalance)>> for OffchainRandomBalancing {
 	fn get() -> Option<(usize, sp_npos_elections::ExtendedBalance)> {
 		use sp_runtime::{codec::Decode, traits::TrailingZeroInput};
 		let iters = match MINER_MAX_ITERATIONS {
@@ -216,10 +222,10 @@ impl Get<Option<(usize, sp_npos_elections::ExtendedBalance)>>
 			max @ _ => {
 				let seed = sp_io::offchain::random_seed();
 				let random = <u32>::decode(&mut TrailingZeroInput::new(&seed))
-					.expect("input is padded with zeroes; qed") %
-					max.saturating_add(1);
+					.expect("input is padded with zeroes; qed")
+					% max.saturating_add(1);
 				random as usize
-			},
+			}
 		};
 
 		Some((iters, 0))
@@ -289,11 +295,12 @@ parameter_types! {
 type SlashCancelOrigin = EnsureOneOf<
 	AccountId,
 	EnsureRoot<AccountId>,
-	pallet_collective::EnsureProportionAtLeast<_1, _1, AccountId, CouncilCollectiveInstance>
+	pallet_collective::EnsureProportionAtLeast<_1, _1, AccountId, CouncilCollectiveInstance>,
 >;
 
 impl pallet_staking::Config for Runtime {
-	const MAX_NOMINATIONS: u32 = <NposCompactSolution16 as sp_npos_elections::NposSolution>::LIMIT as u32;
+	const MAX_NOMINATIONS: u32 =
+		<NposCompactSolution16 as sp_npos_elections::NposSolution>::LIMIT as u32;
 	type Currency = Balances;
 	type UnixTime = Timestamp;
 	type CurrencyToVote = CurrencyToVote;
@@ -311,7 +318,8 @@ impl pallet_staking::Config for Runtime {
 	type MaxNominatorRewardedPerValidator = MaxNominatorRewardedPerValidator;
 	type NextNewSession = Session;
 	type ElectionProvider = ElectionProviderMultiPhase;
-	type GenesisElectionProvider = frame_election_provider_support::onchain::OnChainSequentialPhragmen<Self>;
+	type GenesisElectionProvider =
+		frame_election_provider_support::onchain::OnChainSequentialPhragmen<Self>;
 	// Use the nominator map to iter voter AND no-ops for all SortedListProvider hooks. The migration
 	// to bags-list is a no-op, but the storage version will be updated.
 	type SortedListProvider = pallet_staking::UseNominatorsMap<Runtime>;

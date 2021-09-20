@@ -21,8 +21,8 @@ pub mod currency {
 	use crate::types::Balance;
 
 	pub const UNITS: Balance = 1_000_000_000_000;
-	pub const DOLLARS: Balance = UNITS / 100;       // 10_000_000_000
-	pub const CENTS: Balance = DOLLARS / 100;      // 100_000_000
+	pub const DOLLARS: Balance = UNITS / 100; // 10_000_000_000
+	pub const CENTS: Balance = DOLLARS / 100; // 100_000_000
 	pub const MILLICENTS: Balance = CENTS / 1_000; // 100_000
 
 	pub const fn deposit(items: u32, bytes: u32) -> Balance {
@@ -32,7 +32,7 @@ pub mod currency {
 
 /// Time and blocks.
 pub mod time {
-	use crate::types::{Moment, BlockNumber};
+	use crate::types::{BlockNumber, Moment};
 
 	pub const MILLISECS_PER_BLOCK: Moment = 6000;
 	pub const SLOT_DURATION: Moment = MILLISECS_PER_BLOCK;
@@ -51,11 +51,11 @@ pub mod time {
 pub mod fee {
 	pub use sp_runtime::Perbill;
 
+	use crate::types::{Balance, ExtrinsicBaseWeight};
 	use frame_support::weights::{
-		WeightToFeePolynomial, WeightToFeeCoefficient, WeightToFeeCoefficients,
+		WeightToFeeCoefficient, WeightToFeeCoefficients, WeightToFeePolynomial,
 	};
 	use smallvec::smallvec;
-	use crate::types::{Balance, ExtrinsicBaseWeight};
 
 	/// Handles converting a weight scalar to a fee value, based on the scale and granularity of the
 	/// node's balance type.

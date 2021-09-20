@@ -33,17 +33,15 @@ fn is_hyphen(c: &u8) -> bool {
 /// Check if a given string is a valid label.
 pub fn is_label(s: &RawLabel) -> bool {
 	if !s.is_ascii() {
-		return false
+		return false;
 	}
 
 	let mut bytes = s.iter().peekable();
 
-	let is_first_valid = bytes.next().map(|first| {
-		is_letter(&first)
-	}).unwrap_or(false);
+	let is_first_valid = bytes.next().map(|first| is_letter(&first)).unwrap_or(false);
 
 	if !is_first_valid {
-		return false
+		return false;
 	}
 
 	while let Some(byte) = bytes.next() {
@@ -51,13 +49,13 @@ pub fn is_label(s: &RawLabel) -> bool {
 			let is_middle_valid = is_letter(&byte) || is_digit(&byte) || is_hyphen(&byte);
 
 			if !is_middle_valid {
-				return false
+				return false;
 			}
 		} else {
 			let is_last_valid = is_letter(&byte) || is_digit(&byte);
 
 			if !is_last_valid {
-				return false
+				return false;
 			}
 		}
 	}
