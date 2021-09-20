@@ -42,7 +42,7 @@ pub struct DealWithFees<R>(sp_std::marker::PhantomData<R>);
 impl<R> OnUnbalanced<NegativeImbalance<R>> for DealWithFees<R>
 where
 	R: pallet_balances::Config + pallet_treasury::Config + pallet_authorship::Config,
-	pallet_treasury::Module<R>: OnUnbalanced<NegativeImbalance<R>>,
+	pallet_treasury::Pallet<R>: OnUnbalanced<NegativeImbalance<R>>,
 	<R as frame_system::Config>::AccountId: From<super::AccountId>,
 	<R as frame_system::Config>::AccountId: Into<super::AccountId>,
 	<R as frame_system::Config>::Event: From<pallet_balances::Event<R>>,
@@ -62,7 +62,7 @@ where
 mod tests {
 	use super::*;
 	use frame_system::limits;
-	use frame_support::{parameter_types, PalletId, weights::DispatchClass};
+	use frame_support::{parameter_types, PalletId, weights::{DispatchClass, constants::{ExtrinsicBaseWeight, WEIGHT_PER_SECOND}}};
 	use frame_support::traits::FindAuthor;
 	use sp_core::H256;
 	use sp_runtime::{
@@ -92,10 +92,10 @@ mod tests {
 		pub const BlockHashCount: u64 = 250;
 		pub BlockWeights: limits::BlockWeights = limits::BlockWeights::builder()
 			.for_class(DispatchClass::all(), |weight| {
-				weight.base_extrinsic = 100;
+				weight.base_extrinsic = ExtrinsicBaseWeight::get();
 			})
 			.for_class(DispatchClass::non_mandatory(), |weight| {
-				weight.max_total = Some(1024);
+				weight.max_total = Some(2 * WEIGHT_PER_SECOND);
 			})
 			.build_or_panic();
 		pub BlockLength: limits::BlockLength = limits::BlockLength::max(2 * 1024);
@@ -103,7 +103,7 @@ mod tests {
 	}
 
 	impl frame_system::Config for Test {
-		type BaseCallFilter = ();
+		type BaseCallFilter = frame_support::traits::Everything;
 		type Origin = Origin;
 		type Index = u64;
 		type BlockNumber = u64;
@@ -135,6 +135,8 @@ mod tests {
 		type ExistentialDeposit = ();
 		type AccountStore = System;
 		type MaxLocks = ();
+		type MaxReserves = ();
+		type ReserveIdentifier = [u8; 8];
 		type WeightInfo = ();
 	}
 

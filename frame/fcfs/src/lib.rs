@@ -22,6 +22,7 @@
 #[cfg(feature = "std")]
 use serde::{Serialize, Deserialize};
 use codec::{Encode, Decode};
+use scale_info::TypeInfo;
 use sp_std::{prelude::*, fmt::Debug, cmp};
 use frame_support::{
 	decl_module, decl_storage, decl_event, decl_error, ensure,
@@ -48,15 +49,15 @@ pub trait Config: frame_system::Config {
 }
 
 #[cfg_attr(feature = "std", derive(Serialize, Deserialize))]
-#[derive(Default, Eq, PartialEq, Clone, Encode, Decode, Debug)]
-pub struct RenewalInfo<T: Config> {
-	pub expire_at: T::BlockNumber,
-	pub fee: BalanceOf<T>,
+#[derive(Default, Eq, PartialEq, Clone, Encode, Decode, Debug, TypeInfo)]
+pub struct RenewalInfo<BlockNumber, Balance> {
+	pub expire_at: BlockNumber,
+	pub fee: Balance,
 }
 
 decl_storage! {
 	trait Store for Module<T: Config> as FCFS {
-		Renewals: map hasher(identity) NameHash => NameValue<RenewalInfo<T>>;
+		Renewals: map hasher(identity) NameHash => NameValue<RenewalInfo<T::BlockNumber, BalanceOf<T>>>;
 	}
 }
 
@@ -95,7 +96,7 @@ decl_module! {
 			let fee = T::Fee::get();
 			let period = T::Period::get();
 			let expire_at = frame_system::Pallet::<T>::block_number() + period;
-			let info = RenewalInfo::<T> { fee, expire_at };
+			let info = RenewalInfo { fee, expire_at };
 
 			let imbalance = T::Currency::withdraw(
 				&sender,

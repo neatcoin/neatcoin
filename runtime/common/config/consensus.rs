@@ -23,15 +23,19 @@ use sp_runtime::{
 };
 use sp_staking::SessionIndex;
 use frame_system::{EnsureOneOf, EnsureRoot};
-use frame_support::{parameter_types, traits::KeyOwnerProofSystem, weights::{Weight, DispatchClass}};
+use frame_support::{parameter_types, traits::{Get, KeyOwnerProofSystem}, weights::{Weight, DispatchClass}};
 use crate::{
 	Runtime, Historical, Offences, Event, Babe, Staking, ImOnline, Call, SessionKeys, Balances,
 	Timestamp, CouncilCollectiveInstance, Treasury, Session, ElectionProviderMultiPhase, BlockNumber,
+	TransactionPayment,
 	types::{
 		Moment, ImOnlineId, GrandpaId, AccountId, Balance, BlockWeights, BlockExecutionWeight,
 		CurrencyToVote, EpochDuration, BlockLength,
 	},
-	constants::time::{EPOCH_DURATION_IN_BLOCKS, MILLISECS_PER_BLOCK},
+	constants::{
+		time::{EPOCH_DURATION_IN_SLOTS, MILLISECS_PER_BLOCK},
+		currency::{deposit, UNITS},
+	},
 };
 
 parameter_types! {
@@ -52,6 +56,8 @@ impl pallet_babe::Config for Runtime {
 
 	// session module is the trigger
 	type EpochChangeTrigger = pallet_babe::ExternalTrigger;
+
+	type DisabledValidators = Session;
 
 	type KeyOwnerProofSystem = Historical;
 
@@ -87,7 +93,13 @@ impl pallet_im_online::Config for Runtime {
 	type WeightInfo = ();
 }
 
-impl pallet_authority_discovery::Config for Runtime { }
+parameter_types! {
+	pub const MaxAuthorities: u32 = 100_000;
+}
+
+impl pallet_authority_discovery::Config for Runtime {
+	type MaxAuthorities = MaxAuthorities;
+}
 
 parameter_types! {
 	pub const UncleGenerations: u32 = 0;
@@ -143,17 +155,19 @@ impl pallet_session::historical::Config for Runtime {
 }
 
 parameter_types! {
-	// no signed phase for now, just unsigned.
-	pub const SignedPhase: u32 = 0;
-	pub const UnsignedPhase: u32 = EPOCH_DURATION_IN_BLOCKS / 4;
+	pub const SignedPhase: u32 = EPOCH_DURATION_IN_SLOTS / 4;
+	pub const UnsignedPhase: u32 = EPOCH_DURATION_IN_SLOTS / 4;
 
-	// fallback: run election on-chain.
-	pub const Fallback: pallet_election_provider_multi_phase::FallbackStrategy =
-		pallet_election_provider_multi_phase::FallbackStrategy::OnChain;
+	pub const SignedMaxSubmissions: u32 = 16;
+	pub const SignedDepositBase: Balance = deposit(2, 0);
+	pub const SignedDepositByte: Balance = deposit(0, 10) / 1024;
+	pub SignedRewardBase: Balance = 1 * UNITS;
 	pub SolutionImprovementThreshold: Perbill = Perbill::from_rational(5u32, 10_000);
 
-	// miner configs
-	pub const MinerMaxIterations: u32 = 10;
+	/// Whilst `UseNominatorsAndUpdateBagsList` or `UseNominatorsMap` is in use, this can still be a
+	/// very large value. Once the `BagsList` is in full motion, staking might open its door to many
+	/// more nominators, and this value should instead be what is a "safe" number (e.g. 22500).
+	pub const VoterSnapshotPerBlock: u32 = 22_500;
 }
 
 sp_npos_elections::generate_solution_type!(
@@ -185,23 +199,69 @@ parameter_types! {
 	pub OffchainRepeat: BlockNumber = 5;
 }
 
+/// Maximum number of iterations for balancing that will be executed in the embedded miner of
+/// pallet-election-provider-multi-phase.
+pub const MINER_MAX_ITERATIONS: u32 = 10;
+
+/// A source of random balance for the NPoS Solver, which is meant to be run by the offchain worker
+/// election miner.
+pub struct OffchainRandomBalancing;
+impl Get<Option<(usize, sp_npos_elections::ExtendedBalance)>>
+	for OffchainRandomBalancing
+{
+	fn get() -> Option<(usize, sp_npos_elections::ExtendedBalance)> {
+		use sp_runtime::{codec::Decode, traits::TrailingZeroInput};
+		let iters = match MINER_MAX_ITERATIONS {
+			0 => 0,
+			max @ _ => {
+				let seed = sp_io::offchain::random_seed();
+				let random = <u32>::decode(&mut TrailingZeroInput::new(&seed))
+					.expect("input is padded with zeroes; qed") %
+					max.saturating_add(1);
+				random as usize
+			},
+		};
+
+		Some((iters, 0))
+	}
+}
+
 impl pallet_election_provider_multi_phase::Config for Runtime {
 	type Event = Event;
 	type Currency = Balances;
+	type EstimateCallFee = TransactionPayment;
 	type SignedPhase = SignedPhase;
 	type UnsignedPhase = UnsignedPhase;
+	type SignedMaxSubmissions = SignedMaxSubmissions;
+	type SignedRewardBase = SignedRewardBase;
+	type SignedDepositBase = SignedDepositBase;
+	type SignedDepositByte = SignedDepositByte;
+	type SignedDepositWeight = ();
+	type SignedMaxWeight = Self::MinerMaxWeight;
+	type SlashHandler = (); // burn slashes
+	type RewardHandler = (); // nothing to do upon rewards
 	type SolutionImprovementThreshold = SolutionImprovementThreshold;
-	type MinerMaxIterations = MinerMaxIterations;
-	type MinerMaxWeight = OffchainSolutionWeightLimit;
+	type MinerMaxWeight = OffchainSolutionWeightLimit; // For now use the one from staking.
 	type MinerMaxLength = OffchainSolutionLengthLimit;
 	type OffchainRepeat = OffchainRepeat;
 	type MinerTxPriority = NposSolutionPriority;
 	type DataProvider = Staking;
-	type OnChainAccuracy = Perbill;
-	type CompactSolution = NposCompactSolution16;
-	type Fallback = Fallback;
+	type Solution = NposCompactSolution16;
+	type Fallback = pallet_election_provider_multi_phase::NoFallback<Self>;
+	type Solver = frame_election_provider_support::SequentialPhragmen<
+		AccountId,
+		pallet_election_provider_multi_phase::SolutionAccuracyOf<Self>,
+		OffchainRandomBalancing,
+	>;
 	type BenchmarkingConfig = ();
+	type ForceOrigin = EnsureRoot<AccountId>;
 	type WeightInfo = ();
+	type VoterSnapshotPerBlock = VoterSnapshotPerBlock;
+}
+
+impl frame_election_provider_support::onchain::Config for Runtime {
+	type Accuracy = sp_runtime::Perbill;
+	type DataProvider = Staking;
 }
 
 pallet_staking_reward_curve::build! {
@@ -233,7 +293,7 @@ type SlashCancelOrigin = EnsureOneOf<
 >;
 
 impl pallet_staking::Config for Runtime {
-	const MAX_NOMINATIONS: u32 = <NposCompactSolution16 as sp_npos_elections::CompactSolution>::LIMIT as u32;
+	const MAX_NOMINATIONS: u32 = <NposCompactSolution16 as sp_npos_elections::NposSolution>::LIMIT as u32;
 	type Currency = Balances;
 	type UnixTime = Timestamp;
 	type CurrencyToVote = CurrencyToVote;
@@ -251,6 +311,10 @@ impl pallet_staking::Config for Runtime {
 	type MaxNominatorRewardedPerValidator = MaxNominatorRewardedPerValidator;
 	type NextNewSession = Session;
 	type ElectionProvider = ElectionProviderMultiPhase;
+	type GenesisElectionProvider = frame_election_provider_support::onchain::OnChainSequentialPhragmen<Self>;
+	// Use the nominator map to iter voter AND no-ops for all SortedListProvider hooks. The migration
+	// to bags-list is a no-op, but the storage version will be updated.
+	type SortedListProvider = pallet_staking::UseNominatorsMap<Runtime>;
 	type WeightInfo = ();
 }
 

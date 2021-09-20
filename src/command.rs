@@ -188,7 +188,7 @@ pub fn run() -> Result<(), Error> {
 			set_default_ss58_version(chain_spec);
 
 			Ok(runner.sync_run(|config| {
-				cmd.run::<neatcoin_service::neatcoin_runtime::Block, neatcoin_service::NeatcoinExecutor>(config)
+				cmd.run::<neatcoin_service::neatcoin_runtime::Block, neatcoin_service::NeatcoinExecutorDispatch>(config)
 					.map_err(|e| Error::SubstrateCli(e))
 			})?)
 		},

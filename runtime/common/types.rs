@@ -78,7 +78,7 @@ parameter_types! {
 	/// Maximum length of block. Up to 5MB.
 	pub BlockLength: limits::BlockLength =
 		limits::BlockLength::max_with_normal_ratio(5 * 1024 * 1024, NORMAL_DISPATCH_RATIO);
-	pub const EpochDuration: u64 = crate::constants::time::EPOCH_DURATION_IN_BLOCKS as u64;
+	pub const EpochDuration: u64 = crate::constants::time::EPOCH_DURATION_IN_SLOTS as u64;
 }
 
 pub type MoreThanHalfCouncil = EnsureOneOf<

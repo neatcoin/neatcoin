@@ -1,6 +1,6 @@
 [package]
 name = "pallet-registry"
-version = "1.0.0"
+version = "1.2.0-dev"
 authors = ["Wei Tang <wei@that.world>"]
 edition = "2018"
 license = "GPL-3.0-or-later"
@@ -10,24 +10,26 @@ description = "Domain registry runtime pallet for Nomo."
 [dependencies]
 serde = { version = "1.0.101", optional = true }
 codec = { package = "parity-scale-codec", version = "2.0.0", default-features = false }
+scale-info = { version = "1.0", default-features = false, features = ["derive"] }
 np-domain = { path = "../../primitives/domain", default-features = false }
-frame-support = { default-features = false, git = "https://github.com/paritytech/substrate", branch = "neatcoin" }
-frame-system = { default-features = false, git = "https://github.com/paritytech/substrate", branch = "neatcoin" }
-pallet-balances = { default-features = false, git = "https://github.com/paritytech/substrate", branch = "neatcoin" }
-sp-runtime = { default-features = false, git = "https://github.com/paritytech/substrate", branch = "neatcoin" }
-sp-std = { default-features = false, git = "https://github.com/paritytech/substrate", branch = "neatcoin" }
-sp-io = { default-features = false, git = "https://github.com/paritytech/substrate", branch = "neatcoin" }
+frame-support = { default-features = false, git = "https://github.com/paritytech/substrate" }
+frame-system = { default-features = false, git = "https://github.com/paritytech/substrate" }
+pallet-balances = { default-features = false, git = "https://github.com/paritytech/substrate" }
+sp-runtime = { default-features = false, git = "https://github.com/paritytech/substrate" }
+sp-std = { default-features = false, git = "https://github.com/paritytech/substrate" }
+sp-io = { default-features = false, git = "https://github.com/paritytech/substrate" }
 
-frame-benchmarking = { default-features = false, git = "https://github.com/paritytech/substrate", optional = true, branch = "neatcoin" }
+frame-benchmarking = { default-features = false, git = "https://github.com/paritytech/substrate", optional = true }
 
 [dev-dependencies]
-sp-core = { git = "https://github.com/paritytech/substrate", default-features = false, branch = "neatcoin" }
+sp-core = { git = "https://github.com/paritytech/substrate", default-features = false }
 
 [features]
 default = ["std"]
 std = [
 	"serde",
 	"codec/std",
+	"scale-info/std",
 	"np-domain/std",
 	"sp-runtime/std",
 	"frame-benchmarking/std",
