@@ -6,7 +6,7 @@ variables:
   RUST_STABLE: 1.55.0
 
 jobs:
-- job: linux-additional
+- job: features
   pool:
     vmImage: 'ubuntu-latest'
   timeoutInMinutes: 0
