@@ -16,15 +16,17 @@
 // You should have received a copy of the GNU General Public License
 // along with Neatcoin. If not, see <http://www.gnu.org/licenses/>.
 
-use std::sync::Arc;
-use sp_api::{ProvideRuntimeApi, CallApiAt, NumberFor};
+use np_opaque::{AccountId, Balance, BlakeTwo256, Block, BlockNumber, Hash, Header, Nonce};
+use sc_client_api::{Backend as BackendT, BlockchainEvents, KeyIterator};
+use sp_api::{CallApiAt, NumberFor, ProvideRuntimeApi};
 use sp_blockchain::HeaderBackend;
 use sp_runtime::{
-	Justifications, generic::{BlockId, SignedBlock}, traits::Block as BlockT,
+	generic::{BlockId, SignedBlock},
+	traits::Block as BlockT,
+	Justifications,
 };
-use sp_storage::{StorageData, StorageKey, ChildInfo, PrefixedStorageKey};
-use sc_client_api::{Backend as BackendT, BlockchainEvents, KeyIterator};
-use np_opaque::{Block, Hash, AccountId, Nonce, Balance, BlockNumber, Header, BlakeTwo256};
+use sp_storage::{ChildInfo, PrefixedStorageKey, StorageData, StorageKey};
+use std::sync::Arc;
 
 /// A set of APIs that Neatcoin-like runtimes must implement.
 pub trait RuntimeApiCollection:
@@ -42,7 +44,8 @@ pub trait RuntimeApiCollection:
 	+ pallet_contracts_rpc_runtime_api::ContractsApi<Block, AccountId, Balance, BlockNumber, Hash>
 where
 	<Self as sp_api::ApiExt<Block>>::StateBackend: sp_api::StateBackend<BlakeTwo256>,
-{}
+{
+}
 
 impl<Api> RuntimeApiCollection for Api
 where
@@ -59,39 +62,43 @@ where
 		+ sp_authority_discovery::AuthorityDiscoveryApi<Block>
 		+ pallet_contracts_rpc_runtime_api::ContractsApi<Block, AccountId, Balance, BlockNumber, Hash>,
 	<Self as sp_api::ApiExt<Block>>::StateBackend: sp_api::StateBackend<BlakeTwo256>,
-{}
+{
+}
 
 /// Trait that abstracts over all available client implementations.
 ///
 /// For a concrete type there exists [`Client`].
 pub trait AbstractClient<Block, Backend>:
-	BlockchainEvents<Block> + Sized + Send + Sync
+	BlockchainEvents<Block>
+	+ Sized
+	+ Send
+	+ Sync
 	+ ProvideRuntimeApi<Block>
 	+ HeaderBackend<Block>
-	+ CallApiAt<
-		Block,
-		StateBackend = Backend::State
-	>
-	where
-		Block: BlockT,
-		Backend: BackendT<Block>,
-		Backend::State: sp_api::StateBackend<BlakeTwo256>,
-		Self::Api: RuntimeApiCollection<StateBackend = Backend::State>,
-{}
+	+ CallApiAt<Block, StateBackend = Backend::State>
+where
+	Block: BlockT,
+	Backend: BackendT<Block>,
+	Backend::State: sp_api::StateBackend<BlakeTwo256>,
+	Self::Api: RuntimeApiCollection<StateBackend = Backend::State>,
+{
+}
 
 impl<Block, Backend, Client> AbstractClient<Block, Backend> for Client
-	where
-		Block: BlockT,
-		Backend: BackendT<Block>,
-		Backend::State: sp_api::StateBackend<BlakeTwo256>,
-		Client: BlockchainEvents<Block> + ProvideRuntimeApi<Block> + HeaderBackend<Block>
-			+ Sized + Send + Sync
-			+ CallApiAt<
-				Block,
-				StateBackend = Backend::State
-			>,
-		Client::Api: RuntimeApiCollection<StateBackend = Backend::State>,
-{}
+where
+	Block: BlockT,
+	Backend: BackendT<Block>,
+	Backend::State: sp_api::StateBackend<BlakeTwo256>,
+	Client: BlockchainEvents<Block>
+		+ ProvideRuntimeApi<Block>
+		+ HeaderBackend<Block>
+		+ Sized
+		+ Send
+		+ Sync
+		+ CallApiAt<Block, StateBackend = Backend::State>,
+	Client::Api: RuntimeApiCollection<StateBackend = Backend::State>,
+{
+}
 
 /// Execute something with the client instance.
 ///
@@ -110,12 +117,12 @@ pub trait ExecuteWithClient {
 
 	/// Execute whatever should be executed with the given client instance.
 	fn execute_with_client<Client, Api, Backend>(self, client: Arc<Client>) -> Self::Output
-		where
-			<Api as sp_api::ApiExt<Block>>::StateBackend: sp_api::StateBackend<BlakeTwo256>,
-			Backend: sc_client_api::Backend<Block> + 'static,
-			Backend::State: sp_api::StateBackend<BlakeTwo256>,
-			Api: RuntimeApiCollection<StateBackend = Backend::State>,
-			Client: AbstractClient<Block, Backend, Api = Api> + 'static;
+	where
+		<Api as sp_api::ApiExt<Block>>::StateBackend: sp_api::StateBackend<BlakeTwo256>,
+		Backend: sc_client_api::Backend<Block> + 'static,
+		Backend::State: sp_api::StateBackend<BlakeTwo256>,
+		Api: RuntimeApiCollection<StateBackend = Backend::State>,
+		Client: AbstractClient<Block, Backend, Api = Api> + 'static;
 }
 
 /// A handle to a Polkadot client instance.
@@ -145,10 +152,10 @@ impl ClientHandle for Client {
 		match self {
 			Self::Neatcoin(client) => {
 				T::execute_with_client::<_, _, crate::FullBackend>(t, client.clone())
-			},
+			}
 			Self::Vodka(client) => {
 				T::execute_with_client::<_, _, crate::FullBackend>(t, client.clone())
-			},
+			}
 		}
 	}
 }
@@ -165,7 +172,7 @@ impl sc_client_api::UsageProvider<Block> for Client {
 impl sc_client_api::BlockBackend<Block> for Client {
 	fn block_body(
 		&self,
-		id: &BlockId<Block>
+		id: &BlockId<Block>,
 	) -> sp_blockchain::Result<Option<Vec<<Block as BlockT>::Extrinsic>>> {
 		match self {
 			Self::Neatcoin(client) => client.block_body(id),
@@ -180,17 +187,17 @@ impl sc_client_api::BlockBackend<Block> for Client {
 		}
 	}
 
-	fn block_status(&self, id: &BlockId<Block>) -> sp_blockchain::Result<sp_consensus::BlockStatus> {
+	fn block_status(
+		&self,
+		id: &BlockId<Block>,
+	) -> sp_blockchain::Result<sp_consensus::BlockStatus> {
 		match self {
 			Self::Neatcoin(client) => client.block_status(id),
 			Self::Vodka(client) => client.block_status(id),
 		}
 	}
 
-	fn justifications(
-		&self,
-		id: &BlockId<Block>
-	) -> sp_blockchain::Result<Option<Justifications>> {
+	fn justifications(&self, id: &BlockId<Block>) -> sp_blockchain::Result<Option<Justifications>> {
 		match self {
 			Self::Neatcoin(client) => client.justifications(id),
 			Self::Vodka(client) => client.justifications(id),
@@ -199,7 +206,7 @@ impl sc_client_api::BlockBackend<Block> for Client {
 
 	fn block_hash(
 		&self,
-		number: NumberFor<Block>
+		number: NumberFor<Block>,
 	) -> sp_blockchain::Result<Option<<Block as BlockT>::Hash>> {
 		match self {
 			Self::Neatcoin(client) => client.block_hash(number),
@@ -209,7 +216,7 @@ impl sc_client_api::BlockBackend<Block> for Client {
 
 	fn indexed_transaction(
 		&self,
-		id: &<Block as BlockT>::Hash
+		id: &<Block as BlockT>::Hash,
 	) -> sp_blockchain::Result<Option<Vec<u8>>> {
 		match self {
 			Self::Neatcoin(client) => client.indexed_transaction(id),
@@ -278,7 +285,9 @@ impl sc_client_api::StorageProvider<Block, crate::FullBackend> for Client {
 		id: &BlockId<Block>,
 		prefix: Option<&'a StorageKey>,
 		start_key: Option<&StorageKey>,
-	) -> sp_blockchain::Result<KeyIterator<'a, <crate::FullBackend as sc_client_api::Backend<Block>>::State, Block>> {
+	) -> sp_blockchain::Result<
+		KeyIterator<'a, <crate::FullBackend as sc_client_api::Backend<Block>>::State, Block>,
+	> {
 		match self {
 			Self::Neatcoin(client) => client.storage_keys_iter(id, prefix, start_key),
 			Self::Vodka(client) => client.storage_keys_iter(id, prefix, start_key),
@@ -319,8 +328,12 @@ impl sc_client_api::StorageProvider<Block, crate::FullBackend> for Client {
 		KeyIterator<'a, <crate::FullBackend as sc_client_api::Backend<Block>>::State, Block>,
 	> {
 		match self {
-			Self::Neatcoin(client) => client.child_storage_keys_iter(id, child_info, prefix, start_key),
-			Self::Vodka(client) => client.child_storage_keys_iter(id, child_info, prefix, start_key),
+			Self::Neatcoin(client) => {
+				client.child_storage_keys_iter(id, child_info, prefix, start_key)
+			}
+			Self::Vodka(client) => {
+				client.child_storage_keys_iter(id, child_info, prefix, start_key)
+			}
 		}
 	}
 

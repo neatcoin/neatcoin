@@ -16,27 +16,28 @@
 // You should have received a copy of the GNU General Public License
 // along with Neatcoin. If not, see <http://www.gnu.org/licenses/>.
 
-use sp_std::prelude::*;
-use sp_api::ApisVec;
-use sp_core::OpaqueMetadata;
-use sp_version::RuntimeVersion;
-use sp_runtime::{
-	ApplyExtrinsicResult, traits::{Block as BlockT, NumberFor},
-	transaction_validity::{TransactionValidity, TransactionSource},
+use crate::{
+	types::{
+		AccountId, AuthorityDiscoveryId, Balance, Block, EpochDuration, GrandpaId, Nonce,
+		BABE_GENESIS_EPOCH_CONFIG,
+	},
+	AuthorityDiscovery, Babe, BlockNumber, Contracts, Executive, Grandpa, Hash, Historical,
+	InherentDataExt, Runtime, SessionKeys, System, TransactionPayment, VERSION,
 };
-#[cfg(feature = "runtime-benchmarks")]
-use sp_runtime::RuntimeString;
 use frame_support::traits::KeyOwnerProofSystem;
 use pallet_grandpa::fg_primitives;
 use pallet_transaction_payment::{FeeDetails, RuntimeDispatchInfo};
-use crate::{
-	Runtime, Executive, Grandpa, Historical, Babe, AuthorityDiscovery, SessionKeys, System,
-	TransactionPayment, InherentDataExt, BlockNumber, Hash, Contracts, VERSION,
-	types::{
-		Block, GrandpaId, EpochDuration, AuthorityDiscoveryId, AccountId, Nonce, Balance,
-		BABE_GENESIS_EPOCH_CONFIG,
-	},
+use sp_api::ApisVec;
+use sp_core::OpaqueMetadata;
+#[cfg(feature = "runtime-benchmarks")]
+use sp_runtime::RuntimeString;
+use sp_runtime::{
+	traits::{Block as BlockT, NumberFor},
+	transaction_validity::{TransactionSource, TransactionValidity},
+	ApplyExtrinsicResult,
 };
+use sp_std::prelude::*;
+use sp_version::RuntimeVersion;
 
 // Work around the issue that RUNTIME_API_VERSIONS is not public.
 pub(crate) const PRUNTIME_API_VERSIONS: ApisVec = RUNTIME_API_VERSIONS;

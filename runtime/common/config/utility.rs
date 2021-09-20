@@ -16,13 +16,13 @@
 // You should have received a copy of the GNU General Public License
 // along with Neatcoin. If not, see <http://www.gnu.org/licenses/>.
 
-use sp_runtime::traits::ConvertInto;
-use frame_support::parameter_types;
 use crate::{
-	Runtime, Event, Call, Balances,
-	types::Balance,
 	constants::currency::{deposit, DOLLARS},
+	types::Balance,
+	Balances, Call, Event, Runtime,
 };
+use frame_support::parameter_types;
+use sp_runtime::traits::ConvertInto;
 
 impl pallet_utility::Config for Runtime {
 	type Event = Event;
@@ -61,7 +61,7 @@ impl pallet_vesting::Config for Runtime {
 	const MAX_VESTING_SCHEDULES: u32 = 28;
 }
 
-impl pallet_eons::Config for Runtime { }
+impl pallet_eons::Config for Runtime {}
 
 impl pallet_variables::Config for Runtime {
 	type Event = Event;
@@ -77,4 +77,4 @@ impl pallet_atomic_swap::Config for Runtime {
 	type ProofLimit = ProofLimit;
 }
 
-impl pallet_bootstrap::Config for Runtime { }
+impl pallet_bootstrap::Config for Runtime {}

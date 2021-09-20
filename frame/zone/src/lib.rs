@@ -19,17 +19,15 @@
 // Ensure we're `no_std` when compiling for Wasm.
 #![cfg_attr(not(feature = "std"), no_std)]
 
-use sp_std::prelude::*;
-use frame_support::{
-	decl_module, decl_storage, decl_event, decl_error, ensure
-};
-use frame_system::{ensure_signed, ensure_root};
+use frame_support::{decl_error, decl_event, decl_module, decl_storage, ensure};
+use frame_system::{ensure_root, ensure_signed};
 use np_domain::{Name, NameHash, NameValue};
-use pallet_registry::{Registry, Ownership};
+use pallet_registry::{Ownership, Registry};
+use sp_std::prelude::*;
 
 pub trait Config: frame_system::Config {
-	type Ownership: Ownership<AccountId=Self::AccountId>;
-	type Registry: Registry<Ownership=Self::Ownership>;
+	type Ownership: Ownership<AccountId = Self::AccountId>;
+	type Registry: Registry<Ownership = Self::Ownership>;
 	type Event: From<Event> + Into<<Self as frame_system::Config>::Event>;
 }
 

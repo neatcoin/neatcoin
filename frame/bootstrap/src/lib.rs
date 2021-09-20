@@ -20,10 +20,10 @@
 
 #![cfg_attr(not(feature = "std"), no_std)]
 
+use frame_support::{decl_module, decl_storage};
 use sp_std::prelude::*;
-use frame_support::{decl_storage, decl_module};
 
-pub trait Config: frame_system::Config { }
+pub trait Config: frame_system::Config {}
 
 decl_storage! {
 	trait Store for Module<T: Config> as Bootstrap {

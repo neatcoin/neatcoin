@@ -20,16 +20,14 @@
 
 #![cfg_attr(not(feature = "std"), no_std)]
 
-use codec::{Encode, Decode};
+use codec::{Decode, Encode};
+use frame_support::{decl_event, decl_module, decl_storage};
+use frame_system::ensure_root;
 use scale_info::TypeInfo;
 #[cfg(feature = "std")]
-use serde::{Serialize, Deserialize};
-use sp_std::vec::Vec;
+use serde::{Deserialize, Serialize};
 use sp_core::RuntimeDebug;
-use frame_support::{
-	decl_module, decl_storage, decl_event,
-};
-use frame_system::ensure_root;
+use sp_std::vec::Vec;
 
 pub trait Config: frame_system::Config {
 	/// The overarching event type.

@@ -16,8 +16,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Neatcoin. If not, see <http://www.gnu.org/licenses/>.
 
-use structopt::StructOpt;
 use sc_cli::RunCmd;
+use structopt::StructOpt;
 
 #[derive(Debug, StructOpt)]
 pub struct Cli {

@@ -19,28 +19,29 @@
 // Ensure we're `no_std` when compiling for Wasm.
 #![cfg_attr(not(feature = "std"), no_std)]
 
-#[cfg(feature = "std")]
-use serde::{Serialize, Deserialize};
-use codec::{Encode, Decode};
-use scale_info::TypeInfo;
-use sp_std::{prelude::*, fmt::Debug, cmp};
+use codec::{Decode, Encode};
 use frame_support::{
-	decl_module, decl_storage, decl_event, decl_error, ensure,
-	traits::{Get, Currency, OnUnbalanced, WithdrawReasons, ExistenceRequirement},
+	decl_error, decl_event, decl_module, decl_storage, ensure,
+	traits::{Currency, ExistenceRequirement, Get, OnUnbalanced, WithdrawReasons},
 };
 use frame_system::ensure_signed;
 use np_domain::{Name, NameHash, NameValue};
-use pallet_registry::{Registry, Ownership};
+use pallet_registry::{Ownership, Registry};
+use scale_info::TypeInfo;
+#[cfg(feature = "std")]
+use serde::{Deserialize, Serialize};
+use sp_std::{cmp, fmt::Debug, prelude::*};
 
 type BalanceOf<T> =
 	<<T as Config>::Currency as Currency<<T as frame_system::Config>::AccountId>>::Balance;
-type NegativeImbalanceOf<T> =
-	<<T as Config>::Currency as Currency<<T as frame_system::Config>::AccountId>>::NegativeImbalance;
+type NegativeImbalanceOf<T> = <<T as Config>::Currency as Currency<
+	<T as frame_system::Config>::AccountId,
+>>::NegativeImbalance;
 
 pub trait Config: frame_system::Config {
-	type Ownership: Ownership<AccountId=Self::AccountId>;
+	type Ownership: Ownership<AccountId = Self::AccountId>;
 	type FCFSOwnership: Get<Self::Ownership>;
-	type Registry: Registry<Ownership=Self::Ownership>;
+	type Registry: Registry<Ownership = Self::Ownership>;
 	type Currency: Currency<Self::AccountId>;
 	type Fee: Get<BalanceOf<Self>>;
 	type Period: Get<Self::BlockNumber>;

@@ -16,14 +16,14 @@
 // You should have received a copy of the GNU General Public License
 // along with Neatcoin. If not, see <http://www.gnu.org/licenses/>.
 
-use codec::{Encode, Decode, MaxEncodedLen};
-use scale_info::TypeInfo;
-use frame_support::{parameter_types, RuntimeDebug, traits::InstanceFilter};
 use crate::{
-	Runtime, Call, Event, Balances,
-	types::{Balance, BlakeTwo256},
 	constants::currency::deposit,
+	types::{Balance, BlakeTwo256},
+	Balances, Call, Event, Runtime,
 };
+use codec::{Decode, Encode, MaxEncodedLen};
+use frame_support::{parameter_types, traits::InstanceFilter, RuntimeDebug};
+use scale_info::TypeInfo;
 
 parameter_types! {
 	// One storage item; key size 32, value size 8; .
@@ -37,7 +37,19 @@ parameter_types! {
 }
 
 /// The type used to represent the kinds of proxying allowed.
-#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Encode, Decode, RuntimeDebug, MaxEncodedLen, TypeInfo)]
+#[derive(
+	Copy,
+	Clone,
+	Eq,
+	PartialEq,
+	Ord,
+	PartialOrd,
+	Encode,
+	Decode,
+	RuntimeDebug,
+	MaxEncodedLen,
+	TypeInfo,
+)]
 pub enum ProxyType {
 	Any = 0,
 	NonTransfer = 1,
@@ -47,12 +59,17 @@ pub enum ProxyType {
 	CancelProxy = 6,
 }
 
-impl Default for ProxyType { fn default() -> Self { Self::Any } }
+impl Default for ProxyType {
+	fn default() -> Self {
+		Self::Any
+	}
+}
 impl InstanceFilter<Call> for ProxyType {
 	fn filter(&self, c: &Call) -> bool {
 		match self {
 			ProxyType::Any => true,
-			ProxyType::NonTransfer => matches!(c,
+			ProxyType::NonTransfer => matches!(
+				c,
 				Call::System(..) |
 				Call::Scheduler(..) |
 				Call::Babe(..) |
@@ -83,28 +100,25 @@ impl InstanceFilter<Call> for ProxyType {
 				Call::Proxy(..) |
 				Call::Multisig(..)
 			),
-			ProxyType::Governance => matches!(c,
-				Call::Democracy(..) |
-				Call::Council(..) |
-				Call::TechnicalCommittee(..) |
-				Call::ElectionsPhragmen(..) |
-				Call::Treasury(..) |
-				Call::Bounties(..) |
-				Call::Tips(..) |
-				Call::Utility(..)
+			ProxyType::Governance => matches!(
+				c,
+				Call::Democracy(..)
+					| Call::Council(..) | Call::TechnicalCommittee(..)
+					| Call::ElectionsPhragmen(..)
+					| Call::Treasury(..) | Call::Bounties(..)
+					| Call::Tips(..) | Call::Utility(..)
 			),
-			ProxyType::Staking => matches!(c,
-				Call::Staking(..) |
-				Call::Session(..) |
-				Call::Utility(..)
+			ProxyType::Staking => {
+				matches!(c, Call::Staking(..) | Call::Session(..) | Call::Utility(..))
+			}
+			ProxyType::IdentityJudgement => matches!(
+				c,
+				Call::Identity(pallet_identity::Call::provide_judgement { .. }) | Call::Utility(..)
 			),
-			ProxyType::IdentityJudgement => matches!(c,
-				Call::Identity(pallet_identity::Call::provide_judgement { .. }) |
-				Call::Utility(..)
-			),
-			ProxyType::CancelProxy => matches!(c,
+			ProxyType::CancelProxy => matches!(
+				c,
 				Call::Proxy(pallet_proxy::Call::reject_announcement { .. })
-			)
+			),
 		}
 	}
 	fn is_superset(&self, o: &Self) -> bool {

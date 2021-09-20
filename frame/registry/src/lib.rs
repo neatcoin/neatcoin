@@ -19,16 +19,18 @@
 // Ensure we're `no_std` when compiling for Wasm.
 #![cfg_attr(not(feature = "std"), no_std)]
 
-use codec::{Encode, EncodeLike, Decode};
-use scale_info::TypeInfo;
-use sp_std::{prelude::*, fmt::Debug};
+use codec::{Decode, Encode, EncodeLike};
 use frame_support::{
-	dispatch::DispatchResult, decl_module, decl_storage, decl_event, decl_error, ensure
+	decl_error, decl_event, decl_module, decl_storage, dispatch::DispatchResult, ensure,
 };
 use frame_system::ensure_root;
 use np_domain::{Name, NameHash, NameValue};
+use scale_info::TypeInfo;
+use sp_std::{fmt::Debug, prelude::*};
 
-pub trait Ownership: Encode + Decode + EncodeLike + Default + Eq + Debug + Clone + TypeInfo {
+pub trait Ownership:
+	Encode + Decode + EncodeLike + Default + Eq + Debug + Clone + TypeInfo
+{
 	type AccountId;
 
 	/// Explictly owned by root.
@@ -38,7 +40,7 @@ pub trait Ownership: Encode + Decode + EncodeLike + Default + Eq + Debug + Clone
 }
 
 pub trait Config: pallet_balances::Config {
-	type Ownership: Ownership<AccountId=Self::AccountId>;
+	type Ownership: Ownership<AccountId = Self::AccountId>;
 	type Event: From<Event<Self>> + Into<<Self as frame_system::Config>::Event>;
 }
 
@@ -50,18 +52,9 @@ pub trait Registry {
 		name: Name,
 		ownership: Option<Self::Ownership>,
 	) -> DispatchResult;
-	fn set_ownership_unchecked(
-		name: Name,
-		ownership: Option<Self::Ownership>,
-	);
-	fn can_set_ownership(
-		as_ownership: &Self::Ownership,
-		name: &Name,
-	) -> bool;
-	fn ensure_can_set_ownership(
-		as_ownership: &Self::Ownership,
-		name: &Name,
-	) -> DispatchResult;
+	fn set_ownership_unchecked(name: Name, ownership: Option<Self::Ownership>);
+	fn can_set_ownership(as_ownership: &Self::Ownership, name: &Name) -> bool;
+	fn ensure_can_set_ownership(as_ownership: &Self::Ownership, name: &Name) -> DispatchResult;
 	fn owner(name: &Name) -> Option<Self::Ownership>;
 
 	fn parent_owner(name: &Name) -> Option<Self::Ownership> {
@@ -71,7 +64,7 @@ pub trait Registry {
 		let mut current = Some(name.clone());
 		while let Some(check) = current {
 			if let Some(ret) = Self::owner(&check) {
-				return Some(ret)
+				return Some(ret);
 			}
 			current = check.parent();
 		}
@@ -135,7 +128,10 @@ impl<T: Config> Registry for Module<T> {
 			let parent = name.parent().ok_or(Error::<T>::OwnershipMismatch)?;
 			let parent_ownership = Ownerships::<T>::get(&parent.hash()).into_value();
 
-			ensure!(parent_ownership.as_ref() == Some(as_ownership), Error::<T>::OwnershipMismatch);
+			ensure!(
+				parent_ownership.as_ref() == Some(as_ownership),
+				Error::<T>::OwnershipMismatch
+			);
 		}
 
 		Ok(())
@@ -143,7 +139,10 @@ impl<T: Config> Registry for Module<T> {
 
 	fn set_ownership_unchecked(name: Name, ownership: Option<T::Ownership>) {
 		if let Some(ownership) = ownership.clone() {
-			Ownerships::<T>::insert(name.hash(), NameValue::some(name.clone(), ownership.clone()));
+			Ownerships::<T>::insert(
+				name.hash(),
+				NameValue::some(name.clone(), ownership.clone()),
+			);
 		} else {
 			Ownerships::<T>::remove(name.hash());
 		}
@@ -151,7 +150,11 @@ impl<T: Config> Registry for Module<T> {
 		Self::deposit_event(Event::<T>::OwnershipSet(name, ownership));
 	}
 
-	fn set_ownership_as(as_ownership: &T::Ownership, name: Name, ownership: Option<T::Ownership>) -> DispatchResult {
+	fn set_ownership_as(
+		as_ownership: &T::Ownership,
+		name: Name,
+		ownership: Option<T::Ownership>,
+	) -> DispatchResult {
 		Self::ensure_can_set_ownership(as_ownership, &name)?;
 		Self::set_ownership_unchecked(name, ownership);
 
@@ -160,11 +163,11 @@ impl<T: Config> Registry for Module<T> {
 
 	fn can_set_ownership(as_ownership: &T::Ownership, name: &Name) -> bool {
 		if name.is_root() {
-			return false
+			return false;
 		}
 
 		if as_ownership == &T::Ownership::root() {
-			return true
+			return true;
 		}
 
 		let parent = match name.parent() {

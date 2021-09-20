@@ -16,18 +16,21 @@
 // You should have received a copy of the GNU General Public License
 // along with Neatcoin. If not, see <http://www.gnu.org/licenses/>.
 
-use static_assertions::const_assert;
-use sp_core::u32_trait::{_1, _2, _4, _5};
-use sp_runtime::{Permill, Percent};
-use frame_system::{EnsureOneOf, EnsureRoot};
-use frame_support::{parameter_types, PalletId, traits::LockIdentifier};
 use crate::{
-	Runtime, Call, Event, Balances, CouncilCollectiveInstance, TechnicalCollectiveInstance,
-	Treasury, Scheduler, OriginCaller, Origin, Council, TechnicalMembershipInstance,
-	TechnicalCommittee, Bounties, ElectionsPhragmen,
-	types::{BlockNumber, Balance, AccountId, MoreThanHalfCouncil},
-	constants::{time::DAYS, currency::{deposit, DOLLARS, CENTS, MILLICENTS}},
+	constants::{
+		currency::{deposit, CENTS, DOLLARS, MILLICENTS},
+		time::DAYS,
+	},
+	types::{AccountId, Balance, BlockNumber, MoreThanHalfCouncil},
+	Balances, Bounties, Call, Council, CouncilCollectiveInstance, ElectionsPhragmen, Event, Origin,
+	OriginCaller, Runtime, Scheduler, TechnicalCollectiveInstance, TechnicalCommittee,
+	TechnicalMembershipInstance, Treasury,
 };
+use frame_support::{parameter_types, traits::LockIdentifier, PalletId};
+use frame_system::{EnsureOneOf, EnsureRoot};
+use sp_core::u32_trait::{_1, _2, _4, _5};
+use sp_runtime::{Percent, Permill};
+use static_assertions::const_assert;
 
 parameter_types! {
 	pub const LaunchPeriod: BlockNumber = 7 * DAYS;
@@ -52,30 +55,36 @@ impl pallet_democracy::Config for Runtime {
 	type LaunchPeriod = LaunchPeriod;
 	type VotingPeriod = VotingPeriod;
 	type MinimumDeposit = MinimumDeposit;
-	type ExternalOrigin = frame_system::EnsureOneOf<AccountId,
+	type ExternalOrigin = frame_system::EnsureOneOf<
+		AccountId,
 		pallet_collective::EnsureProportionAtLeast<_1, _2, AccountId, CouncilCollectiveInstance>,
 		frame_system::EnsureRoot<AccountId>,
 	>;
-	type ExternalMajorityOrigin = frame_system::EnsureOneOf<AccountId,
+	type ExternalMajorityOrigin = frame_system::EnsureOneOf<
+		AccountId,
 		pallet_collective::EnsureProportionAtLeast<_4, _5, AccountId, CouncilCollectiveInstance>,
 		frame_system::EnsureRoot<AccountId>,
 	>;
-	type ExternalDefaultOrigin = frame_system::EnsureOneOf<AccountId,
+	type ExternalDefaultOrigin = frame_system::EnsureOneOf<
+		AccountId,
 		pallet_collective::EnsureProportionAtLeast<_1, _1, AccountId, CouncilCollectiveInstance>,
 		frame_system::EnsureRoot<AccountId>,
 	>;
-	type FastTrackOrigin = frame_system::EnsureOneOf<AccountId,
+	type FastTrackOrigin = frame_system::EnsureOneOf<
+		AccountId,
 		pallet_collective::EnsureProportionAtLeast<_1, _1, AccountId, TechnicalCollectiveInstance>,
 		frame_system::EnsureRoot<AccountId>,
 	>;
 	type InstantOrigin = frame_system::EnsureNever<AccountId>;
 	type InstantAllowed = InstantAllowed;
 	type FastTrackVotingPeriod = FastTrackVotingPeriod;
-	type CancellationOrigin = EnsureOneOf<AccountId,
+	type CancellationOrigin = EnsureOneOf<
+		AccountId,
 		pallet_collective::EnsureProportionAtLeast<_1, _1, AccountId, CouncilCollectiveInstance>,
 		EnsureRoot<AccountId>,
 	>;
-	type CancelProposalOrigin = EnsureOneOf<AccountId,
+	type CancelProposalOrigin = EnsureOneOf<
+		AccountId,
 		pallet_collective::EnsureProportionAtLeast<_1, _1, AccountId, TechnicalCollectiveInstance>,
 		EnsureRoot<AccountId>,
 	>;
@@ -83,7 +92,8 @@ impl pallet_democracy::Config for Runtime {
 	type VetoOrigin = pallet_collective::EnsureMember<AccountId, TechnicalCollectiveInstance>;
 	type CooloffPeriod = CooloffPeriod;
 	type PreimageByteDeposit = PreimageByteDeposit;
-	type OperationalPreimageOrigin = pallet_collective::EnsureMember<AccountId, CouncilCollectiveInstance>;
+	type OperationalPreimageOrigin =
+		pallet_collective::EnsureMember<AccountId, CouncilCollectiveInstance>;
 	type Slash = Treasury;
 	type Scheduler = Scheduler;
 	type PalletsOrigin = OriginCaller;
@@ -196,7 +206,7 @@ parameter_types! {
 type ApproveOrigin = EnsureOneOf<
 	AccountId,
 	EnsureRoot<AccountId>,
-	pallet_collective::EnsureProportionAtLeast<_4, _5, AccountId, CouncilCollectiveInstance>
+	pallet_collective::EnsureProportionAtLeast<_4, _5, AccountId, CouncilCollectiveInstance>,
 >;
 
 impl pallet_treasury::Config for Runtime {

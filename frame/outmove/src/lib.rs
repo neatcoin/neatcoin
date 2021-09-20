@@ -19,27 +19,31 @@
 // Ensure we're `no_std` when compiling for Wasm.
 #![cfg_attr(not(feature = "std"), no_std)]
 
-use frame_support::{
-	decl_module, decl_storage, decl_event, decl_error, ensure,
-};
-use sp_std::{borrow::ToOwned, prelude::*};
+use frame_support::{decl_error, decl_event, decl_module, decl_storage, ensure};
 use frame_system::ensure_signed;
-use sp_runtime::AccountId32;
 use omv::{
-	primitives::{account_address::AccountAddress, language_storage::{ModuleId, StructTag, TypeTag}, identifier::Identifier, vm_status::StatusCode, gas_schedule::{CostTable, GasCost, GasUnits, GasAlgebra}},
+	core::errors::{PartialVMError, PartialVMResult, VMResult},
+	core::file_format::{
+		Bytecode, ConstantPoolIndex, FieldHandleIndex, FieldInstantiationIndex,
+		FunctionHandleIndex, FunctionInstantiationIndex, StructDefInstantiationIndex,
+		StructDefinitionIndex,
+	},
+	core::file_format_common::instruction_key,
+	primitives::{
+		account_address::AccountAddress,
+		gas_schedule::{CostTable, GasAlgebra, GasCost, GasUnits},
+		identifier::Identifier,
+		language_storage::{ModuleId, StructTag, TypeTag},
+		vm_status::StatusCode,
+	},
 	runtime::data_cache::RemoteCache,
 	runtime::logging::NoContextLog,
-	types::gas_schedule::{self, NativeCostIndex as N, CostStrategy},
-	core::file_format::{
-        Bytecode, ConstantPoolIndex, FieldHandleIndex, FieldInstantiationIndex,
-        FunctionHandleIndex, FunctionInstantiationIndex, StructDefInstantiationIndex,
-        StructDefinitionIndex,
-    },
-    core::file_format_common::instruction_key,
-	core::errors::{VMResult, PartialVMResult, PartialVMError},
+	types::gas_schedule::{self, CostStrategy, NativeCostIndex as N},
 };
+use sp_runtime::AccountId32;
+use sp_std::{borrow::ToOwned, prelude::*};
 
-pub trait Config: frame_system::Config<AccountId=AccountId32> {
+pub trait Config: frame_system::Config<AccountId = AccountId32> {
 	type Event: From<Event> + Into<<Self as frame_system::Config>::Event>;
 }
 
@@ -83,7 +87,7 @@ decl_module! {
 			ensure!(Identifier::is_valid(identifier.as_str()), Error::<T>::InvalidModuleIdentifier);
 
 			// TODO: reject backward-incompatible publishing.
-			
+
 			Modules::insert(account_id, identifier_raw, module_data);
 		}
 
@@ -134,13 +138,16 @@ decl_module! {
 }
 
 impl<T: Config> Module<T> {
-	fn get_cost_strategy(table: &CostTable, gas_budget: Option<u64>) -> Result<CostStrategy, Error<T>> {
+	fn get_cost_strategy(
+		table: &CostTable,
+		gas_budget: Option<u64>,
+	) -> Result<CostStrategy, Error<T>> {
 		let cost_strategy = if let Some(gas_budget) = gas_budget {
 			let max_gas_budget = u64::MAX
 				.checked_div(table.gas_constants.gas_unit_scaling_factor)
 				.unwrap();
 			if gas_budget >= max_gas_budget {
-				return Err(Error::<T>::GasBudgetTooHigh)
+				return Err(Error::<T>::GasBudgetTooHigh);
 			}
 			CostStrategy::transaction(table, GasUnits::new(gas_budget))
 		} else {
@@ -152,23 +159,24 @@ impl<T: Config> Module<T> {
 }
 
 impl<T: Config> RemoteCache for Module<T> {
-    fn get_module(&self, module_id: &ModuleId) -> VMResult<Option<Vec<u8>>> {
+	fn get_module(&self, module_id: &ModuleId) -> VMResult<Option<Vec<u8>>> {
 		let address = AccountId32::new(module_id.address().to_u8());
 		let identifier = module_id.name().to_owned().into_bytes();
 
 		Ok(Modules::get(&address, &identifier))
-    }
+	}
 
-    fn get_resource(
-        &self,
-        address: &AccountAddress,
-        struct_tag: &StructTag,
-    ) -> PartialVMResult<Option<Vec<u8>>> {
+	fn get_resource(
+		&self,
+		address: &AccountAddress,
+		struct_tag: &StructTag,
+	) -> PartialVMResult<Option<Vec<u8>>> {
 		let address = AccountId32::new(address.to_u8());
-		let tag = &omv::serialize::to_bytes(struct_tag).map_err(|_| PartialVMError::new(StatusCode::STORAGE_ERROR))?;
+		let tag = &omv::serialize::to_bytes(struct_tag)
+			.map_err(|_| PartialVMError::new(StatusCode::STORAGE_ERROR))?;
 
 		Ok(Resources::get(&address, &tag))
-    }
+	}
 }
 
 fn genesis_gas_schedule() -> CostTable {
@@ -280,7 +288,7 @@ fn genesis_gas_schedule() -> CostTable {
 		];
 		// Note that the DiemVM is expecting the table sorted by instruction order.
 		instrs.sort_by_key(|cost| instruction_key(&cost.0));
-	
+
 		let mut native_table = vec![
 			(N::SHA2_256, GasCost::new(21, 1)),
 			(N::SHA3_256, GasCost::new(64, 1)),

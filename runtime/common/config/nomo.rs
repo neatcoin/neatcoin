@@ -16,17 +16,17 @@
 // You should have received a copy of the GNU General Public License
 // along with Neatcoin. If not, see <http://www.gnu.org/licenses/>.
 
-use codec::{Encode, Decode};
+use crate::{
+	constants::{currency::UNITS, time::DAYS},
+	types::Balance,
+	AccountId, Balances, BlockNumber, Event, Registry, Runtime, Treasury,
+};
+use codec::{Decode, Encode};
+use frame_support::parameter_types;
 use scale_info::TypeInfo;
 #[cfg(feature = "std")]
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 use sp_core::RuntimeDebug;
-use frame_support::parameter_types;
-use crate::{
-	AccountId, Runtime, Event, Registry, BlockNumber, Balances, Treasury,
-	types::Balance,
-	constants::{currency::UNITS, time::DAYS},
-};
 
 #[derive(Encode, Decode, Clone, RuntimeDebug, PartialEq, Eq, TypeInfo)]
 #[cfg_attr(feature = "std", derive(Serialize, Deserialize))]
@@ -46,8 +46,12 @@ impl Default for Ownership {
 impl pallet_registry::Ownership for Ownership {
 	type AccountId = AccountId;
 
-	fn root() -> Self { Self::Root }
-	fn account(account: AccountId) -> Self { Self::Account(account) }
+	fn root() -> Self {
+		Self::Root
+	}
+	fn account(account: AccountId) -> Self {
+		Self::Account(account)
+	}
 }
 
 impl pallet_registry::Config for Runtime {

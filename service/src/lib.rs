@@ -19,20 +19,25 @@
 pub mod chain_spec;
 mod client;
 
-use std::{time::Duration, sync::Arc};
+use np_opaque::Block;
+use sc_basic_authorship::ProposerFactory;
+use sc_client_api::{backend::RemoteBackend, ExecutorProvider};
+use sc_finality_grandpa::FinalityProofProvider as GrandpaFinalityProofProvider;
+use sc_service::{
+	config::PrometheusConfig, ChainSpec, Configuration, NativeExecutionDispatch, RpcHandlers,
+	TaskManager,
+};
+use sc_telemetry::{Telemetry, TelemetryWorker};
 use sp_api::ConstructRuntimeApi;
 use sp_runtime::traits::Block as BlockT;
-use sc_service::{NativeExecutionDispatch, Configuration, RpcHandlers, TaskManager, ChainSpec, config::PrometheusConfig};
-use sc_telemetry::{Telemetry, TelemetryWorker};
-use sc_finality_grandpa::FinalityProofProvider as GrandpaFinalityProofProvider;
-use sc_client_api::{ExecutorProvider, backend::RemoteBackend};
-use sc_basic_authorship::ProposerFactory;
+use std::{sync::Arc, time::Duration};
 use substrate_prometheus_endpoint::Registry;
-use np_opaque::Block;
 
+pub use crate::client::{
+	AbstractClient, Client, ClientHandle, ExecuteWithClient, RuntimeApiCollection,
+};
 pub use neatcoin_runtime;
 pub use vodka_runtime;
-pub use crate::client::{AbstractClient, Client, ClientHandle, ExecuteWithClient, RuntimeApiCollection};
 
 pub use sc_executor::NativeElseWasmExecutor;
 
@@ -117,14 +122,23 @@ impl IdentifyVariant for Box<dyn ChainSpec> {
 
 pub type FullBackend = sc_service::TFullBackend<Block>;
 pub type FullSelectChain = sc_consensus::LongestChain<FullBackend, Block>;
-pub type FullClient<RuntimeApi, ExecutorDispatch> = sc_service::TFullClient<Block, RuntimeApi, NativeElseWasmExecutor<ExecutorDispatch>>;
-pub type FullGrandpaBlockImport<RuntimeApi, ExecutorDispatch> = sc_finality_grandpa::GrandpaBlockImport<
-	FullBackend, Block, FullClient<RuntimeApi, ExecutorDispatch>, FullSelectChain
->;
+pub type FullClient<RuntimeApi, ExecutorDispatch> =
+	sc_service::TFullClient<Block, RuntimeApi, NativeElseWasmExecutor<ExecutorDispatch>>;
+pub type FullGrandpaBlockImport<RuntimeApi, ExecutorDispatch> =
+	sc_finality_grandpa::GrandpaBlockImport<
+		FullBackend,
+		Block,
+		FullClient<RuntimeApi, ExecutorDispatch>,
+		FullSelectChain,
+	>;
 
 pub type LightBackend = sc_service::TLightBackendWithHash<Block, sp_runtime::traits::BlakeTwo256>;
-pub type LightClient<RuntimeApi, ExecutorDispatch> =
-	sc_service::TLightClientWithBackend<Block, RuntimeApi, NativeElseWasmExecutor<ExecutorDispatch>, LightBackend>;
+pub type LightClient<RuntimeApi, ExecutorDispatch> = sc_service::TLightClientWithBackend<
+	Block,
+	RuntimeApi,
+	NativeElseWasmExecutor<ExecutorDispatch>,
+	LightBackend,
+>;
 
 // If we're using prometheus, use a registry with a prefix of `neatcoin`.
 fn set_prometheus_registry(config: &mut Configuration) -> Result<(), Error> {
@@ -139,7 +153,9 @@ fn new_partial<RuntimeApi, ExecutorDispatch>(
 	config: &mut Configuration,
 ) -> Result<
 	sc_service::PartialComponents<
-		FullClient<RuntimeApi, ExecutorDispatch>, FullBackend, FullSelectChain,
+		FullClient<RuntimeApi, ExecutorDispatch>,
+		FullBackend,
+		FullSelectChain,
 		sc_consensus::DefaultImportQueue<Block, FullClient<RuntimeApi, ExecutorDispatch>>,
 		sc_transaction_pool::FullPool<Block, FullClient<RuntimeApi, ExecutorDispatch>>,
 		(
@@ -149,27 +165,38 @@ fn new_partial<RuntimeApi, ExecutorDispatch>(
 			) -> Result<neatcoin_rpc::RpcExtension, sc_service::Error>,
 			(
 				sc_consensus_babe::BabeBlockImport<
-					Block, FullClient<RuntimeApi, ExecutorDispatch>, FullGrandpaBlockImport<RuntimeApi, ExecutorDispatch>
+					Block,
+					FullClient<RuntimeApi, ExecutorDispatch>,
+					FullGrandpaBlockImport<RuntimeApi, ExecutorDispatch>,
 				>,
-				sc_finality_grandpa::LinkHalf<Block, FullClient<RuntimeApi, ExecutorDispatch>, FullSelectChain>,
-				sc_consensus_babe::BabeLink<Block>
+				sc_finality_grandpa::LinkHalf<
+					Block,
+					FullClient<RuntimeApi, ExecutorDispatch>,
+					FullSelectChain,
+				>,
+				sc_consensus_babe::BabeLink<Block>,
 			),
 			sc_finality_grandpa::SharedVoterState,
 			std::time::Duration, // slot-duration
 			Option<Telemetry>,
-		)
+		),
 	>,
-	Error
+	Error,
 >
-	where
-		RuntimeApi: ConstructRuntimeApi<Block, FullClient<RuntimeApi, ExecutorDispatch>> + Send + Sync + 'static,
-		RuntimeApi::RuntimeApi:
+where
+	RuntimeApi: ConstructRuntimeApi<Block, FullClient<RuntimeApi, ExecutorDispatch>>
+		+ Send
+		+ Sync
+		+ 'static,
+	RuntimeApi::RuntimeApi:
 		RuntimeApiCollection<StateBackend = sc_client_api::StateBackendFor<FullBackend, Block>>,
-		ExecutorDispatch: NativeExecutionDispatch + 'static,
+	ExecutorDispatch: NativeExecutionDispatch + 'static,
 {
 	set_prometheus_registry(config)?;
 
-	let telemetry = config.telemetry_endpoints.clone()
+	let telemetry = config
+		.telemetry_endpoints
+		.clone()
 		.filter(|x| !x.is_empty())
 		.map(|endpoints| -> Result<_, sc_telemetry::Error> {
 			let worker = TelemetryWorker::new(16)?;
@@ -192,11 +219,10 @@ fn new_partial<RuntimeApi, ExecutorDispatch>(
 		)?;
 	let client = Arc::new(client);
 
-	let telemetry = telemetry
-		.map(|(worker, telemetry)| {
-			task_manager.spawn_handle().spawn("telemetry", worker.run());
-			telemetry
-		});
+	let telemetry = telemetry.map(|(worker, telemetry)| {
+		task_manager.spawn_handle().spawn("telemetry", worker.run());
+		telemetry
+	});
 
 	let select_chain = sc_consensus::LongestChain::new(backend.clone());
 
@@ -222,11 +248,8 @@ fn new_partial<RuntimeApi, ExecutorDispatch>(
 	let justification_import = grandpa_block_import.clone();
 
 	let babe_config = sc_consensus_babe::Config::get_or_compute(&*client)?;
-	let (block_import, babe_link) = sc_consensus_babe::block_import(
-		babe_config.clone(),
-		grandpa_block_import,
-		client.clone(),
-	)?;
+	let (block_import, babe_link) =
+		sc_consensus_babe::block_import(babe_config.clone(), grandpa_block_import, client.clone())?;
 
 	let slot_duration = babe_link.config().slot_duration();
 	let import_queue = sc_consensus_babe::import_queue(
@@ -235,21 +258,19 @@ fn new_partial<RuntimeApi, ExecutorDispatch>(
 		Some(Box::new(justification_import)),
 		client.clone(),
 		select_chain.clone(),
-		move |_, ()| {
-			async move {
-				let timestamp = sp_timestamp::InherentDataProvider::from_system_time();
+		move |_, ()| async move {
+			let timestamp = sp_timestamp::InherentDataProvider::from_system_time();
 
-				let slot =
-					sp_consensus_babe::inherents::InherentDataProvider::from_timestamp_and_duration(
-						*timestamp,
-						slot_duration,
-					);
+			let slot =
+				sp_consensus_babe::inherents::InherentDataProvider::from_timestamp_and_duration(
+					*timestamp,
+					slot_duration,
+				);
 
-				let uncles =
-					sp_authorship::InherentDataProvider::<<Block as BlockT>::Header>::check_inherents();
+			let uncles =
+				sp_authorship::InherentDataProvider::<<Block as BlockT>::Header>::check_inherents();
 
-				Ok((timestamp, slot, uncles))
-			}
+			Ok((timestamp, slot, uncles))
 		},
 		&task_manager.spawn_essential_handle(),
 		config.prometheus_registry(),
@@ -311,7 +332,13 @@ fn new_partial<RuntimeApi, ExecutorDispatch>(
 		select_chain,
 		import_queue,
 		transaction_pool,
-		other: (rpc_extensions_builder, import_setup, rpc_setup, slot_duration, telemetry)
+		other: (
+			rpc_extensions_builder,
+			import_setup,
+			rpc_setup,
+			slot_duration,
+			telemetry,
+		),
 	})
 }
 
@@ -337,11 +364,12 @@ impl<C> NewFull<C> {
 pub fn new_full<RuntimeApi, Executor>(
 	mut config: Configuration,
 ) -> Result<NewFull<Arc<FullClient<RuntimeApi, Executor>>>, Error>
-	where
-		RuntimeApi: ConstructRuntimeApi<Block, FullClient<RuntimeApi, Executor>> + Send + Sync + 'static,
-		RuntimeApi::RuntimeApi:
+where
+	RuntimeApi:
+		ConstructRuntimeApi<Block, FullClient<RuntimeApi, Executor>> + Send + Sync + 'static,
+	RuntimeApi::RuntimeApi:
 		RuntimeApiCollection<StateBackend = sc_client_api::StateBackendFor<FullBackend, Block>>,
-		Executor: NativeExecutionDispatch + 'static,
+	Executor: NativeExecutionDispatch + 'static,
 {
 	let role = config.role.clone();
 	let force_authoring = config.force_authoring;
@@ -359,7 +387,7 @@ pub fn new_full<RuntimeApi, Executor>(
 		select_chain,
 		import_queue,
 		transaction_pool,
-		other: (rpc_extensions_builder, import_setup, rpc_setup, _slot_duration, mut telemetry)
+		other: (rpc_extensions_builder, import_setup, rpc_setup, _slot_duration, mut telemetry),
 	} = new_partial::<RuntimeApi, Executor>(&mut config)?;
 
 	let prometheus_registry = config.prometheus_registry().cloned();
@@ -369,7 +397,10 @@ pub fn new_full<RuntimeApi, Executor>(
 	// Note: GrandPa is pushed before the Polkadot-specific protocols. This doesn't change
 	// anything in terms of behaviour, but makes the logs more consistent with the other
 	// Substrate nodes.
-	config.network.extra_sets.push(sc_finality_grandpa::grandpa_peers_set_config());
+	config
+		.network
+		.extra_sets
+		.push(sc_finality_grandpa::grandpa_peers_set_config());
 
 	let warp_sync = Arc::new(sc_finality_grandpa::warp_proof::NetworkProvider::new(
 		backend.clone(),
@@ -390,7 +421,10 @@ pub fn new_full<RuntimeApi, Executor>(
 
 	if config.offchain_worker.enabled {
 		let _ = sc_service::build_offchain_workers(
-			&config, task_manager.spawn_handle(), client.clone(), network.clone(),
+			&config,
+			task_manager.spawn_handle(),
+			client.clone(),
+			network.clone(),
 		);
 	}
 
@@ -462,26 +496,30 @@ pub fn new_full<RuntimeApi, Executor>(
 		};
 
 		let babe = sc_consensus_babe::start_babe(babe_config)?;
-		task_manager.spawn_essential_handle().spawn_blocking("babe-proposer", babe);
+		task_manager
+			.spawn_essential_handle()
+			.spawn_blocking("babe-proposer", babe);
 	}
 
 	if role.is_authority() {
-		use sc_network::Event;
 		use futures::StreamExt;
+		use sc_network::Event;
 
 		let authority_discovery_role = if role.is_authority() {
-			sc_authority_discovery::Role::PublishAndDiscover(
-				keystore_container.keystore(),
-			)
+			sc_authority_discovery::Role::PublishAndDiscover(keystore_container.keystore())
 		} else {
 			// don't publish our addresses when we're only a collator
 			sc_authority_discovery::Role::Discover
 		};
-		let dht_event_stream = network.event_stream("authority-discovery")
-			.filter_map(|e| async move { match e {
-				Event::Dht(e) => Some(e),
-				_ => None,
-			}});
+		let dht_event_stream =
+			network
+				.event_stream("authority-discovery")
+				.filter_map(|e| async move {
+					match e {
+						Event::Dht(e) => Some(e),
+						_ => None,
+					}
+				});
 		let (worker, _service) = sc_authority_discovery::new_worker_and_service(
 			client.clone(),
 			network.clone(),
@@ -490,7 +528,9 @@ pub fn new_full<RuntimeApi, Executor>(
 			prometheus_registry.clone(),
 		);
 
-		task_manager.spawn_handle().spawn("authority-discovery-worker", worker.run());
+		task_manager
+			.spawn_handle()
+			.spawn("authority-discovery-worker", worker.run());
 	}
 
 	// we'd say let overseer_handler = authority_discovery_service.map(|authority_discovery_service|, ...),
@@ -547,7 +587,7 @@ pub fn new_full<RuntimeApi, Executor>(
 
 		task_manager.spawn_essential_handle().spawn_blocking(
 			"grandpa-voter",
-			sc_finality_grandpa::run_grandpa_voter(grandpa_config)?
+			sc_finality_grandpa::run_grandpa_voter(grandpa_config)?,
 		);
 	}
 
@@ -561,25 +601,22 @@ pub fn new_full<RuntimeApi, Executor>(
 	})
 }
 
-pub fn build_full(
-	config: Configuration,
-) -> Result<NewFull<Client>, Error> {
+pub fn build_full(config: Configuration) -> Result<NewFull<Client>, Error> {
 	match config.chain_spec.identify_variant() {
 		ChainVariant::Neatcoin => {
 			new_full::<neatcoin_runtime::RuntimeApi, NeatcoinExecutorDispatch>(config)
 				.map(|full| full.with_client(Client::Neatcoin))
-		},
-		ChainVariant::Vodka => {
-			new_full::<vodka_runtime::RuntimeApi, VodkaExecutorDispatch>(config)
-				.map(|full| full.with_client(Client::Vodka))
-		},
+		}
+		ChainVariant::Vodka => new_full::<vodka_runtime::RuntimeApi, VodkaExecutorDispatch>(config)
+			.map(|full| full.with_client(Client::Vodka)),
 	}
 }
 
 pub struct NewChainOps<C> {
 	pub task_manager: TaskManager,
 	pub client: C,
-	pub import_queue: sc_consensus::BasicQueue<Block, sp_trie::PrefixedMemoryDB<sp_runtime::traits::BlakeTwo256>>,
+	pub import_queue:
+		sc_consensus::BasicQueue<Block, sp_trie::PrefixedMemoryDB<sp_runtime::traits::BlakeTwo256>>,
 	pub backend: Arc<FullBackend>,
 }
 
@@ -588,19 +625,33 @@ pub fn new_chain_ops(mut config: &mut Configuration) -> Result<NewChainOps<Clien
 	config.keystore = sc_service::config::KeystoreConfig::InMemory;
 	match config.chain_spec.identify_variant() {
 		ChainVariant::Neatcoin => {
-			let sc_service::PartialComponents { client, backend, import_queue, task_manager, .. }
-				= new_partial::<neatcoin_runtime::RuntimeApi, NeatcoinExecutorDispatch>(config)?;
+			let sc_service::PartialComponents {
+				client,
+				backend,
+				import_queue,
+				task_manager,
+				..
+			} = new_partial::<neatcoin_runtime::RuntimeApi, NeatcoinExecutorDispatch>(config)?;
 			Ok(NewChainOps {
 				client: Client::Neatcoin(client),
-				backend, import_queue, task_manager,
+				backend,
+				import_queue,
+				task_manager,
 			})
-		},
+		}
 		ChainVariant::Vodka => {
-			let sc_service::PartialComponents { client, backend, import_queue, task_manager, .. }
-				= new_partial::<vodka_runtime::RuntimeApi, VodkaExecutorDispatch>(config)?;
+			let sc_service::PartialComponents {
+				client,
+				backend,
+				import_queue,
+				task_manager,
+				..
+			} = new_partial::<vodka_runtime::RuntimeApi, VodkaExecutorDispatch>(config)?;
 			Ok(NewChainOps {
 				client: Client::Vodka(client),
-				backend, import_queue, task_manager,
+				backend,
+				import_queue,
+				task_manager,
 			})
 		}
 	}
@@ -613,15 +664,20 @@ pub struct NewLight {
 
 /// Builds a new service for a light client.
 fn new_light<RuntimeApi, ExecutorDispatch>(mut config: Configuration) -> Result<NewLight, Error>
-	where
-		RuntimeApi: ConstructRuntimeApi<Block, LightClient<RuntimeApi, ExecutorDispatch>> + Send + Sync + 'static,
-		RuntimeApi::RuntimeApi:
+where
+	RuntimeApi: ConstructRuntimeApi<Block, LightClient<RuntimeApi, ExecutorDispatch>>
+		+ Send
+		+ Sync
+		+ 'static,
+	RuntimeApi::RuntimeApi:
 		RuntimeApiCollection<StateBackend = sc_client_api::StateBackendFor<LightBackend, Block>>,
-		ExecutorDispatch: NativeExecutionDispatch + 'static,
+	ExecutorDispatch: NativeExecutionDispatch + 'static,
 {
 	set_prometheus_registry(&mut config)?;
 
-	let telemetry = config.telemetry_endpoints.clone()
+	let telemetry = config
+		.telemetry_endpoints
+		.clone()
 		.filter(|x| !x.is_empty())
 		.map(|endpoints| -> Result<_, sc_telemetry::Error> {
 			let worker = TelemetryWorker::new(16)?;
@@ -643,11 +699,10 @@ fn new_light<RuntimeApi, ExecutorDispatch>(mut config: Configuration) -> Result<
 			executor,
 		)?;
 
-	let mut telemetry = telemetry
-		.map(|(worker, telemetry)| {
-			task_manager.spawn_handle().spawn("telemetry", worker.run());
-			telemetry
-		});
+	let mut telemetry = telemetry.map(|(worker, telemetry)| {
+		task_manager.spawn_handle().spawn("telemetry", worker.run());
+		telemetry
+	});
 
 	let select_chain = sc_consensus::LongestChain::new(backend.clone());
 
@@ -753,12 +808,19 @@ fn new_light<RuntimeApi, ExecutorDispatch>(mut config: Configuration) -> Result<
 
 	network_starter.start_network();
 
-	Ok(NewLight { task_manager, rpc_handlers })
+	Ok(NewLight {
+		task_manager,
+		rpc_handlers,
+	})
 }
 
 pub fn build_light(config: Configuration) -> Result<NewLight, Error> {
 	match config.chain_spec.identify_variant() {
-		ChainVariant::Neatcoin => new_light::<neatcoin_runtime::RuntimeApi, NeatcoinExecutorDispatch>(config),
-		ChainVariant::Vodka => new_light::<vodka_runtime::RuntimeApi, VodkaExecutorDispatch>(config)
+		ChainVariant::Neatcoin => {
+			new_light::<neatcoin_runtime::RuntimeApi, NeatcoinExecutorDispatch>(config)
+		}
+		ChainVariant::Vodka => {
+			new_light::<vodka_runtime::RuntimeApi, VodkaExecutorDispatch>(config)
+		}
 	}
 }
