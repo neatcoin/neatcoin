@@ -1,11 +1,12 @@
 [package]
 name = "neatcoin-service"
-version = "1.2.0"
+version = "1.2.1"
 authors = ["Wei Tang <wei@that.world>"]
 edition = "2018"
 license = "GPL-3.0-or-later"
 
 [dependencies]
+serde = "1.0"
 structopt = "0.3.8"
 codec = { package = "parity-scale-codec", version = "2.0.0" }
 
@@ -39,6 +40,7 @@ sp-trie = { git = "https://github.com/paritytech/substrate" }
 sp-timestamp = { git = "https://github.com/paritytech/substrate" }
 sp-authorship = { git = "https://github.com/paritytech/substrate" }
 sc-consensus-uncles = { git = "https://github.com/paritytech/substrate" }
+sc-sync-state-rpc = { git = "https://github.com/paritytech/substrate" }
 pallet-staking = { git = "https://github.com/paritytech/substrate" }
 
 jsonrpc-core = "15.1.0"

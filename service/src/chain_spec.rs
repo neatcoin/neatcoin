@@ -19,13 +19,28 @@
 use codec::Decode;
 use indexmap::IndexMap;
 use np_opaque::{AccountId, Balance};
-use sc_chain_spec::ChainType;
+use sc_chain_spec::{ChainSpecExtension, ChainType};
+use serde::{Deserialize, Serialize};
 use sp_core::crypto::{Ss58AddressFormat, Ss58Codec};
 use sp_runtime::Perbill;
 use std::marker::PhantomData;
 
-pub type NeatcoinChainSpec = sc_service::GenericChainSpec<neatcoin_runtime::GenesisConfig>;
-pub type VodkaChainSpec = sc_service::GenericChainSpec<vodka_runtime::GenesisConfig>;
+/// Node `ChainSpec` extensions.
+///
+/// Additional parameters for some Substrate core modules,
+/// customizable from the chain spec.
+#[derive(Default, Clone, Serialize, Deserialize, ChainSpecExtension)]
+#[serde(rename_all = "camelCase")]
+pub struct Extensions {
+	/// The light sync state.
+	///
+	/// This value will be set by the `sync-state rpc` implementation.
+	pub light_sync_state: sc_sync_state_rpc::LightSyncStateExtension,
+}
+
+pub type NeatcoinChainSpec =
+	sc_service::GenericChainSpec<neatcoin_runtime::GenesisConfig, Extensions>;
+pub type VodkaChainSpec = sc_service::GenericChainSpec<vodka_runtime::GenesisConfig, Extensions>;
 
 pub fn build_genesis_allocations() -> IndexMap<AccountId, Balance> {
 	let raw: IndexMap<String, String> =
