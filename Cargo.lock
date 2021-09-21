@@ -3749,7 +3749,7 @@ dependencies = [
 
 [[package]]
 name = "neatcoin"
-version = "1.2.0"
+version = "1.2.1"
 dependencies = [
  "frame-benchmarking",
  "frame-benchmarking-cli",
@@ -3791,7 +3791,7 @@ dependencies = [
 
 [[package]]
 name = "neatcoin-rpc"
-version = "1.2.0"
+version = "1.2.1"
 dependencies = [
  "jsonrpc-core 18.0.0",
  "np-opaque",
@@ -3824,7 +3824,7 @@ dependencies = [
 
 [[package]]
 name = "neatcoin-runtime"
-version = "1.2.0"
+version = "1.2.1"
 dependencies = [
  "frame-benchmarking",
  "frame-election-provider-support",
@@ -3904,7 +3904,7 @@ dependencies = [
 
 [[package]]
 name = "neatcoin-service"
-version = "1.2.0"
+version = "1.2.1"
 dependencies = [
  "frame-benchmarking",
  "frame-system-rpc-runtime-api",
@@ -3936,8 +3936,10 @@ dependencies = [
  "sc-rpc",
  "sc-rpc-api",
  "sc-service",
+ "sc-sync-state-rpc",
  "sc-telemetry",
  "sc-transaction-pool",
+ "serde",
  "serde_json",
  "sp-api",
  "sp-authority-discovery",
@@ -4023,7 +4025,7 @@ dependencies = [
 
 [[package]]
 name = "np-domain"
-version = "1.2.0"
+version = "1.2.1"
 dependencies = [
  "blake2-rfc",
  "parity-scale-codec",
@@ -4034,7 +4036,7 @@ dependencies = [
 
 [[package]]
 name = "np-opaque"
-version = "1.2.0"
+version = "1.2.1"
 dependencies = [
  "sp-core",
  "sp-runtime",
@@ -4378,7 +4380,7 @@ dependencies = [
 
 [[package]]
 name = "pallet-bootstrap"
-version = "1.2.0"
+version = "1.2.1"
 dependencies = [
  "frame-support",
  "frame-system",
@@ -4564,7 +4566,7 @@ dependencies = [
 
 [[package]]
 name = "pallet-eons"
-version = "1.2.0"
+version = "1.2.1"
 dependencies = [
  "frame-support",
  "frame-system",
@@ -4576,7 +4578,7 @@ dependencies = [
 
 [[package]]
 name = "pallet-fcfs"
-version = "1.2.0"
+version = "1.2.1"
 dependencies = [
  "frame-benchmarking",
  "frame-support",
@@ -4743,7 +4745,7 @@ dependencies = [
 
 [[package]]
 name = "pallet-outmove"
-version = "1.2.0"
+version = "1.2.1"
 dependencies = [
  "frame-support",
  "frame-system",
@@ -4786,7 +4788,7 @@ dependencies = [
 
 [[package]]
 name = "pallet-registry"
-version = "1.2.0"
+version = "1.2.1"
 dependencies = [
  "frame-benchmarking",
  "frame-support",
@@ -5020,7 +5022,7 @@ dependencies = [
 
 [[package]]
 name = "pallet-variables"
-version = "1.2.0"
+version = "1.2.1"
 dependencies = [
  "frame-support",
  "frame-system",
@@ -5048,7 +5050,7 @@ dependencies = [
 
 [[package]]
 name = "pallet-zone"
-version = "1.2.0"
+version = "1.2.1"
 dependencies = [
  "frame-benchmarking",
  "frame-support",
@@ -8920,7 +8922,7 @@ checksum = "5fecdca9a5291cc2b8dcf7dc02453fee791a280f3743cb0905f8822ae463b3fe"
 
 [[package]]
 name = "vodka-runtime"
-version = "1.2.0"
+version = "1.2.1"
 dependencies = [
  "frame-benchmarking",
  "frame-election-provider-support",

@@ -1,6 +1,6 @@
 [package]
 name = "neatcoin-runtime"
-version = "1.2.0"
+version = "1.2.1"
 authors = ["Wei Tang <wei@that.world>"]
 edition = "2018"
 license = "GPL-3.0-or-later"
