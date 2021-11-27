@@ -27,7 +27,7 @@
       LIBCLANG_PATH = "${llvmPackages.libclang.lib}/lib";
       PROTOC = "${protobuf}/bin/protoc";
       ROCKSDB_LIB_DIR = "${rocksdb}/lib";
-	  RUSTC_BOOTSTRAP = "1";
+      RUSTC_BOOTSTRAP = "1";
     };
   in {
     devShell."x86_64-linux" = shellEnv "x86_64-linux";
