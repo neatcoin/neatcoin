@@ -57,6 +57,7 @@ impl pallet_registry::Ownership for Ownership {
 impl pallet_registry::Config for Runtime {
 	type Ownership = Ownership;
 	type Event = Event;
+	type WeightInfo = ();
 }
 
 impl pallet_zone::Config for Runtime {

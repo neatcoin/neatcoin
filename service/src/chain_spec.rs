@@ -299,3 +299,25 @@ pub fn build_vodka_config() -> Result<VodkaChainSpec, String> {
 pub fn vodka_config() -> Result<VodkaChainSpec, String> {
 	VodkaChainSpec::from_json_bytes(&include_bytes!("../res/vodka-spec.json")[..])
 }
+
+pub fn development_config() -> Result<NeatcoinChainSpec, String> {
+	let wasm_binary =
+		neatcoin_runtime::WASM_BINARY.ok_or("Development wasm binary not available".to_string())?;
+
+	Ok(NeatcoinChainSpec::from_genesis(
+		"Development",
+		"dev",
+		ChainType::Development,
+		move || {
+			build_neatcoin_genesis(
+				wasm_binary,
+				vec![(Default::default(), neatcoin_runtime::SessionKeys::default())],
+			)
+		},
+		vec![],
+		None,
+		None,
+		None,
+		Default::default(),
+	))
+}

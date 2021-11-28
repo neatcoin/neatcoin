@@ -70,6 +70,7 @@ impl SubstrateCli for Cli {
 		Ok(match id {
 			"vodka" | "testnet" => Box::new(chain_spec::vodka_config()?),
 			"" | "neatcoin" | "mainnet" => Box::new(chain_spec::neatcoin_config()?),
+			"dev" => Box::new(chain_spec::development_config()?),
 			_path => return Err("Custom chain spec is not supported".into()),
 		})
 	}
