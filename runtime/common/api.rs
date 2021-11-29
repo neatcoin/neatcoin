@@ -308,6 +308,7 @@ sp_api::impl_runtime_apis! {
 			list_benchmark!(list, extra, pallet_utility, crate::Utility);
 			list_benchmark!(list, extra, pallet_vesting, crate::Vesting);
 			list_benchmark!(list, extra, pallet_registry, crate::Registry);
+			list_benchmark!(list, extra, pallet_fcfs, crate::FCFS);
 
 			let storage_info = crate::AllPalletsWithSystem::storage_info();
 
@@ -369,6 +370,7 @@ sp_api::impl_runtime_apis! {
 			add_benchmark!(params, batches, pallet_utility, crate::Utility);
 			add_benchmark!(params, batches, pallet_vesting, crate::Vesting);
 			add_benchmark!(params, batches, pallet_registry, crate::Registry);
+			add_benchmark!(params, batches, pallet_fcfs, crate::FCFS);
 
 			if batches.is_empty() { return Err("Benchmark not found for this pallet.".into()) }
 			Ok(batches)
