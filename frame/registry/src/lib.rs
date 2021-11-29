@@ -19,14 +19,17 @@
 // Ensure we're `no_std` when compiling for Wasm.
 #![cfg_attr(not(feature = "std"), no_std)]
 
+mod benchmarking;
+mod default_weights;
+
 use codec::{Decode, Encode, EncodeLike};
-use frame_support::{
-	decl_error, decl_event, decl_module, decl_storage, dispatch::DispatchResult, ensure,
-};
+use frame_support::{dispatch::DispatchResult, ensure, weights::Weight};
 use frame_system::ensure_root;
 use np_domain::{Name, NameHash, NameValue};
 use scale_info::TypeInfo;
 use sp_std::{fmt::Debug, prelude::*};
+
+pub use pallet::*;
 
 pub trait Ownership:
 	Encode + Decode + EncodeLike + Default + Eq + Debug + Clone + TypeInfo
@@ -37,11 +40,6 @@ pub trait Ownership:
 	fn root() -> Self;
 	/// Owned by a specific account.
 	fn account(account: Self::AccountId) -> Self;
-}
-
-pub trait Config: pallet_balances::Config {
-	type Ownership: Ownership<AccountId = Self::AccountId>;
-	type Event: From<Event<Self>> + Into<<Self as frame_system::Config>::Event>;
 }
 
 pub trait Registry {
@@ -84,41 +82,61 @@ pub trait Registry {
 	}
 }
 
-decl_storage! {
-	trait Store for Module<T: Config> as Registry {
-		Ownerships: map hasher(identity) NameHash => NameValue<T::Ownership>;
-	}
+pub trait WeightInfo {
+	fn force_set_ownership() -> Weight;
 }
 
-decl_event! {
-	pub enum Event<T> where Ownership = <T as crate::Config>::Ownership {
-		OwnershipSet(Name, Option<Ownership>),
+#[frame_support::pallet]
+pub mod pallet {
+	use super::*;
+	use frame_support::pallet_prelude::*;
+	use frame_system::pallet_prelude::*;
+
+	#[pallet::config]
+	pub trait Config: frame_system::Config {
+		type Ownership: Ownership<AccountId = Self::AccountId>;
+		type WeightInfo: WeightInfo;
+		type Event: From<Event<Self>> + IsType<<Self as frame_system::Config>::Event>;
 	}
-}
 
-decl_error! {
-	pub enum Error for Module<T: Config> {
-		OwnershipMismatch,
-		AttemptToSetRootOwnership,
-	}
-}
+	#[pallet::pallet]
+	#[pallet::generate_store(pub(super) trait Store)]
+	pub struct Pallet<T>(_);
 
-decl_module! {
-	pub struct Module<T: Config> for enum Call where origin: T::Origin {
-		type Error = Error<T>;
-
-		fn deposit_event() = default;
-
-		#[weight = 0]
-		fn force_set_ownership(origin, name: Name, ownership: Option<T::Ownership>) {
+	#[pallet::call]
+	impl<T: Config> Pallet<T> {
+		#[pallet::weight(T::WeightInfo::force_set_ownership())]
+		pub fn force_set_ownership(
+			origin: OriginFor<T>,
+			name: Name,
+			ownership: Option<T::Ownership>,
+		) -> DispatchResult {
 			ensure_root(origin)?;
 
 			<Self as Registry>::set_ownership_as(&Ownership::root(), name, ownership)?;
+
+			Ok(())
 		}
 	}
+
+	#[pallet::event]
+	#[pallet::generate_deposit(pub(super) fn deposit_event)]
+	pub enum Event<T: Config> {
+		OwnershipSet(Name, Option<T::Ownership>),
+	}
+
+	#[pallet::error]
+	pub enum Error<T> {
+		OwnershipMismatch,
+		AttemptToSetRootOwnership,
+	}
+
+	#[pallet::storage]
+	pub(super) type Ownerships<T: Config> =
+		StorageMap<_, Identity, NameHash, NameValue<T::Ownership>, ValueQuery>;
 }
 
-impl<T: Config> Registry for Module<T> {
+impl<T: Config> Registry for Pallet<T> {
 	type Ownership = T::Ownership;
 
 	fn ensure_can_set_ownership(as_ownership: &T::Ownership, name: &Name) -> DispatchResult {

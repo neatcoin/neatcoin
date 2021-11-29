@@ -162,3 +162,15 @@ impl Label {
 		H256::from_slice(blake2b(32, &[], &self.0).as_bytes())
 	}
 }
+
+impl TryFrom<RawLabel> for Label {
+	type Error = ();
+
+	fn try_from(value: RawLabel) -> Result<Label, ()> {
+		if !is_label(&value) {
+			return Err(());
+		}
+
+		Ok(Label(value))
+	}
+}

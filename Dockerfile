@@ -23,7 +23,7 @@ LABEL maintainer "wei@that.world"
 LABEL description="Neatcoin builder."
 
 ARG PROFILE=release
-ARG STABLE=1.55.0
+ARG STABLE=1.56.1
 WORKDIR /rustbuilder
 COPY . /rustbuilder/neatcoin
 
