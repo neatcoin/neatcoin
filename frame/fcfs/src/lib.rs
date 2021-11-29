@@ -21,7 +21,7 @@
 
 use codec::{Decode, Encode};
 use frame_support::{
-	decl_error, decl_event, decl_module, decl_storage, ensure,
+	ensure,
 	traits::{Currency, ExistenceRequirement, Get, OnUnbalanced, WithdrawReasons},
 };
 use frame_system::ensure_signed;
@@ -32,22 +32,13 @@ use scale_info::TypeInfo;
 use serde::{Deserialize, Serialize};
 use sp_std::{cmp, fmt::Debug, prelude::*};
 
+pub use pallet::*;
+
 type BalanceOf<T> =
 	<<T as Config>::Currency as Currency<<T as frame_system::Config>::AccountId>>::Balance;
 type NegativeImbalanceOf<T> = <<T as Config>::Currency as Currency<
 	<T as frame_system::Config>::AccountId,
 >>::NegativeImbalance;
-
-pub trait Config: frame_system::Config {
-	type Ownership: Ownership<AccountId = Self::AccountId>;
-	type FCFSOwnership: Get<Self::Ownership>;
-	type Registry: Registry<Ownership = Self::Ownership>;
-	type Currency: Currency<Self::AccountId>;
-	type Fee: Get<BalanceOf<Self>>;
-	type Period: Get<Self::BlockNumber>;
-	type ChargeFee: OnUnbalanced<NegativeImbalanceOf<Self>>;
-	type Event: From<Event<Self>> + Into<<Self as frame_system::Config>::Event>;
-}
 
 #[cfg_attr(feature = "std", derive(Serialize, Deserialize))]
 #[derive(Default, Eq, PartialEq, Clone, Encode, Decode, Debug, TypeInfo)]
@@ -56,42 +47,68 @@ pub struct RenewalInfo<BlockNumber, Balance> {
 	pub fee: Balance,
 }
 
-decl_storage! {
-	trait Store for Module<T: Config> as FCFS {
-		Renewals: map hasher(identity) NameHash => NameValue<RenewalInfo<T::BlockNumber, BalanceOf<T>>>;
-	}
-}
+#[frame_support::pallet]
+pub mod pallet {
+	use super::*;
+	use frame_support::pallet_prelude::*;
+	use frame_system::pallet_prelude::*;
 
-decl_event! {
-	pub enum Event<T> where BlockNumber = <T as frame_system::Config>::BlockNumber {
-		Registered(Name, BlockNumber),
-		Renewed(Name, BlockNumber),
+	#[pallet::config]
+	pub trait Config: frame_system::Config {
+		type Ownership: Ownership<AccountId = Self::AccountId>;
+		type FCFSOwnership: Get<Self::Ownership>;
+		type Registry: Registry<Ownership = Self::Ownership>;
+		type Currency: Currency<Self::AccountId>;
+		type Fee: Get<BalanceOf<Self>>;
+		type Period: Get<Self::BlockNumber>;
+		type ChargeFee: OnUnbalanced<NegativeImbalanceOf<Self>>;
+		type Event: From<Event<Self>> + IsType<<Self as frame_system::Config>::Event>;
+	}
+
+	#[pallet::pallet]
+	#[pallet::generate_store(pub(super) trait Store)]
+	pub struct Pallet<T>(_);
+
+	#[pallet::storage]
+	pub(super) type Renewals<T: Config> = StorageMap<
+		_,
+		Identity,
+		NameHash,
+		NameValue<RenewalInfo<T::BlockNumber, BalanceOf<T>>>,
+		ValueQuery,
+	>;
+
+	#[pallet::event]
+	#[pallet::generate_deposit(pub(super) fn deposit_event)]
+	pub enum Event<T: Config> {
+		Registered(Name, T::BlockNumber),
+		Renewed(Name, T::BlockNumber),
 		Expired(Name),
 	}
-}
 
-decl_error! {
-	pub enum Error for Module<T: Config> {
+	#[pallet::error]
+	pub enum Error<T> {
 		OwnershipMismatch,
 		NotAllowedRegister,
 		AlreadyRegistered,
 		RenewalInfoMissing,
 		NotExpired,
 	}
-}
 
-decl_module! {
-	pub struct Module<T: Config> for enum Call where origin: T::Origin {
-		type Error = Error<T>;
-
-		fn deposit_event() = default;
-
-		#[weight = 0]
-		fn register(origin, name: Name) {
+	#[pallet::call]
+	impl<T: Config> Pallet<T> {
+		#[pallet::weight(0)]
+		pub fn register(origin: OriginFor<T>, name: Name) -> DispatchResult {
 			let sender = ensure_signed(origin)?;
 
-			ensure!(T::Registry::owner(&name).is_none(), Error::<T>::AlreadyRegistered);
-			ensure!(T::Registry::parent_owner(&name) == Some(T::FCFSOwnership::get()), Error::<T>::NotAllowedRegister);
+			ensure!(
+				T::Registry::owner(&name).is_none(),
+				Error::<T>::AlreadyRegistered
+			);
+			ensure!(
+				T::Registry::parent_owner(&name) == Some(T::FCFSOwnership::get()),
+				Error::<T>::NotAllowedRegister
+			);
 			T::Registry::ensure_can_set_ownership(&T::FCFSOwnership::get(), &name)?;
 
 			let fee = T::Fee::get();
@@ -111,17 +128,27 @@ decl_module! {
 
 			T::ChargeFee::on_unbalanced(imbalance);
 			Self::deposit_event(Event::<T>::Registered(name, expire_at));
+
+			Ok(())
 		}
 
-		#[weight = 0]
-		fn renew(origin, name: Name) {
+		#[pallet::weight(0)]
+		pub fn renew(origin: OriginFor<T>, name: Name) -> DispatchResult {
 			let sender = ensure_signed(origin)?;
 
-			ensure!(T::Registry::owner(&name) == Some(T::Ownership::account(sender.clone())), Error::<T>::OwnershipMismatch);
-			ensure!(T::Registry::parent_owner(&name) == Some(T::FCFSOwnership::get()), Error::<T>::NotAllowedRegister);
+			ensure!(
+				T::Registry::owner(&name) == Some(T::Ownership::account(sender.clone())),
+				Error::<T>::OwnershipMismatch
+			);
+			ensure!(
+				T::Registry::parent_owner(&name) == Some(T::FCFSOwnership::get()),
+				Error::<T>::NotAllowedRegister
+			);
 			T::Registry::ensure_can_set_ownership(&T::FCFSOwnership::get(), &name)?;
 
-			let mut info = Renewals::<T>::get(&name.hash()).into_value().ok_or(Error::<T>::RenewalInfoMissing)?;
+			let mut info = Renewals::<T>::get(&name.hash())
+				.into_value()
+				.ok_or(Error::<T>::RenewalInfoMissing)?;
 			let fee = cmp::min(info.fee, T::Fee::get());
 
 			let imbalance = T::Currency::withdraw(
@@ -138,21 +165,30 @@ decl_module! {
 
 			T::ChargeFee::on_unbalanced(imbalance);
 			Self::deposit_event(Event::<T>::Renewed(name, expire_at));
+
+			Ok(())
 		}
 
-		#[weight = 0]
-		fn release_expired(origin, name: Name) {
+		#[pallet::weight(0)]
+		pub fn release_expired(origin: OriginFor<T>, name: Name) -> DispatchResult {
 			ensure_signed(origin)?;
 
 			T::Registry::ensure_can_set_ownership(&T::FCFSOwnership::get(), &name)?;
 
-			let info = Renewals::<T>::get(&name.hash()).into_value().ok_or(Error::<T>::RenewalInfoMissing)?;
-			ensure!(frame_system::Pallet::<T>::block_number() > info.expire_at, Error::<T>::NotExpired);
+			let info = Renewals::<T>::get(&name.hash())
+				.into_value()
+				.ok_or(Error::<T>::RenewalInfoMissing)?;
+			ensure!(
+				frame_system::Pallet::<T>::block_number() > info.expire_at,
+				Error::<T>::NotExpired
+			);
 
 			T::Registry::set_ownership_unchecked(name.clone(), None);
 			Renewals::<T>::remove(&name.hash());
 
 			Self::deposit_event(Event::<T>::Expired(name));
+
+			Ok(())
 		}
 	}
 }
