@@ -19,10 +19,14 @@
 // Ensure we're `no_std` when compiling for Wasm.
 #![cfg_attr(not(feature = "std"), no_std)]
 
+mod benchmarking;
+mod default_weights;
+
 use codec::{Decode, Encode};
 use frame_support::{
 	ensure,
 	traits::{Currency, ExistenceRequirement, Get, OnUnbalanced, WithdrawReasons},
+	weights::Weight,
 };
 use frame_system::ensure_signed;
 use np_domain::{Name, NameHash, NameValue};
@@ -47,6 +51,12 @@ pub struct RenewalInfo<BlockNumber, Balance> {
 	pub fee: Balance,
 }
 
+pub trait WeightInfo {
+	fn register() -> Weight;
+	fn renew() -> Weight;
+	fn release_expired() -> Weight;
+}
+
 #[frame_support::pallet]
 pub mod pallet {
 	use super::*;
@@ -61,7 +71,9 @@ pub mod pallet {
 		type Currency: Currency<Self::AccountId>;
 		type Fee: Get<BalanceOf<Self>>;
 		type Period: Get<Self::BlockNumber>;
+		type CanRenewAfter: Get<Self::BlockNumber>;
 		type ChargeFee: OnUnbalanced<NegativeImbalanceOf<Self>>;
+		type WeightInfo: WeightInfo;
 		type Event: From<Event<Self>> + IsType<<Self as frame_system::Config>::Event>;
 	}
 
@@ -92,12 +104,13 @@ pub mod pallet {
 		NotAllowedRegister,
 		AlreadyRegistered,
 		RenewalInfoMissing,
+		RenewalTooEarly,
 		NotExpired,
 	}
 
 	#[pallet::call]
 	impl<T: Config> Pallet<T> {
-		#[pallet::weight(0)]
+		#[pallet::weight(T::WeightInfo::register())]
 		pub fn register(origin: OriginFor<T>, name: Name) -> DispatchResult {
 			let sender = ensure_signed(origin)?;
 
@@ -132,7 +145,7 @@ pub mod pallet {
 			Ok(())
 		}
 
-		#[pallet::weight(0)]
+		#[pallet::weight(T::WeightInfo::renew())]
 		pub fn renew(origin: OriginFor<T>, name: Name) -> DispatchResult {
 			let sender = ensure_signed(origin)?;
 
@@ -149,6 +162,12 @@ pub mod pallet {
 			let mut info = Renewals::<T>::get(&name.hash())
 				.into_value()
 				.ok_or(Error::<T>::RenewalInfoMissing)?;
+			ensure!(
+				frame_system::Pallet::<T>::block_number()
+					>= info.expire_at - T::CanRenewAfter::get(),
+				Error::<T>::RenewalTooEarly
+			);
+
 			let fee = cmp::min(info.fee, T::Fee::get());
 
 			let imbalance = T::Currency::withdraw(
@@ -169,7 +188,7 @@ pub mod pallet {
 			Ok(())
 		}
 
-		#[pallet::weight(0)]
+		#[pallet::weight(T::WeightInfo::release_expired())]
 		pub fn release_expired(origin: OriginFor<T>, name: Name) -> DispatchResult {
 			ensure_signed(origin)?;
 

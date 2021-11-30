@@ -2,7 +2,7 @@
 name = "pallet-fcfs"
 version = "1.2.1"
 authors = ["Wei Tang <wei@that.world>"]
-edition = "2018"
+edition = "2021"
 license = "GPL-3.0-or-later"
 repository = "https://github.com/nomonetwork/nomo"
 description = "First-come-first-served registrar runtime pallet for Nomo."
