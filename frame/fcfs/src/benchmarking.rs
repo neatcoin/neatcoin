@@ -22,7 +22,7 @@ use frame_benchmarking::{benchmarks, whitelisted_caller};
 use frame_support::dispatch::UnfilteredDispatchable;
 use frame_system::RawOrigin;
 use np_domain::{Label, Name};
-use sp_runtime::traits::UniqueSaturatedFrom;
+use sp_runtime::traits::{One, UniqueSaturatedFrom};
 
 benchmarks! {
 	register {
@@ -79,4 +79,8 @@ benchmarks! {
 	verify {
 		assert_eq!(T::Registry::owner(&name), None);
 	}
+
+	set_fee {
+		let fee = One::one();
+	}: _(RawOrigin::Root, fee)
 }

@@ -67,7 +67,7 @@ impl pallet_zone::Config for Runtime {
 }
 
 parameter_types! {
-	pub const Fee: Balance = 500 * UNITS;
+	pub const DefaultFee: Balance = 500 * UNITS;
 	pub const Period: BlockNumber = 52 * 7 * DAYS;
 	pub const CanRenewAfter: BlockNumber = 52 * 7 * DAYS;
 	pub const FCFSOwnership: Ownership = Ownership::FCFS;
@@ -78,7 +78,7 @@ impl pallet_fcfs::Config for Runtime {
 	type FCFSOwnership = FCFSOwnership;
 	type Registry = Registry;
 	type Currency = Balances;
-	type Fee = Fee;
+	type DefaultFee = DefaultFee;
 	type Period = Period;
 	type CanRenewAfter = CanRenewAfter;
 	type ChargeFee = Treasury;
