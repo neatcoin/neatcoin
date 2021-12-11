@@ -55,6 +55,7 @@ pub trait WeightInfo {
 	fn register() -> Weight;
 	fn renew() -> Weight;
 	fn release_expired() -> Weight;
+	fn set_fee() -> Weight;
 }
 
 #[frame_support::pallet]
@@ -69,7 +70,7 @@ pub mod pallet {
 		type FCFSOwnership: Get<Self::Ownership>;
 		type Registry: Registry<Ownership = Self::Ownership>;
 		type Currency: Currency<Self::AccountId>;
-		type Fee: Get<BalanceOf<Self>>;
+		type DefaultFee: Get<BalanceOf<Self>>;
 		type Period: Get<Self::BlockNumber>;
 		type CanRenewAfter: Get<Self::BlockNumber>;
 		type ChargeFee: OnUnbalanced<NegativeImbalanceOf<Self>>;
@@ -89,6 +90,10 @@ pub mod pallet {
 		NameValue<RenewalInfo<T::BlockNumber, BalanceOf<T>>>,
 		ValueQuery,
 	>;
+
+	#[pallet::storage]
+	#[pallet::getter(fn key)]
+	pub(super) type Fee<T: Config> = StorageValue<_, BalanceOf<T>, ValueQuery>;
 
 	#[pallet::event]
 	#[pallet::generate_deposit(pub(super) fn deposit_event)]
@@ -124,7 +129,7 @@ pub mod pallet {
 			);
 			T::Registry::ensure_can_set_ownership(&T::FCFSOwnership::get(), &name)?;
 
-			let fee = T::Fee::get();
+			let fee = Self::fee();
 			let period = T::Period::get();
 			let expire_at = frame_system::Pallet::<T>::block_number() + period;
 			let info = RenewalInfo { fee, expire_at };
@@ -168,7 +173,7 @@ pub mod pallet {
 				Error::<T>::RenewalTooEarly
 			);
 
-			let fee = cmp::min(info.fee, T::Fee::get());
+			let fee = cmp::min(info.fee, Self::fee());
 
 			let imbalance = T::Currency::withdraw(
 				&sender,
@@ -208,6 +213,25 @@ pub mod pallet {
 			Self::deposit_event(Event::<T>::Expired(name));
 
 			Ok(())
+		}
+
+		#[pallet::weight(T::WeightInfo::set_fee())]
+		pub fn set_fee(origin: OriginFor<T>, new_fee: BalanceOf<T>) -> DispatchResult {
+			ensure_root(origin)?;
+
+			Fee::<T>::set(new_fee);
+
+			Ok(())
+		}
+	}
+
+	impl<T: Config> Pallet<T> {
+		pub fn fee() -> BalanceOf<T> {
+			if Fee::<T>::get() == Default::default() {
+				T::DefaultFee::get()
+			} else {
+				Fee::<T>::get()
+			}
 		}
 	}
 }
