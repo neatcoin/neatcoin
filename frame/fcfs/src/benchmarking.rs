@@ -22,7 +22,7 @@ use frame_benchmarking::{benchmarks, whitelisted_caller};
 use frame_support::dispatch::UnfilteredDispatchable;
 use frame_system::RawOrigin;
 use np_domain::{Label, Name};
-use sp_runtime::traits::{UniqueSaturatedFrom, One};
+use sp_runtime::traits::{One, UniqueSaturatedFrom};
 
 benchmarks! {
 	register {
