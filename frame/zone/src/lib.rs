@@ -19,16 +19,32 @@
 // Ensure we're `no_std` when compiling for Wasm.
 #![cfg_attr(not(feature = "std"), no_std)]
 
-use frame_support::{decl_error, decl_event, decl_module, decl_storage, ensure};
+mod benchmarking;
+mod default_weights;
+
+use frame_support::{decl_error, decl_event, decl_module, decl_storage, ensure, weights::Weight};
 use frame_system::{ensure_root, ensure_signed};
 use np_domain::{Name, NameHash, NameValue};
 use pallet_registry::{Ownership, Registry};
 use sp_std::prelude::*;
 
+pub trait WeightInfo {
+	fn set_a() -> Weight;
+	fn set_aaaa() -> Weight;
+	fn set_ns() -> Weight;
+	fn set_cname() -> Weight;
+	fn set_mx() -> Weight;
+	fn set_icann() -> Weight;
+	fn set_opennic() -> Weight;
+	fn set_handshake() -> Weight;
+	fn reset_extern() -> Weight;
+}
+
 pub trait Config: frame_system::Config {
 	type Ownership: Ownership<AccountId = Self::AccountId>;
 	type Registry: Registry<Ownership = Self::Ownership>;
 	type Event: From<Event> + Into<<Self as frame_system::Config>::Event>;
+	type WeightInfo: WeightInfo;
 }
 
 pub type RawIpv4 = u32;
@@ -76,7 +92,7 @@ decl_module! {
 
 		fn deposit_event() = default;
 
-		#[weight = 0]
+		#[weight = T::WeightInfo::set_a()]
 		fn set_a(origin, name: Name, record: Vec<RawIpv4>) {
 			let owner = ensure_signed(origin)?;
 			ensure!(T::Registry::is_effective_owned(&T::Ownership::account(owner), &name), Error::<T>::OwnershipMismatch);
@@ -90,7 +106,7 @@ decl_module! {
 			Self::deposit_event(Event::SetA(name, record));
 		}
 
-		#[weight = 0]
+		#[weight = T::WeightInfo::set_aaaa()]
 		fn set_aaaa(origin, name: Name, record: Vec<RawIpv6>) {
 			let owner = ensure_signed(origin)?;
 			ensure!(T::Registry::is_effective_owned(&T::Ownership::account(owner), &name), Error::<T>::OwnershipMismatch);
@@ -104,7 +120,7 @@ decl_module! {
 			Self::deposit_event(Event::SetAAAA(name, record));
 		}
 
-		#[weight = 0]
+		#[weight = T::WeightInfo::set_ns()]
 		fn set_ns(origin, name: Name, record: Vec<Name>) {
 			let owner = ensure_signed(origin)?;
 			ensure!(T::Registry::is_effective_owned(&T::Ownership::account(owner), &name), Error::<T>::OwnershipMismatch);
@@ -118,7 +134,7 @@ decl_module! {
 			Self::deposit_event(Event::SetNS(name, record));
 		}
 
-		#[weight = 0]
+		#[weight = T::WeightInfo::set_cname()]
 		fn set_cname(origin, name: Name, record: Option<Name>) {
 			let owner = ensure_signed(origin)?;
 			ensure!(T::Registry::is_effective_owned(&T::Ownership::account(owner), &name), Error::<T>::OwnershipMismatch);
@@ -132,7 +148,7 @@ decl_module! {
 			Self::deposit_event(Event::SetCNAME(name, record));
 		}
 
-		#[weight = 0]
+		#[weight = T::WeightInfo::set_mx()]
 		fn set_mx(origin, name: Name, record: Option<(u16, Name)>) {
 			let owner = ensure_signed(origin)?;
 			ensure!(T::Registry::is_effective_owned(&T::Ownership::account(owner), &name), Error::<T>::OwnershipMismatch);
@@ -146,7 +162,7 @@ decl_module! {
 			Self::deposit_event(Event::SetMX(name, record));
 		}
 
-		#[weight = 0]
+		#[weight = T::WeightInfo::set_icann()]
 		fn set_icann(origin, name: Name) {
 			ensure_root(origin)?;
 			ensure!(T::Registry::is_owned(&T::Ownership::root(), &name), Error::<T>::OwnershipMismatch);
@@ -156,7 +172,7 @@ decl_module! {
 			Self::deposit_event(Event::SetICANN(name));
 		}
 
-		#[weight = 0]
+		#[weight = T::WeightInfo::set_opennic()]
 		fn set_opennic(origin, name: Name) {
 			ensure_root(origin)?;
 			ensure!(T::Registry::is_owned(&T::Ownership::root(), &name), Error::<T>::OwnershipMismatch);
@@ -166,7 +182,7 @@ decl_module! {
 			Self::deposit_event(Event::SetOpenNIC(name));
 		}
 
-		#[weight = 0]
+		#[weight = T::WeightInfo::set_handshake()]
 		fn set_handshake(origin, name: Name) {
 			ensure_root(origin)?;
 			ensure!(T::Registry::is_owned(&T::Ownership::root(), &name), Error::<T>::OwnershipMismatch);
@@ -176,7 +192,7 @@ decl_module! {
 			Self::deposit_event(Event::SetHandshake(name));
 		}
 
-		#[weight = 0]
+		#[weight = T::WeightInfo::reset_extern()]
 		fn reset_extern(origin, name: Name) {
 			ensure_root(origin)?;
 			ensure!(T::Registry::is_owned(&T::Ownership::root(), &name), Error::<T>::OwnershipMismatch);

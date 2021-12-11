@@ -64,6 +64,7 @@ impl pallet_zone::Config for Runtime {
 	type Ownership = Ownership;
 	type Registry = Registry;
 	type Event = Event;
+	type WeightInfo = ();
 }
 
 parameter_types! {

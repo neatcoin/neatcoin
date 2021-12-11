@@ -189,6 +189,7 @@ runtime-benchmarks = [
 	"pallet-vesting/runtime-benchmarks",
 	"pallet-registry/runtime-benchmarks",
 	"pallet-fcfs/runtime-benchmarks",
+	"pallet-zone/runtime-benchmarks",
 	"pallet-offences-benchmarking",
 	"pallet-session-benchmarking",
 	"frame-system-benchmarking",
