@@ -60,10 +60,15 @@ impl pallet_registry::Config for Runtime {
 	type WeightInfo = ();
 }
 
+parameter_types! {
+	pub const RecordLimit: u32 = 16;
+}
+
 impl pallet_zone::Config for Runtime {
 	type Ownership = Ownership;
 	type Registry = Registry;
 	type Event = Event;
+	type RecordLimit = RecordLimit;
 	type WeightInfo = ();
 }
 
