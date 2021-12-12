@@ -22,7 +22,10 @@
 mod benchmarking;
 mod default_weights;
 
-use frame_support::{decl_error, decl_event, decl_module, decl_storage, ensure, weights::Weight};
+use frame_support::{
+	decl_error, decl_event, decl_module, decl_storage, ensure, storage::bounded_vec::BoundedVec,
+	traits::Get, weights::Weight,
+};
 use frame_system::{ensure_root, ensure_signed};
 use np_domain::{Name, NameHash, NameValue};
 use pallet_registry::{Ownership, Registry};
@@ -44,6 +47,7 @@ pub trait Config: frame_system::Config {
 	type Ownership: Ownership<AccountId = Self::AccountId>;
 	type Registry: Registry<Ownership = Self::Ownership>;
 	type Event: From<Event> + Into<<Self as frame_system::Config>::Event>;
+	type RecordLimit: Get<u32>;
 	type WeightInfo: WeightInfo;
 }
 
@@ -52,9 +56,9 @@ pub type RawIpv6 = u128;
 
 decl_storage! {
 	trait Store for Module<T: Config> as Zone {
-		As: map hasher(identity) NameHash => NameValue<Vec<RawIpv4>>;
-		AAAAs: map hasher(identity) NameHash => NameValue<Vec<RawIpv6>>;
-		NSs: map hasher(identity) NameHash => NameValue<Vec<Name>>;
+		As: map hasher(identity) NameHash => NameValue<BoundedVec<RawIpv4, T::RecordLimit>>;
+		AAAAs: map hasher(identity) NameHash => NameValue<BoundedVec<RawIpv6, T::RecordLimit>>;
+		NSs: map hasher(identity) NameHash => NameValue<BoundedVec<Name, T::RecordLimit>>;
 		CNAMEs: map hasher(identity) NameHash => NameValue<Name>;
 		MXs: map hasher(identity) NameHash => NameValue<(u16, Name)>;
 
@@ -83,6 +87,7 @@ decl_event! {
 decl_error! {
 	pub enum Error for Module<T: Config> {
 		OwnershipMismatch,
+		RecordTooLarge,
 	}
 }
 
@@ -97,13 +102,15 @@ decl_module! {
 			let owner = ensure_signed(origin)?;
 			ensure!(T::Registry::is_effective_owned(&T::Ownership::account(owner), &name), Error::<T>::OwnershipMismatch);
 
+			let record = BoundedVec::try_from(record).map_err(|_| Error::<T>::RecordTooLarge)?;
+
 			if record.is_empty() {
-				As::remove(name.hash());
+				As::<T>::remove(name.hash());
 			} else {
-				As::insert(name.hash(), NameValue::some(name.clone(), record.clone()));
+				As::<T>::insert(name.hash(), NameValue::some(name.clone(), record.clone()));
 			}
 
-			Self::deposit_event(Event::SetA(name, record));
+			Self::deposit_event(Event::SetA(name, record.into_inner()));
 		}
 
 		#[weight = T::WeightInfo::set_aaaa()]
@@ -111,13 +118,15 @@ decl_module! {
 			let owner = ensure_signed(origin)?;
 			ensure!(T::Registry::is_effective_owned(&T::Ownership::account(owner), &name), Error::<T>::OwnershipMismatch);
 
+			let record = BoundedVec::try_from(record).map_err(|_| Error::<T>::RecordTooLarge)?;
+
 			if record.is_empty() {
-				AAAAs::remove(name.hash());
+				AAAAs::<T>::remove(name.hash());
 			} else {
-				AAAAs::insert(name.hash(), NameValue::some(name.clone(), record.clone()));
+				AAAAs::<T>::insert(name.hash(), NameValue::some(name.clone(), record.clone()));
 			}
 
-			Self::deposit_event(Event::SetAAAA(name, record));
+			Self::deposit_event(Event::SetAAAA(name, record.into_inner()));
 		}
 
 		#[weight = T::WeightInfo::set_ns()]
@@ -125,13 +134,15 @@ decl_module! {
 			let owner = ensure_signed(origin)?;
 			ensure!(T::Registry::is_effective_owned(&T::Ownership::account(owner), &name), Error::<T>::OwnershipMismatch);
 
+			let record = BoundedVec::try_from(record).map_err(|_| Error::<T>::RecordTooLarge)?;
+
 			if record.is_empty() {
-				NSs::remove(name.hash());
+				NSs::<T>::remove(name.hash());
 			} else {
-				NSs::insert(name.hash(), NameValue::some(name.clone(), record.clone()));
+				NSs::<T>::insert(name.hash(), NameValue::some(name.clone(), record.clone()));
 			}
 
-			Self::deposit_event(Event::SetNS(name, record));
+			Self::deposit_event(Event::SetNS(name, record.into_inner()));
 		}
 
 		#[weight = T::WeightInfo::set_cname()]
