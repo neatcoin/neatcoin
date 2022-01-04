@@ -167,11 +167,5 @@ pub type Executive = frame_executive::Executive<
 	frame_system::ChainContext<Runtime>,
 	Runtime,
 	AllPallets,
-	(
-		crate::migrations::MigratePalletVersionToStorageVersion,
-		crate::migrations::CouncilStoragePrefixMigration,
-		crate::migrations::TechnicalCommitteeStoragePrefixMigration,
-		crate::migrations::TechnicalMembershipStoragePrefixMigration,
-		crate::migrations::MigrateTipsPalletPrefix,
-	),
+	crate::migrations::AllMigrations,
 >;
