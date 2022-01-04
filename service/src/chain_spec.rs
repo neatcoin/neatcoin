@@ -21,8 +21,9 @@ use indexmap::IndexMap;
 use np_opaque::{AccountId, Balance};
 use sc_chain_spec::{ChainSpecExtension, ChainType};
 use serde::{Deserialize, Serialize};
-use sp_core::crypto::{Ss58AddressFormat, Ss58Codec};
+use sp_core::crypto::{Ss58AddressFormatRegistry, Ss58Codec};
 use sp_runtime::Perbill;
+use std::convert::TryFrom;
 use std::marker::PhantomData;
 
 /// Node `ChainSpec` extensions.
@@ -50,7 +51,10 @@ pub fn build_genesis_allocations() -> IndexMap<AccountId, Balance> {
 		.map(|(key, value)| {
 			let (address, version) =
 				AccountId::from_ss58check_with_version(&key).expect("parse address failed");
-			assert_eq!(version, Ss58AddressFormat::KulupuAccount);
+			assert_eq!(
+				Ss58AddressFormatRegistry::try_from(version),
+				Ok(Ss58AddressFormatRegistry::KulupuAccount)
+			);
 			let balance = u128::from_str_radix(&value, 10).expect("parse balance failed");
 			(address, balance)
 		})

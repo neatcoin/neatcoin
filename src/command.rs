@@ -84,14 +84,14 @@ impl SubstrateCli for Cli {
 }
 
 fn set_default_ss58_version(spec: &Box<dyn sc_service::ChainSpec>) {
-	use sp_core::crypto::Ss58AddressFormat;
+	use sp_core::crypto::Ss58AddressFormatRegistry;
 
 	let ss58_version = match spec.identify_variant() {
-		ChainVariant::Neatcoin => Ss58AddressFormat::NeatcoinAccount,
-		ChainVariant::Vodka => Ss58AddressFormat::SubstrateAccount,
+		ChainVariant::Neatcoin => Ss58AddressFormatRegistry::NeatcoinAccount,
+		ChainVariant::Vodka => Ss58AddressFormatRegistry::SubstrateAccount,
 	};
 
-	sp_core::crypto::set_default_ss58_version(ss58_version);
+	sp_core::crypto::set_default_ss58_version(ss58_version.into());
 }
 
 /// Parses polkadot specific CLI arguments and run the service.
