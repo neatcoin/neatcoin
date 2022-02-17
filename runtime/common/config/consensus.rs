@@ -47,6 +47,7 @@ parameter_types! {
 	pub const ExpectedBlockTime: Moment = MILLISECS_PER_BLOCK;
 	pub const ReportLongevity: u64 =
 		BondingDuration::get() as u64 * SessionsPerEra::get() as u64 * EpochDuration::get();
+	pub const MaxAuthorities: u32 = 100_000;
 }
 
 impl pallet_babe::Config for Runtime {
@@ -69,6 +70,8 @@ impl pallet_babe::Config for Runtime {
 		KeyTypeId,
 		pallet_babe::AuthorityId,
 	)>>::IdentificationTuple;
+
+	type MaxAuthorities = MaxAuthorities;
 
 	type HandleEquivocation =
 		pallet_babe::EquivocationHandler<Self::KeyOwnerIdentification, Offences, ReportLongevity>;
@@ -96,10 +99,6 @@ impl pallet_im_online::Config for Runtime {
 	type MaxKeys = MaxKeys;
 	type MaxPeerInHeartbeats = MaxPeerInHeartbeats;
 	type MaxPeerDataEncodingSize = MaxPeerDataEncodingSize;
-}
-
-parameter_types! {
-	pub const MaxAuthorities: u32 = 100_000;
 }
 
 impl pallet_authority_discovery::Config for Runtime {
@@ -137,11 +136,9 @@ impl pallet_grandpa::Config for Runtime {
 		ReportLongevity,
 	>;
 
-	type WeightInfo = ();
-}
+	type MaxAuthorities = MaxAuthorities;
 
-parameter_types! {
-	pub const DisabledValidatorsThreshold: Perbill = Perbill::from_percent(17);
+	type WeightInfo = ();
 }
 
 impl pallet_session::Config for Runtime {
@@ -153,7 +150,6 @@ impl pallet_session::Config for Runtime {
 	type SessionManager = pallet_session::historical::NoteHistoricalRoot<Self, Staking>;
 	type SessionHandler = <SessionKeys as OpaqueKeys>::KeyTypeIdProviders;
 	type Keys = SessionKeys;
-	type DisabledValidatorsThreshold = DisabledValidatorsThreshold;
 	type WeightInfo = ();
 }
 
@@ -290,6 +286,7 @@ parameter_types! {
 	pub const SlashDeferDuration: pallet_staking::EraIndex = 27;
 	pub const RewardCurve: &'static PiecewiseLinear<'static> = &REWARD_CURVE;
 	pub const MaxNominatorRewardedPerValidator: u32 = 256;
+	pub const OffendingValidatorsThreshold: Perbill = Perbill::from_percent(17);
 }
 
 type SlashCancelOrigin = EnsureOneOf<
@@ -316,6 +313,7 @@ impl pallet_staking::Config for Runtime {
 	type SessionInterface = Self;
 	type EraPayout = pallet_staking::ConvertCurve<RewardCurve>;
 	type MaxNominatorRewardedPerValidator = MaxNominatorRewardedPerValidator;
+	type OffendingValidatorsThreshold = OffendingValidatorsThreshold;
 	type NextNewSession = Session;
 	type ElectionProvider = ElectionProviderMultiPhase;
 	type GenesisElectionProvider =

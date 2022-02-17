@@ -402,9 +402,12 @@ where
 		.extra_sets
 		.push(sc_finality_grandpa::grandpa_peers_set_config());
 
+	let grandpa_hard_forks = Vec::new();
+
 	let warp_sync = Arc::new(sc_finality_grandpa::warp_proof::NetworkProvider::new(
 		backend.clone(),
 		import_setup.1.shared_authority_set().clone(),
+		grandpa_hard_forks,
 	));
 
 	let (network, system_rpc_tx, network_starter) =
@@ -756,9 +759,12 @@ where
 		telemetry.as_ref().map(|x| x.handle()),
 	)?;
 
+	let grandpa_hard_forks = Vec::new();
+
 	let warp_sync = Arc::new(sc_finality_grandpa::warp_proof::NetworkProvider::new(
 		backend.clone(),
 		grandpa_link.shared_authority_set().clone(),
+		grandpa_hard_forks,
 	));
 
 	let (network, system_rpc_tx, network_starter) =

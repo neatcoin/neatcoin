@@ -67,7 +67,7 @@ pub const VERSION: RuntimeVersion = RuntimeVersion {
 	spec_name: create_runtime_str!("vodka"),
 	impl_name: create_runtime_str!("vodka"),
 	authoring_version: 0,
-	spec_version: 4,
+	spec_version: 5,
 	impl_version: 0,
 	apis: crate::api::PRUNTIME_API_VERSIONS,
 	transaction_version: 1,
@@ -167,11 +167,5 @@ pub type Executive = frame_executive::Executive<
 	frame_system::ChainContext<Runtime>,
 	Runtime,
 	AllPallets,
-	(
-		crate::migrations::MigratePalletVersionToStorageVersion,
-		crate::migrations::CouncilStoragePrefixMigration,
-		crate::migrations::TechnicalCommitteeStoragePrefixMigration,
-		crate::migrations::TechnicalMembershipStoragePrefixMigration,
-		crate::migrations::MigrateTipsPalletPrefix,
-	),
+	crate::migrations::AllMigrations,
 >;
