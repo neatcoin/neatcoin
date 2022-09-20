@@ -1,2 +1,2 @@
 hard_tabs = true
-ignore = "substrate"
+ignore = [ "substrate" ]
