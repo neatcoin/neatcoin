@@ -3,7 +3,8 @@
   "id": "neatcoin",
   "chainType": "Live",
   "bootNodes": [
-    "/dns4/a.bootnode.neatcoin.org/tcp/26100/ws/p2p/12D3KooWJcQDt9NaXgJvkiQmWB6NHrvAJFybp6JwjKPDEgvnRAoM"
+    "/dns4/a.bootnode.neatcoin.org/tcp/26100/ws/p2p/12D3KooWJcQDt9NaXgJvkiQmWB6NHrvAJFybp6JwjKPDEgvnRAoM",
+    "/ip4/34.208.71.136/tcp/26100/ws/p2p/12D3KooWBnjBk1MhqUk4drCUZKbEm8jQYvJPBbsA1jifLdZDiWDi"
   ],
   "telemetryEndpoints": [
     [
