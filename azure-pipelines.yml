@@ -4,6 +4,7 @@ trigger:
 
 variables:
   RUST_STABLE: 1.56.1
+  RUST_LINT: nightly
 
 jobs:
 - job: Features
@@ -68,8 +69,8 @@ jobs:
   - script: |
       curl -sSf https://sh.rustup.rs | sh -s -- --default-toolchain none -y
       source ~/.cargo/env
-      rustup update $(RUST_STABLE)
-      rustup target add wasm32-unknown-unknown --toolchain $(RUST_STABLE)
+      rustup update $(RUST_LINT)
+      rustup target add wasm32-unknown-unknown --toolchain $(RUST_LINT)
     displayName: 'Rust setup'
   - script: |
       source ~/.cargo/env

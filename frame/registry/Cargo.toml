@@ -12,17 +12,17 @@ serde = { version = "1.0.101", optional = true }
 codec = { package = "parity-scale-codec", version = "2.0.0", default-features = false }
 scale-info = { version = "1.0", default-features = false, features = ["derive"] }
 np-domain = { path = "../../primitives/domain", default-features = false }
-frame-support = { default-features = false, git = "https://github.com/paritytech/substrate" }
-frame-system = { default-features = false, git = "https://github.com/paritytech/substrate" }
-pallet-balances = { default-features = false, git = "https://github.com/paritytech/substrate" }
-sp-runtime = { default-features = false, git = "https://github.com/paritytech/substrate" }
-sp-std = { default-features = false, git = "https://github.com/paritytech/substrate" }
-sp-io = { default-features = false, git = "https://github.com/paritytech/substrate" }
+frame-support = { default-features = false, path = "../../substrate/frame/support" }
+frame-system = { default-features = false, path = "../../substrate/frame/system" }
+pallet-balances = { default-features = false, path = "../../substrate/frame/balances" }
+sp-runtime = { default-features = false, path = "../../substrate/primitives/runtime" }
+sp-std = { default-features = false, path = "../../substrate/primitives/std" }
+sp-io = { default-features = false, path = "../../substrate/primitives/io" }
 
-frame-benchmarking = { default-features = false, git = "https://github.com/paritytech/substrate", optional = true }
+frame-benchmarking = { default-features = false, path = "../../substrate/frame/benchmarking", optional = true }
 
 [dev-dependencies]
-sp-core = { git = "https://github.com/paritytech/substrate", default-features = false }
+sp-core = { path = "../../substrate/primitives/core", default-features = false }
 
 [features]
 default = ["std"]

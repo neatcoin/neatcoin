@@ -9,48 +9,48 @@ build = "build.rs"
 [dependencies]
 structopt = "0.3.8"
 
-sc-cli = { git = "https://github.com/paritytech/substrate", features = ["wasmtime"] }
-sp-core = { git = "https://github.com/paritytech/substrate" }
-sc-executor = { git = "https://github.com/paritytech/substrate", features = ["wasmtime"] }
-sc-service = { git = "https://github.com/paritytech/substrate", features = ["wasmtime"] }
-sc-telemetry = { git = "https://github.com/paritytech/substrate" }
-sc-keystore = { git = "https://github.com/paritytech/substrate" }
-sp-inherents = { git = "https://github.com/paritytech/substrate" }
-sc-transaction-pool = { git = "https://github.com/paritytech/substrate" }
-sp-transaction-pool = { git = "https://github.com/paritytech/substrate" }
-sc-consensus-aura = { git = "https://github.com/paritytech/substrate" }
-sp-consensus-aura = { git = "https://github.com/paritytech/substrate" }
-sp-consensus = { git = "https://github.com/paritytech/substrate" }
-sc-consensus = { git = "https://github.com/paritytech/substrate" }
-sc-finality-grandpa = { git = "https://github.com/paritytech/substrate" }
-sp-finality-grandpa = { git = "https://github.com/paritytech/substrate" }
-sc-client-api = { git = "https://github.com/paritytech/substrate" }
-sp-runtime = { git = "https://github.com/paritytech/substrate" }
+sc-cli = { path = "substrate/client/cli", features = ["wasmtime"] }
+sp-core = { path = "substrate/primitives/core" }
+sc-executor = { path = "substrate/client/executor", features = ["wasmtime"] }
+sc-service = { path = "substrate/client/service", features = ["wasmtime"] }
+sc-telemetry = { path = "substrate/client/telemetry" }
+sc-keystore = { path = "substrate/client/keystore" }
+sp-inherents = { path = "substrate/primitives/inherents" }
+sc-transaction-pool = { path = "substrate/client/transaction-pool" }
+sp-transaction-pool = { path = "substrate/primitives/transaction-pool" }
+sc-consensus-aura = { path = "substrate/client/consensus/aura" }
+sp-consensus-aura = { path = "substrate/primitives/consensus/aura" }
+sp-consensus = { path = "substrate/primitives/consensus/common" }
+sc-consensus = { path = "substrate/client/consensus/common" }
+sc-finality-grandpa = { path = "substrate/client/finality-grandpa" }
+sp-finality-grandpa = { path = "substrate/primitives/finality-grandpa" }
+sc-client-api = { path = "substrate/client/api" }
+sp-runtime = { path = "substrate/primitives/runtime" }
 
 futures = "0.3.12"
 thiserror = "1.0.23"
 jsonrpc-core = "15.1.0"
 log = "0.4"
-sc-rpc = { git = "https://github.com/paritytech/substrate" }
-sp-api = { git = "https://github.com/paritytech/substrate" }
-sc-rpc-api = { git = "https://github.com/paritytech/substrate" }
-sp-blockchain = { git = "https://github.com/paritytech/substrate" }
-sp-block-builder = { git = "https://github.com/paritytech/substrate" }
-sc-basic-authorship = { git = "https://github.com/paritytech/substrate" }
-substrate-frame-rpc-system = { git = "https://github.com/paritytech/substrate" }
-pallet-transaction-payment-rpc = { git = "https://github.com/paritytech/substrate" }
+sc-rpc = { path = "substrate/client/rpc" }
+sp-api = { path = "substrate/primitives/api" }
+sc-rpc-api = { path = "substrate/client/rpc-api" }
+sp-blockchain = { path = "substrate/primitives/blockchain" }
+sp-block-builder = { path = "substrate/primitives/block-builder" }
+sc-basic-authorship = { path = "substrate/client/basic-authorship" }
+substrate-frame-rpc-system = { path = "substrate/utils/frame/rpc/system" }
+pallet-transaction-payment-rpc = { path = "substrate/frame/transaction-payment/rpc" }
 
 # These dependencies are used for runtime benchmarking
-frame-benchmarking = { git = "https://github.com/paritytech/substrate", optional = true }
-frame-benchmarking-cli = { git = "https://github.com/paritytech/substrate", optional = true }
+frame-benchmarking = { path = "substrate/frame/benchmarking", optional = true }
+frame-benchmarking-cli = { path = "substrate/utils/frame/benchmarking-cli", optional = true }
 
-try-runtime-cli = { git = "https://github.com/paritytech/substrate", optional = true }
+try-runtime-cli = { path = "substrate/utils/frame/try-runtime/cli", optional = true }
 
 neatcoin-rpc = { path = "rpc" }
 neatcoin-service = { path = "service" }
 
 [build-dependencies]
-substrate-build-script-utils = { git = "https://github.com/paritytech/substrate" }
+substrate-build-script-utils = { path = "substrate/utils/build-script-utils" }
 
 [features]
 default = []
@@ -80,3 +80,4 @@ members = [
 	"frame/variables",
 	"frame/bootstrap",
 ]
+exclude = [ "substrate" ]

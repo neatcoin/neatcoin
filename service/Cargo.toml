@@ -10,53 +10,53 @@ serde = "1.0"
 structopt = "0.3.8"
 codec = { package = "parity-scale-codec", version = "2.0.0" }
 
-sc-cli = { git = "https://github.com/paritytech/substrate", features = ["wasmtime"] }
-sp-core = { git = "https://github.com/paritytech/substrate" }
-sc-executor = { git = "https://github.com/paritytech/substrate", features = ["wasmtime"] }
-sc-service = { git = "https://github.com/paritytech/substrate", features = ["wasmtime"] }
-sc-telemetry = { git = "https://github.com/paritytech/substrate" }
-sc-keystore = { git = "https://github.com/paritytech/substrate" }
-sp-inherents = { git = "https://github.com/paritytech/substrate" }
-sc-transaction-pool = { git = "https://github.com/paritytech/substrate" }
-sp-transaction-pool = { git = "https://github.com/paritytech/substrate" }
-sc-consensus-babe = { git = "https://github.com/paritytech/substrate" }
-sp-consensus-babe = { git = "https://github.com/paritytech/substrate" }
-sp-consensus = { git = "https://github.com/paritytech/substrate" }
-sc-consensus = { git = "https://github.com/paritytech/substrate" }
-sc-finality-grandpa = { git = "https://github.com/paritytech/substrate" }
-sp-finality-grandpa = { git = "https://github.com/paritytech/substrate" }
-sc-client-api = { git = "https://github.com/paritytech/substrate" }
-sp-runtime = { git = "https://github.com/paritytech/substrate" }
-sp-offchain = { git = "https://github.com/paritytech/substrate" }
-sp-session = { git = "https://github.com/paritytech/substrate" }
-sp-authority-discovery = { git = "https://github.com/paritytech/substrate" }
-sp-storage = { git = "https://github.com/paritytech/substrate" }
-sc-chain-spec = { git = "https://github.com/paritytech/substrate" }
-sc-network = { git = "https://github.com/paritytech/substrate" }
-sc-authority-discovery = { git = "https://github.com/paritytech/substrate" }
-# sc-finality-grandpa-warp-sync = { git = "https://github.com/paritytech/substrate" }
-sc-consensus-slots = { git = "https://github.com/paritytech/substrate" }
-sp-trie = { git = "https://github.com/paritytech/substrate" }
-sp-timestamp = { git = "https://github.com/paritytech/substrate" }
-sp-authorship = { git = "https://github.com/paritytech/substrate" }
-sc-consensus-uncles = { git = "https://github.com/paritytech/substrate" }
-sc-sync-state-rpc = { git = "https://github.com/paritytech/substrate" }
-pallet-staking = { git = "https://github.com/paritytech/substrate" }
+sc-cli = { path = "../substrate/client/cli", features = ["wasmtime"] }
+sp-core = { path = "../substrate/primitives/core" }
+sc-executor = { path = "../substrate/client/executor", features = ["wasmtime"] }
+sc-service = { path = "../substrate/client/service", features = ["wasmtime"] }
+sc-telemetry = { path = "../substrate/client/telemetry" }
+sc-keystore = { path = "../substrate/client/keystore" }
+sp-inherents = { path = "../substrate/primitives/inherents" }
+sc-transaction-pool = { path = "../substrate/client/transaction-pool" }
+sp-transaction-pool = { path = "../substrate/primitives/transaction-pool" }
+sc-consensus-babe = { path = "../substrate/client/consensus/babe" }
+sp-consensus-babe = { path = "../substrate/primitives/consensus/babe" }
+sp-consensus = { path = "../substrate/primitives/consensus/common" }
+sc-consensus = { path = "../substrate/client/consensus/common" }
+sc-finality-grandpa = { path = "../substrate/client/finality-grandpa" }
+sp-finality-grandpa = { path = "../substrate/primitives/finality-grandpa" }
+sc-client-api = { path = "../substrate/client/api" }
+sp-runtime = { path = "../substrate/primitives/runtime" }
+sp-offchain = { path = "../substrate/primitives/offchain" }
+sp-session = { path = "../substrate/primitives/session" }
+sp-authority-discovery = { path = "../substrate/primitives/authority-discovery" }
+sp-storage = { path = "../substrate/primitives/storage" }
+sc-chain-spec = { path = "../substrate/client/chain-spec" }
+sc-network = { path = "../substrate/client/network" }
+sc-authority-discovery = { path = "../substrate/client/authority-discovery" }
+# sc-finality-grandpa-warp-sync = { path = "../substrate/client/finality-grandpa/warp-sync" }
+sc-consensus-slots = { path = "../substrate/client/consensus/slots" }
+sp-trie = { path = "../substrate/primitives/trie" }
+sp-timestamp = { path = "../substrate/primitives/timestamp" }
+sp-authorship = { path = "../substrate/primitives/authorship" }
+sc-consensus-uncles = { path = "../substrate/client/consensus/uncles" }
+sc-sync-state-rpc = { path = "../substrate/client/sync-state-rpc" }
+pallet-staking = { path = "../substrate/frame/staking" }
 
 jsonrpc-core = "15.1.0"
-sc-rpc = { git = "https://github.com/paritytech/substrate" }
-sp-api = { git = "https://github.com/paritytech/substrate" }
-sc-rpc-api = { git = "https://github.com/paritytech/substrate" }
-sp-blockchain = { git = "https://github.com/paritytech/substrate" }
-sp-block-builder = { git = "https://github.com/paritytech/substrate" }
-sc-basic-authorship = { git = "https://github.com/paritytech/substrate" }
-substrate-frame-rpc-system = { git = "https://github.com/paritytech/substrate" }
-pallet-transaction-payment-rpc = { git = "https://github.com/paritytech/substrate" }
-frame-system-rpc-runtime-api = { git = "https://github.com/paritytech/substrate" }
-pallet-transaction-payment-rpc-runtime-api = { git = "https://github.com/paritytech/substrate" }
-frame-benchmarking = { git = "https://github.com/paritytech/substrate" }
-substrate-prometheus-endpoint = { git = "https://github.com/paritytech/substrate" }
-pallet-contracts-rpc-runtime-api = { git = "https://github.com/paritytech/substrate" }
+sc-rpc = { path = "../substrate/client/rpc" }
+sp-api = { path = "../substrate/primitives/api" }
+sc-rpc-api = { path = "../substrate/client/rpc-api" }
+sp-blockchain = { path = "../substrate/primitives/blockchain" }
+sp-block-builder = { path = "../substrate/primitives/block-builder" }
+sc-basic-authorship = { path = "../substrate/client/basic-authorship" }
+substrate-frame-rpc-system = { path = "../substrate/utils/frame/rpc/system" }
+pallet-transaction-payment-rpc = { path = "../substrate/frame/transaction-payment/rpc" }
+frame-system-rpc-runtime-api = { path = "../substrate/frame/system/rpc/runtime-api" }
+pallet-transaction-payment-rpc-runtime-api = { path = "../substrate/frame/transaction-payment/rpc/runtime-api" }
+frame-benchmarking = { path = "../substrate/frame/benchmarking" }
+substrate-prometheus-endpoint = { path = "../substrate/utils/prometheus" }
+pallet-contracts-rpc-runtime-api = { path = "../substrate/frame/contracts/rpc/runtime-api" }
 
 futures = "0.3.12"
 thiserror = "1.0.23"
